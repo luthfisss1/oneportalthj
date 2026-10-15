@@ -64,8 +64,9 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Store / Cabang</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Store / Cabang <span class="text-rose-400">*</span></label>
                         <select id="store" onchange="handleStoreChange()" required class="form-input-field w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            <option value="" disabled selected>-- Pilih Store --</option>
                             <option value="XKLR">XKLR</option>
                             <option value="XCMG">XCMG</option>
                             <option value="XCIH">XCIH</option>
@@ -73,19 +74,21 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Tanggal</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Tanggal <span class="text-rose-400">*</span></label>
                         <input type="date" id="tanggal" required class="form-input-field w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Kasir</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Kasir <span class="text-rose-400">*</span></label>
                         <select id="kasir" required class="form-input-field w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            <option value="" disabled selected>-- Pilih Store Terlebih Dahulu --</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Main Person (MP)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Main Person (MP) <span class="text-rose-400">*</span></label>
                         <select id="mainPerson" required class="form-input-field w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            <option value="" disabled selected>-- Pilih Store Terlebih Dahulu --</option>
                         </select>
                     </div>
                 </div>
@@ -104,7 +107,7 @@
                     </div>
 
                     <div id="itemsHeader" class="hidden md:grid md:grid-cols-12 gap-2 bg-slate-900/80 text-xs font-semibold uppercase text-slate-400 p-3 rounded-t-xl border border-slate-700 border-b-0">
-                        <div class="col-span-3">SKU (Angka)</div>
+                        <div class="col-span-3">SKU (Masukan dengan sesuai untuk validasi)</div>
                         <div class="col-span-2">Value (Rp)</div>
                         <div class="col-span-1">Qty</div>
                         <div class="col-span-2">Total</div>
@@ -167,36 +170,26 @@
             "HEMAT MAT MAT",
             "HEMAT MANTUL",
             "SERBA 5 RIBU",
+            "PWP BERLAKU",
             "DPI/UPSELLING MENDEKATI EXP",
             "REGULAR"
         ];
 
-        // LOGIKA JAM DAN TANGGAL REALTIME
         function updateRealtimeClock() {
             const now = new Date();
-            
-            const optionsDate = { 
-                weekday: 'short', 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
-            };
+            const optionsDate = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
             const dateStr = now.toLocaleDateString('id-ID', optionsDate);
-            
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            const timeStr = `${hours}:${minutes}:${seconds} WIB`;
-
-            document.getElementById('realtimeDateTime').textContent = `${dateStr} - ${timeStr}`;
+            document.getElementById('realtimeDateTime').textContent = `${dateStr} - ${hours}:${minutes}:${seconds} WIB`;
         }
 
         setInterval(updateRealtimeClock, 1000);
 
         function toggleTheme() {
             const html = document.documentElement;
-            const isDark = html.classList.contains('dark');
-            if (isDark) {
+            if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 localStorage.setItem('theme_mode', 'light');
             } else {
@@ -216,7 +209,6 @@
                 themeIcon.setAttribute('data-lucide', 'sun');
                 themeLabel.textContent = 'Light Mode';
                 document.body.className = "bg-slate-900 text-slate-100 min-h-screen p-3 md:p-8 font-sans transition-colors duration-300";
-                
                 document.querySelectorAll('.form-input-field').forEach(el => {
                     el.classList.add('bg-slate-900', 'text-slate-100', 'border-slate-700');
                     el.classList.remove('bg-white', 'text-slate-800', 'border-slate-300');
@@ -225,7 +217,6 @@
                 themeIcon.setAttribute('data-lucide', 'moon');
                 themeLabel.textContent = 'Dark Mode';
                 document.body.className = "bg-slate-100 text-slate-800 min-h-screen p-3 md:p-8 font-sans transition-colors duration-300";
-
                 document.querySelectorAll('.form-input-field').forEach(el => {
                     el.classList.remove('bg-slate-900', 'text-slate-100', 'border-slate-700');
                     el.classList.add('bg-white', 'text-slate-800', 'border-slate-300');
@@ -249,11 +240,13 @@
 
             const kasirSelect = document.getElementById('kasir');
             const listKasir = kasirData[selectedStore] || [];
-            kasirSelect.innerHTML = listKasir.map(nama => `<option value="${nama}">${nama}</option>`).join('');
+            kasirSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kasir --</option>' + 
+                listKasir.map(nama => `<option value="${nama}">${nama}</option>`).join('');
 
             const mpSelect = document.getElementById('mainPerson');
             const listMP = mpData[selectedStore] || [];
-            mpSelect.innerHTML = listMP.map(nama => `<option value="${nama}">${nama}</option>`).join('');
+            mpSelect.innerHTML = '<option value="" disabled selected>-- Pilih MP --</option>' + 
+                listMP.map(nama => `<option value="${nama}">${nama}</option>`).join('');
         }
 
         document.getElementById('tanggal').valueAsDate = new Date();
@@ -273,17 +266,17 @@
             card.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center text-xs">
                     <div class="md:col-span-3">
-                        <label class="block md:hidden text-[10px] uppercase text-slate-400 font-semibold mb-1">SKU (Angka)</label>
+                        <label class="block md:hidden text-[10px] uppercase text-slate-400 font-semibold mb-1">SKU (Masukan dengan sesuai untuk validasi)</label>
                         <input type="text" inputmode="numeric" pattern="[0-9]*" required placeholder="Masukan SKU" value="${sku}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="sku-input form-input-field w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
                     </div>
                     <div class="grid grid-cols-2 md:contents gap-2">
                         <div class="md:col-span-2">
                             <label class="block md:hidden text-[10px] uppercase text-slate-400 font-semibold mb-1">Value (Rp)</label>
-                            <input type="number" required min="0" placeholder="0" value="${value}" oninput="calculateTotals()" class="value-input form-input-field w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                            <input type="number" required min="1" placeholder="0" value="${value}" oninput="calculateTotals()" class="value-input form-input-field w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
                         </div>
                         <div class="md:col-span-1">
                             <label class="block md:hidden text-[10px] uppercase text-slate-400 font-semibold mb-1">Qty</label>
-                            <input type="number" required min="1" placeholder="0" value="${qty}" oninput="calculateTotals()" class="qty-input form-input-field w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                            <input type="number" required min="1" max="9" placeholder="0" value="${qty}" oninput="if(this.value.length > 1) this.value = this.value.slice(0, 1); calculateTotals()" class="qty-input form-input-field w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
                         </div>
                     </div>
                     <div class="md:col-span-2 flex md:block items-center justify-between border-t md:border-0 border-slate-800 pt-1.5 md:pt-0">
@@ -358,30 +351,69 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
         }
 
-        function getFormData() {
+        function validateFormData() {
+            const store = document.getElementById('store').value;
+            const tanggal = document.getElementById('tanggal').value;
+            const kasir = document.getElementById('kasir').value;
+            const mainPerson = document.getElementById('mainPerson').value;
+
+            if (!store) { alert("Harap pilih Store / Cabang terlebih dahulu!"); return null; }
+            if (!tanggal) { alert("Harap isi Tanggal transaksi!"); return null; }
+            if (!kasir) { alert("Harap pilih Kasir terlebih dahulu!"); return null; }
+            if (!mainPerson) { alert("Harap pilih Main Person (MP) terlebih dahulu!"); return null; }
+
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length === 0) { alert("Harap tambahkan setidaknya 1 item produk!"); return null; }
+
             const items = [];
             let grandTotal = 0;
-            document.querySelectorAll('.item-row').forEach(row => {
+            let isValid = true;
+
+            rows.forEach((row, idx) => {
+                if (!isValid) return;
+
                 const sku = row.querySelector('.sku-input').value.trim();
                 const value = parseFloat(row.querySelector('.value-input').value) || 0;
                 const qty = parseInt(row.querySelector('.qty-input').value) || 0;
                 const keterangan = row.querySelector('.keterangan-input').value;
-                const total = value * qty;
                 const pointText = row.querySelector('.row-point').textContent;
                 const point = parseFloat(pointText) || 0;
-                
-                if (sku) {
-                    items.push({ sku, value, qty, total, keterangan, point });
-                    grandTotal += total;
+
+                if (!sku) {
+                    alert(`Item ke-${idx + 1}: SKU wajib diisi!`);
+                    isValid = false;
+                    return;
                 }
+                if (value <= 0) {
+                    alert(`Item ke-${idx + 1}: Value (Rp) harus lebih besar dari 0!`);
+                    isValid = false;
+                    return;
+                }
+                if (qty <= 0 || qty > 9) {
+                    alert(`Item ke-${idx + 1}: Qty harus diisi 1 digit (1-9)!`);
+                    isValid = false;
+                    return;
+                }
+                if (!keterangan) {
+                    alert(`Item ke-${idx + 1}: Harap pilih Keterangan produk!`);
+                    isValid = false;
+                    return;
+                }
+
+                const total = value * qty;
+                items.push({ sku, value, qty, total, keterangan, point });
+                grandTotal += total;
             });
+
+            if (!isValid) return null;
+
             return {
                 id: 'TX-' + Date.now(),
                 timestamp: new Date().toLocaleString('id-ID'),
-                store: document.getElementById('store').value,
-                tanggal: document.getElementById('tanggal').value,
-                kasir: document.getElementById('kasir').value,
-                mainPerson: document.getElementById('mainPerson').value,
+                store,
+                tanggal,
+                kasir,
+                mainPerson,
                 items,
                 grandTotal
             };
@@ -389,12 +421,11 @@
 
         function handleSaveToSystem(e) {
             e.preventDefault();
-            const data = getFormData();
-            if (data.items.length === 0) {
-                alert("Harap isi setidaknya 1 item produk!");
-                return;
-            }
-            if (!confirm("Apakah data sudah sesuai?")) return;
+            
+            const data = validateFormData();
+            if (!data) return;
+
+            if (!confirm("Apakah seluruh data transaksi sudah sesuai?")) return;
 
             const btn = document.getElementById('btnSubmit');
             const status = document.getElementById('systemStatus');
@@ -474,7 +505,6 @@
         window.onload = () => {
             initTheme();
             updateRealtimeClock();
-            handleStoreChange();
             addItemRow('', '', '', '');
             renderSystemLogs();
             lucide.createIcons();
