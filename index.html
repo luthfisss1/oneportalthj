@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Input Transaksi Multi-Channel</title>
+    <title>SISTEM TERPADU XKLR XCMG XCIH</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,48 +19,285 @@
                 font-size: 16px !important;
             }
         }
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --input-bg: #334155;
+            --border-color: #475569;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-amber: #f59e0b;
+            --accent-amber-hover: #d97706;
+            --danger-color: #ef4444;
+        }
+
+        .absensi-wrapper {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+            border-radius: 1.25rem;
+        }
+        .app-container { width: 100%; max-width: 520px; background-color: var(--card-bg); border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .landing-screen { display: flex; flex-direction: column; gap: 24px; text-align: center; padding: 10px 0; }
+        .landing-title { font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; }
+        .mode-cards-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
+        .mode-card { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .mode-card.checkin { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(59, 130, 246, 0.4); }
+        .mode-card.checkin:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(30, 41, 59, 0.9)); border-color: var(--accent-blue); transform: translateY(-2px); }
+        .mode-card.checkout { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(245, 158, 11, 0.4); }
+        .mode-card.checkout:hover { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(30, 41, 59, 0.9)); border-color: var(--accent-amber); transform: translateY(-2px); }
+        .mode-card-info h2 { font-size: 1.15rem; font-weight: 700; }
+        .mode-card-info p { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+        .mode-card-icon { font-size: 2rem; }
+        .form-screen { display: flex; flex-direction: column; gap: 16px; }
+        .form-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; }
+        .btn-back { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .btn-back:hover { color: var(--text-main); border-color: var(--text-muted); }
+        .badge-mode { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+        .badge-mode.checkin { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.5); }
+        .badge-mode.checkout { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+        .label { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; }
+        .label span.req { color: var(--danger-color); }
+        .select-wrapper { position: relative; width: 100%; }
+        .custom-select, .custom-input { width: 100%; padding: 14px 16px; background-color: var(--input-bg); border: 1.5px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s; appearance: none; }
+        .custom-select { cursor: pointer; padding-right: 40px; }
+        .select-wrapper::after { content: "▼"; font-size: 0.75rem; color: var(--text-muted); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+        .custom-select:focus, .custom-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); }
+        .custom-select:disabled { opacity: 0.5; cursor: not-allowed; background-color: #1e293b; }
+        .photo-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-action { background-color: var(--input-bg); border: 1px dashed var(--border-color); color: var(--text-main); padding: 12px; border-radius: 10px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .photo-preview-container { margin-top: 8px; display: none; }
+        .photo-preview-container img { width: 100%; border-radius: 12px; border: 1px solid var(--border-color); }
+        .btn-submit { background-color: var(--accent-blue); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-submit:hover { background-color: var(--accent-blue-hover); }
+        .btn-submit.checkout-mode { background-color: var(--accent-amber); }
+        .btn-submit.checkout-mode:hover { background-color: var(--accent-amber-hover); }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--card-bg); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--border-color); width: 90%; max-width: 400px; }
+        .modal-item { padding: 16px; background: var(--input-bg); border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .modal-item:hover { background: var(--border-color); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-3 md:p-8 font-sans transition-colors duration-300">
 
     <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
         
-        <!-- Header Utama -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl transition-colors duration-300" id="mainHeader">
+        <!-- Header Utama Dashboard -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl transition-colors duration-300">
             <div>
-                <h1 id="ui_main_title" class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-                    <i data-lucide="server" class="text-indigo-400"></i> UPSELLING AREA XKLR XCMG XCIH
+                <h1 id="ui_main_title" class="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2 tracking-wide">
+                    <i data-lucide="layout-dashboard" class="text-indigo-400 w-7 h-7"></i> SISTEM TERPADU OPERASIONAL
                 </h1>
-                <p id="ui_main_subtitle" class="text-slate-400 text-xs md:text-sm mt-1">WEBSITE INI DIBUAT UNTUK MENGUKUR DAN MONITORING UPSELLING</p>
+                <p id="ui_main_subtitle" class="text-slate-400 text-xs md:text-sm mt-1 font-medium">AREA XKLR • XCMG • XCIH</p>
             </div>
             
             <div class="flex items-center gap-2 md:gap-3 flex-wrap">
-                <!-- Widget Jam & Tanggal Realtime -->
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
+                <button onclick="navigateTo('home')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 active:scale-95">
+                    <i data-lucide="home" class="w-4 h-4 text-indigo-400"></i> BERANDA
+                </button>
+
+                <div class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
                     <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
                     <span id="realtimeDateTime">Loading...</span>
                 </div>
 
-                <!-- Tombol Mode Terang / Gelap (Light / Dark Mode) -->
-                <button type="button" onclick="toggleTheme()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 dark:bg-slate-700 dark:text-amber-400 dark:hover:bg-slate-600 border border-amber-500/30 dark:border-slate-600 transition active:scale-95">
+                <button type="button" onclick="toggleTheme()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 dark:bg-slate-700 dark:text-amber-400 dark:hover:bg-slate-600 border border-amber-500/30 dark:border-slate-600 transition active:scale-95">
                     <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
                     <span id="themeLabel">Light Mode</span>
                 </button>
-
-                <span id="systemStatus" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistem Ready
-                </span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            
-            <!-- Left Panel: Form Input -->
-            <form id="txForm" onsubmit="handleSaveToSystem(event)" class="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-5 transition-colors duration-300">
-                
-                <h2 id="ui_form_title" class="text-base md:text-lg font-semibold text-slate-200 flex items-center gap-2 border-b border-slate-700/60 pb-3">
-                    <i data-lucide="file-plus" class="text-indigo-400 w-5 h-5"></i> Form Transaksi Baru
+        <!-- DASHBOARD MENU -->
+        <div id="pageHome" class="space-y-6">
+            <div class="text-center py-4">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-amber-400 uppercase">
+                    Pilih Menu Layanan Operasional
                 </h2>
+                <p class="text-slate-400 text-xs md:text-sm mt-1">Silakan pilih salah satu menu di bawah ini untuk memulai transaksi atau pencatatan</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <!-- 1. ABSENSI -->
+                <div onclick="navigateTo('absensi')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="user-check" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">AKTIF</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors uppercase">1. ABSENSI</h3>
+                    <p class="text-slate-400 text-xs mt-2">Form Check In & Check Out hadir toko dengan verifikasi foto & lokasi GPS.</p>
+                </div>
+
+                <!-- 2. UPSELLING (VERIFIKASI PASSWORD) -->
+                <div onclick="openUpsellingWithAuth()" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-indigo-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="lock" class="w-8 h-8 text-indigo-400"></i>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20 flex items-center gap-1">
+                            <i data-lucide="key-round" class="w-3 h-3"></i> TERKUNCI
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors uppercase flex items-center gap-2">
+                        2. UPSELLING
+                    </h3>
+                    <p class="text-slate-400 text-xs mt-2">Input transaksi upselling item produk (Memerlukan verifikasi password akses).</p>
+                </div>
+
+                <!-- 3. LEADERBOARD -->
+                <div onclick="navigateTo('leaderboard')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="trophy" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">LEADERBOARD</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors uppercase">3. LEADERBOARD UPSELLING</h3>
+                    <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING (Baris 5-Selesai).</p>
+                </div>
+
+                <!-- 4. EXPIRED DATA -->
+                <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
+                            <i data-lucide="calendar-x" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">4. EXPIRED DATA</h3>
+                    <p class="text-slate-500 text-xs mt-2">Modul pendataan dan pengawasan barang yang mendekati tanggal kadaluarsa toko.</p>
+                </div>
+
+                <!-- 5. SHORTCUT LAINNYA -->
+                <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
+                            <i data-lucide="layout-grid" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">5. SHORTCUT LAINNYA</h3>
+                    <p class="text-slate-500 text-xs mt-2">Akses cepat menu internal operasional tambahan lainnya di masa mendatang.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABSENSI PAGE -->
+        <div id="pageAbsensi" class="absensi-wrapper hidden">
+            <div class="app-container">
+                <div id="landingScreen" class="landing-screen">
+                    <div><h1 class="landing-title">ABSENSI XKLR XCMG XCIH V.01</h1></div>
+                    <div class="mode-cards-container">
+                        <div class="mode-card checkin" onclick="openAttendanceForm('CHECKIN')">
+                            <div class="mode-card-info"><h2>ABSENSI CHECK IN</h2><p>Masuk kerja / Hadir di toko</p></div>
+                            <div class="mode-card-icon">📥</div>
+                        </div>
+                        <div class="mode-card checkout" onclick="openAttendanceForm('CHECKOUT')">
+                            <div class="mode-card-info"><h2>ABSENSI CHECK OUT</h2><p>Selesai kerja / Pulang</p></div>
+                            <div class="mode-card-icon">📤</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="formScreen" class="form-screen hidden">
+                    <div class="form-header">
+                        <button type="button" class="btn-back" onclick="backToLanding()">← Kembali</button>
+                        <span id="badgeMode" class="badge-mode checkin">CHECK IN</span>
+                    </div>
+
+                    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onSuccessSubmit();}"></iframe>
+
+                    <form id="attendanceForm" action="https://script.google.com/macros/s/AKfycbzsln4Dmey78qmkYTwoGcXeQFY6K-QxE_WmzcfBaNQxeZ3JRfEaCHKvXXkpEcgbTLmhGw/exec" method="POST" target="hidden_iframe" onsubmit="handleSubmit(event)">
+                        <input type="hidden" name="toko" id="hiddenToko">
+                        <input type="hidden" name="nama" id="hiddenNama">
+                        <input type="hidden" name="datetime" id="hiddenDatetime">
+                        <input type="hidden" name="kehadiran" id="hiddenKehadiran">
+                        <input type="hidden" name="location" id="hiddenLocation">
+                        <input type="hidden" name="photo" id="hiddenPhoto">
+                        <input type="hidden" name="remarks" id="hiddenRemarks">
+
+                        <div class="form-group">
+                            <label class="label"><span class="req">*</span> Store (Nama Toko)</label>
+                            <div class="select-wrapper">
+                                <select id="selectToko" class="custom-select" onchange="onTokoChanged()" required>
+                                    <option value="">Pilih Toko...</option>
+                                    <option value="XKLR">XKLR</option>
+                                    <option value="XCIH">XCIH</option>
+                                    <option value="XCMG">XCMG</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label"><span class="req">*</span> Nama Karyawan</label>
+                            <div class="select-wrapper">
+                                <select id="selectNama" class="custom-select" disabled required>
+                                    <option value="">Pilih Toko Terlebih Dahulu...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">📅 Tanggal & Waktu (Otomatis)</label>
+                            <input type="text" id="inputDateTime" class="custom-input" style="font-weight: 600; color: #a5b4fc;" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label"><span class="req">*</span> Status Kehadiran</label>
+                            <div class="custom-select" id="selectKehadiran" onclick="openKehadiranModal()">On Duty / Hadir</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label"><span class="req">*</span> GPS Location</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="inputLocation" class="custom-input" placeholder="Mendapatkan lokasi..." readonly required>
+                                <button type="button" class="btn-action" style="width: auto;" onclick="getGPSLocation()">📍 Refres</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label"><span class="req">*</span> Bukti Foto (Timestamp Otomatis)</label>
+                            <div class="photo-actions">
+                                <button type="button" class="btn-action" onclick="triggerCamera()">📷 Kamera</button>
+                                <button type="button" class="btn-action" onclick="triggerGallery()">🖼️ Galeri</button>
+                            </div>
+                            <input type="file" id="fileCamera" accept="image/*" capture="environment" class="hidden" onchange="processImage(this)">
+                            <input type="file" id="fileGallery" accept="image/*" class="hidden" onchange="processImage(this)">
+                            <div class="photo-preview-container" id="previewBox">
+                                <img id="imgPreview" src="" alt="Preview Bukti Foto">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Remarks / Catatan (Opsional)</label>
+                            <input type="text" id="inputRemarks" class="custom-input" placeholder="Ketik catatan di sini (opsional)">
+                        </div>
+
+                        <button type="submit" id="btnSubmitAbsensi" class="btn-submit" style="width:100%;">Kirim Absensi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPSELLING PAGE -->
+        <div id="pageUpselling" class="hidden">
+            <form id="txForm" onsubmit="handleSaveToSystem(event)" class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-5 transition-colors duration-300">
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                    <h2 class="text-base md:text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="file-plus" class="text-indigo-400 w-5 h-5"></i> Form Transaksi Baru
+                    </h2>
+                    <span id="systemStatus" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistem Ready
+                    </span>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div>
@@ -95,7 +332,6 @@
 
                 <hr class="border-slate-700/60">
 
-                <!-- Dynamic Items Section -->
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-sm md:text-md font-semibold text-slate-200 flex items-center gap-2">
@@ -116,8 +352,7 @@
                         <div class="col-span-1 text-center">Aksi</div>
                     </div>
 
-                    <div id="itemsContainer" class="space-y-3 md:space-y-0 md:divide-y md:divide-slate-700/50 md:border md:border-slate-700 md:rounded-b-xl md:bg-slate-800/50">
-                    </div>
+                    <div id="itemsContainer" class="space-y-3 md:space-y-0 md:divide-y md:divide-slate-700/50 md:border md:border-slate-700 md:rounded-b-xl md:bg-slate-800/50"></div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
@@ -130,50 +365,287 @@
                         <i data-lucide="upload-cloud" class="w-5 h-5"></i> <span>UPLOAD DATA</span>
                     </button>
                 </div>
-
             </form>
+        </div>
 
-            <!-- Right Panel: Database Spreadsheet -->
-            <div id="dbPanel" class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-4 flex flex-col h-full transition-colors duration-300">
-                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
-                    <h2 class="text-base md:text-lg font-semibold text-slate-200 flex items-center gap-2">
-                        <i data-lucide="hard-drive" class="text-emerald-400 w-5 h-5"></i> DATABASE & RANKING AUTO UPDATE
-                    </h2>
-                    <a href="https://docs.google.com/spreadsheets/d/1oD0X8tWrcz4L1ZiwqwRO2vvnexT9IC_QU7Cmdgv8VpA/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-medium px-2.5 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5">
-                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> <span>Buka Sheets</span>
-                    </a>
+        <!-- LEADERBOARD PAGE -->
+        <div id="pageLeaderboard" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+                    <div>
+                        <h2 class="text-base md:text-lg font-bold text-amber-400 flex items-center gap-2">
+                            <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i> LEADERBOARD UPSELLING (SHEET RANKING)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Menampilkan data peringkat dari Sheet "RANKING" secara langsung</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="fetchLeaderboardData()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-medium px-3 py-1.5 rounded-lg border border-amber-500/30 transition flex items-center gap-1.5 active:scale-95">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refres Data
+                        </button>
+                        <a href="https://docs.google.com/spreadsheets/d/1-noiw9uDeq_SWAfvU1Vavbo5ctWCkwDR_zqMKoK_C2M/edit?gid=1377147968#gid=1377147968" target="_blank" rel="noopener noreferrer" class="text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-medium px-3 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Buka Google Sheets
+                        </a>
+                    </div>
                 </div>
-                <p class="text-xs text-slate-400">VISITOR DAPAT MELIHAT RIWAYAT TRANSAKSI YANG TELAH DIUPLOAD</p>
-                <div id="systemLogs" class="space-y-3 flex-1 overflow-y-auto max-h-[400px] md:max-h-[500px] pr-1"></div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-200">
+                        <thead id="leaderboardThead" class="bg-slate-900/90 text-amber-300 font-bold uppercase tracking-wider border-b border-slate-700">
+                            <tr>
+                                <th class="p-3 text-center">PERINGKAT</th>
+                                <th class="p-3">NAMA KARYAWAN</th>
+                                <th class="p-3 text-right">TOTAL POIN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTbody" class="divide-y divide-slate-700/60 bg-slate-800/50">
+                            <tr>
+                                <td class="p-6 text-center text-slate-400" colspan="10">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin text-amber-400"></i>
+                                        <span>Mengambil data ranking dari Spreadsheet...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
+            <div id="dbPanel" class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-4 flex flex-col transition-colors duration-300">
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                    <h2 class="text-base md:text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="hard-drive" class="text-emerald-400 w-5 h-5"></i> HISTORI TRANSAKSI SEMENTARA
+                    </h2>
+                </div>
+                <p class="text-xs text-slate-400">RIWAYAT TRANSAKSI LOKAL SEMENTARA SEBELUM SYNCHRONIZE</p>
+                <div id="systemLogs" class="space-y-3 flex-1 overflow-y-auto max-h-[350px] pr-1"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Status Kehadiran Absensi -->
+    <div id="modalKehadiran" class="modal" onclick="closeKehadiranModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="font-weight:700; color:#fff;">Pilih Status Kehadiran</h3>
+            <div id="modalKehadiranItems"></div>
         </div>
     </div>
 
-    <!-- Script Logic -->
+    <!-- Modal Password Auth Upselling (Tanpa Teks Petunjuk Password) -->
+    <div id="modalPassword" class="modal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4 text-indigo-400"></i> Verifikasi Keamanan
+                </h3>
+                <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <p class="text-xs text-slate-300">Masukkan Password untuk mengakses menu **2. UPSELLING**:</p>
+            <input type="password" id="inputAuthPassword" class="custom-input" placeholder="Masukkan Password" onkeypress="handlePassKeyPress(event)">
+            <p id="passwordErrorMsg" class="text-xs text-rose-400 hidden">Password salah! Silakan coba lagi.</p>
+            <div class="flex justify-end gap-2 mt-2">
+                <button type="button" onclick="closePasswordModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-700 text-slate-300 hover:bg-slate-600">Batal</button>
+                <button type="button" onclick="verifyUpsellingPassword()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="watermarkCanvas" class="hidden"></canvas>
+
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrekPIstDyuLsMYeBqIUNv-HJC_rhjgfpKpcMmglj3djh2QusDovcWiJl3FkTXlT9G/exec";
+        // LOGIKA KUNCI PASSWORD UPSELLING
+        const UPSELLING_PASSWORD = "MP1";
 
-        const kasirData = {
-            "XKLR": ["SALMA KHOERUNNISA", "RIO RIZKI FEBRIAN", "FAIZAL YOPA FIRDAUS"],
-            "XCMG": ["REGINA NOVIANDA", "PAIZAL RAHMAT WAHYUDIN", "HASRUL NURUL JAMAN FARID"],
-            "XCIH": ["TENDI", "RIO RIZALDI", "MIFTAHUL RIZKY", "FIKRI FEBRIAN"]
+        function openUpsellingWithAuth() {
+            document.getElementById('inputAuthPassword').value = '';
+            document.getElementById('passwordErrorMsg').classList.add('hidden');
+            document.getElementById('modalPassword').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('inputAuthPassword').focus();
+            }, 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('modalPassword').style.display = 'none';
+        }
+
+        function handlePassKeyPress(e) {
+            if (e.key === 'Enter') {
+                verifyUpsellingPassword();
+            }
+        }
+
+        function verifyUpsellingPassword() {
+            const inputVal = document.getElementById('inputAuthPassword').value.trim();
+            if (inputVal === UPSELLING_PASSWORD) {
+                closePasswordModal();
+                navigateTo('upselling');
+            } else {
+                document.getElementById('passwordErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function navigateTo(targetPage) {
+            const pageHome = document.getElementById('pageHome');
+            const pageAbsensi = document.getElementById('pageAbsensi');
+            const pageUpselling = document.getElementById('pageUpselling');
+            const pageLeaderboard = document.getElementById('pageLeaderboard');
+
+            pageHome.classList.add('hidden');
+            pageAbsensi.classList.add('hidden');
+            pageUpselling.classList.add('hidden');
+            pageLeaderboard.classList.add('hidden');
+
+            if (targetPage === 'absensi') {
+                pageAbsensi.classList.remove('hidden');
+            } else if (targetPage === 'upselling') {
+                pageUpselling.classList.remove('hidden');
+            } else if (targetPage === 'leaderboard') {
+                pageLeaderboard.classList.remove('hidden');
+                fetchLeaderboardData();
+                renderSystemLogs();
+            } else {
+                pageHome.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // INTEGRASI DENGAN PROXY CORS BYPASS UNTUK BACA CSV LIVE
+        const RAW_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAWawcz6sSPEvuwIbPOxvYKAxII8w_DQles8X8fBUzihige3PJPO6KMA8TK4yRX6bl_bCE7pBBYP5L/pub?gid=1377147968&single=true&output=csv";
+        const PROXY_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW_CSV_URL);
+        const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuuHuWThmbUBDgEpoX5LGmTCn0F-iOyoNgkAgOTrLq7GtWqa3TV6TIIedcBiOA9znDTA/exec";
+
+        function parseCSV(text) {
+            const lines = [];
+            let row = [];
+            let cur = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                const next = text[i+1];
+                if (c === '"') {
+                    if (inQuotes && next === '"') { cur += '"'; i++; }
+                    else { inQuotes = !inQuotes; }
+                } else if (c === ',' && !inQuotes) {
+                    row.push(cur.trim()); cur = '';
+                } else if ((c === '\r' || c === '\n') && !inQuotes) {
+                    if (c === '\r' && next === '\n') { i++; }
+                    row.push(cur.trim());
+                    if (row.some(cell => cell !== '')) lines.push(row);
+                    row = []; cur = '';
+                } else {
+                    cur += c;
+                }
+            }
+            if (cur !== '' || row.length > 0) {
+                row.push(cur.trim());
+                if (row.some(cell => cell !== '')) lines.push(row);
+            }
+            return lines;
+        }
+
+        function fetchLeaderboardData() {
+            const tbody = document.getElementById('leaderboardTbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td class="p-6 text-center text-slate-400" colspan="10">
+                        <div class="flex items-center justify-center gap-2">
+                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin text-amber-400"></i>
+                            <span>Memuat data leaderboard dari Google Sheets...</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            lucide.createIcons();
+
+            fetch(`${PROXY_URL}&t=${Date.now()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Gagal mengambil file CSV Publish");
+                    return response.text();
+                })
+                .then(csvText => {
+                    const parsedData = parseCSV(csvText);
+                    renderLeaderboardTable(parsedData);
+                })
+                .catch(err => {
+                    console.error("CORS Proxy error, mencoba metode fallback Apps Script...", err);
+                    const script = document.createElement('script');
+                    script.src = `${APP_SCRIPT_URL}?action=getRanking&callback=handleAppsScriptData&t=${Date.now()}`;
+                    document.body.appendChild(script);
+                });
+        }
+
+        window.handleAppsScriptData = function(data) {
+            if (Array.isArray(data)) {
+                renderLeaderboardTable(data);
+            }
         };
 
-        const mpData = {
-            "XKLR": ["SENDI NUGRAHA", "RATIH OKTAVIANI", "KAMALUDIN"],
-            "XCMG": ["RIDHAN", "NUR ALIM", "JAJANG NURJAMAN", "DIKI LUKMAN HAKIM"],
-            "XCIH": ["NINA", "NUR ALIM", "GALANG TAKBIR AKBARI", "TENDY"]
-        };
+        function renderLeaderboardTable(data) {
+            const tbody = document.getElementById('leaderboardTbody');
+            const thead = document.getElementById('leaderboardThead');
 
-        const keteranganData = [
-            "HEMAT MAT MAT",
-            "HEMAT MANTUL",
-            "SERBA 5 RIBU",
-            "PWP BERLAKU",
-            "DPI/UPSELLING MENDEKATI EXP",
-            "REGULAR"
-        ];
+            if (!data || !Array.isArray(data) || data.length < 5) {
+                tbody.innerHTML = `<tr><td class="p-6 text-center text-rose-400" colspan="10">Data di sheet RANKING tidak mencukupi atau format tidak sesuai.</td></tr>`;
+                return;
+            }
+
+            const dataRows = data.slice(4);
+            if (dataRows.length === 0) {
+                tbody.innerHTML = `<tr><td class="p-4 text-center text-slate-400" colspan="5">Belum ada data pada baris ke-5 ke bawah.</td></tr>`;
+                return;
+            }
+
+            thead.innerHTML = `
+                <tr>
+                    <th class="p-3 text-center">PERINGKAT</th>
+                    <th class="p-3">NAMA KARYAWAN</th>
+                    <th class="p-3 text-right">TOTAL POIN</th>
+                </tr>
+            `;
+
+            let tbodyHtml = "";
+            let rankCounter = 1;
+
+            dataRows.forEach(row => {
+                if (!Array.isArray(row)) return;
+
+                let hasData = row.some(cell => cell !== null && cell !== undefined && cell.toString().trim() !== "");
+                if (!hasData) return;
+
+                let bgRank = "";
+                if (rankCounter === 1) bgRank = "bg-amber-500/10 border-l-4 border-amber-400 font-semibold";
+                else if (rankCounter === 2) bgRank = "bg-slate-300/10 border-l-4 border-slate-300";
+                else if (rankCounter === 3) bgRank = "bg-amber-700/10 border-l-4 border-amber-600";
+
+                tbodyHtml += `<tr class="${bgRank} hover:bg-slate-700/40 transition">`;
+                
+                let rankLabel = rankCounter;
+                if (rankCounter === 1) rankLabel = '🥇 Juara 1';
+                else if (rankCounter === 2) rankLabel = '🥈 Juara 2';
+                else if (rankCounter === 3) rankLabel = '🥉 Juara 3';
+
+                tbodyHtml += `<td class="p-3 text-center font-bold text-amber-400">${rankLabel}</td>`;
+
+                row.forEach((cellVal) => {
+                    let val = (cellVal !== undefined && cellVal !== null && cellVal !== '') ? cellVal.toString().trim() : '-';
+
+                    if (!isNaN(val) && val.includes('.')) {
+                        let num = parseFloat(val);
+                        val = Number(num.toFixed(2)).toString();
+                    }
+
+                    const isNumeric = !isNaN(parseFloat(val)) && isFinite(val);
+                    tbodyHtml += `<td class="p-3 ${isNumeric ? 'text-right font-mono font-bold text-amber-300' : 'text-slate-200'}">${val}</td>`;
+                });
+
+                tbodyHtml += `</tr>`;
+                rankCounter++;
+            });
+
+            tbody.innerHTML = tbodyHtml || `<tr><td class="p-4 text-center text-slate-400" colspan="5">Tidak ada data untuk ditampilkan.</td></tr>`;
+        }
 
         function updateRealtimeClock() {
             const now = new Date();
@@ -235,9 +707,29 @@
             updateThemeUI();
         }
 
+        const kasirData = {
+            "XKLR": ["SALMA KHOERUNNISA", "RIO RIZKI FEBRIAN", "FAIZAL YOPA FIRDAUS"],
+            "XCMG": ["REGINA NOVIANDA", "PAIZAL RAHMAT WAHYUDIN", "HASRUL NURUL JAMAN FARID"],
+            "XCIH": ["TENDI", "RIO RIZALDI", "MIFTAHUL RIZKY", "FIKRI FEBRIAN"]
+        };
+
+        const mpData = {
+            "XKLR": ["SENDI NUGRAHA", "RATIH OKTAVIANI", "KAMALUDIN"],
+            "XCMG": ["RIDHAN", "NUR ALIM", "JAJANG NURJAMAN", "DIKI LUKMAN HAKIM"],
+            "XCIH": ["NINA", "NUR ALIM", "GALANG TAKBIR AKBARI", "TENDY"]
+        };
+
+        const keteranganData = [
+            "HEMAT MAT MAT",
+            "HEMAT MANTUL",
+            "SERBA 5 RIBU",
+            "PWP BERLAKU",
+            "DPI/UPSELLING MENDEKATI EXP",
+            "REGULAR"
+        ];
+
         function handleStoreChange() {
             const selectedStore = document.getElementById('store').value;
-
             const kasirSelect = document.getElementById('kasir');
             const listKasir = kasirData[selectedStore] || [];
             kasirSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kasir --</option>' + 
@@ -432,10 +924,10 @@
             btn.disabled = true;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Mengunggah...`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Uploading...`;
-            status.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+            status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
             lucide.createIcons();
 
-            fetch(GOOGLE_SHEETS_SCRIPT_URL, {
+            fetch(APP_SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -458,7 +950,7 @@
             btn.disabled = false;
             btn.innerHTML = `<i data-lucide="upload-cloud" class="w-5 h-5"></i> <span>UPLOAD DATA</span>`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sukses Upload!`;
-            status.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
             lucide.createIcons();
 
             renderSystemLogs();
@@ -472,6 +964,7 @@
 
         function renderSystemLogs() {
             const container = document.getElementById('systemLogs');
+            if(!container) return;
             const savedTx = JSON.parse(localStorage.getItem('system_transactions') || '[]');
             if (savedTx.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada transaksi tersimpan di sistem.</div>`;
@@ -492,8 +985,8 @@
                         <div class="border-t border-slate-800 pt-1 text-[10px] space-y-0.5">
                             ${tx.items.map(item => `
                                 <div class="flex justify-between text-slate-300">
-                                    <span>SKU: ${item.sku} (x${item.qty}) - <span class="text-amber-300 font-medium">\${item.keterangan}</span></span>
-                                    <span class="text-amber-400 font-mono font-bold">Poin: \${item.point !== undefined ? Number(item.point).toFixed(1) : '0.0'}</span>
+                                    <span>SKU: ${item.sku} (x${item.qty}) - <span class="text-amber-300 font-medium">${item.keterangan}</span></span>
+                                    <span class="text-amber-400 font-mono font-bold">Poin: ${item.point !== undefined ? Number(item.point).toFixed(1) : '0.0'}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -502,11 +995,221 @@
             `).join('');
         }
 
+        const karyawanMap = {
+            "XKLR": ["SALMA KHOERUNNISA", "RIO RIZKI PEBRIAN", "RATIH OCTAVIANI", "KAMALUDIN", "SENDI NUGRAHA"],
+            "XCMG": ["HASRUL NURUL JAMAN FARID", "REGINA NOFIANDA", "PAIZAL RAHMAT WAHYUDIN", "DIKI LUKMAN HAKIM", "JAJANG NURJAMAN", "RIDHAN", "NUR ALIM"],
+            "XCIH": ["MIFTAHUL RIZKY", "RIO RIZALDI", "GALANG TAKBIR AKBARI", "TENDI", "NINA"]
+        };
+
+        let currentMode = 'CHECKIN';
+        let selectedKehadiran = 'On Duty / Hadir';
+        let processedImageData = '';
+        let currentCoords = '';
+        let submitted = false;
+
+        function openAttendanceForm(mode) {
+            currentMode = mode;
+            document.getElementById('landingScreen').classList.add('hidden');
+            document.getElementById('formScreen').classList.remove('hidden');
+
+            const badge = document.getElementById('badgeMode');
+            const btnSubmit = document.getElementById('btnSubmitAbsensi');
+
+            if (mode === 'CHECKIN') {
+                badge.innerText = 'CHECK IN / MASUK';
+                badge.className = 'badge-mode checkin';
+                btnSubmit.innerText = 'Kirim Check In';
+                btnSubmit.classList.remove('checkout-mode');
+                selectedKehadiran = 'On Duty / Hadir';
+            } else {
+                badge.innerText = 'CHECK OUT / KELUAR';
+                badge.className = 'badge-mode checkout';
+                btnSubmit.innerText = 'Kirim Check Out';
+                btnSubmit.classList.add('checkout-mode');
+                selectedKehadiran = 'Pulang';
+            }
+            updateKehadiranUI();
+            getGPSLocation();
+        }
+
+        function backToLanding() {
+            document.getElementById('formScreen').classList.add('hidden');
+            document.getElementById('landingScreen').classList.remove('hidden');
+        }
+
+        function onTokoChanged() {
+            const tokoVal = document.getElementById('selectToko').value;
+            const selectNama = document.getElementById('selectNama');
+            
+            selectNama.innerHTML = '';
+            
+            if (!tokoVal || !karyawanMap[tokoVal]) {
+                selectNama.disabled = true;
+                selectNama.innerHTML = '<option value="">Pilih Toko Terlebih Dahulu...</option>';
+                return;
+            }
+
+            selectNama.disabled = false;
+            selectNama.innerHTML = '<option value="">Pilih Nama Karyawan...</option>';
+            
+            karyawanMap[tokoVal].forEach(nama => {
+                const opt = document.createElement('option');
+                opt.value = nama;
+                opt.textContent = nama;
+                selectNama.appendChild(opt);
+            });
+        }
+
+        function startClock() {
+            function updateTime() {
+                const now = new Date();
+                const inputDT = document.getElementById('inputDateTime');
+                if (inputDT) {
+                    inputDT.value = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function getGPSLocation() {
+            const inputLoc = document.getElementById('inputLocation');
+            if(!inputLoc) return;
+            inputLoc.value = "Mencari lokasi GPS...";
+
+            if (!navigator.geolocation) {
+                inputLoc.value = "GPS Tidak Didukung Browser";
+                currentCoords = "No GPS Support";
+                return;
+            }
+
+            const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    currentCoords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+                    inputLoc.value = currentCoords;
+                },
+                (err) => {
+                    navigator.geolocation.getCurrentPosition(
+                        (posFallback) => {
+                            currentCoords = `${posFallback.coords.latitude.toFixed(5)}, ${posFallback.coords.longitude.toFixed(5)}`;
+                            inputLoc.value = currentCoords;
+                        },
+                        (errFallback) => {
+                            let errMsg = "GPS Error";
+                            if (err.code === 1) errMsg = "Izin GPS Ditolak (Aktifkan Lokasi HP)";
+                            else if (err.code === 2) errMsg = "Sinyal GPS Tidak Ditemukan";
+                            else if (err.code === 3) errMsg = "Waktu GPS Habis (Refres)";
+                            
+                            inputLoc.value = errMsg;
+                            currentCoords = errMsg;
+                        },
+                        { enableHighAccuracy: false, timeout: 5000 }
+                    );
+                },
+                options
+            );
+        }
+
+        function updateKehadiranUI() {
+            document.getElementById('selectKehadiran').innerText = selectedKehadiran;
+            const container = document.getElementById('modalKehadiranItems');
+            if (currentMode === 'CHECKIN') {
+                container.innerHTML = `
+                    <div class="modal-item" onclick="selectKehadiranValue('On Duty / Hadir')">On Duty / Hadir</div>
+                    <div class="modal-item" onclick="selectKehadiranValue('Day Off')">Day Off</div>
+                    <div class="modal-item" onclick="selectKehadiranValue('Cuti Tahunan')">Cuti Tahunan</div>
+                    <div class="modal-item" onclick="selectKehadiranValue('Sakit')">Sakit</div>
+                `;
+            } else {
+                container.innerHTML = `<div class="modal-item" onclick="selectKehadiranValue('Pulang')">Pulang</div>`;
+            }
+        }
+
+        function openKehadiranModal() { document.getElementById('modalKehadiran').style.display = 'flex'; }
+        function closeKehadiranModal() { document.getElementById('modalKehadiran').style.display = 'none'; }
+        function selectKehadiranValue(val) { selectedKehadiran = val; document.getElementById('selectKehadiran').innerText = val; closeKehadiranModal(); }
+
+        function triggerCamera() { document.getElementById('fileCamera').click(); }
+        function triggerGallery() { document.getElementById('fileGallery').click(); }
+
+        function processImage(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('watermarkCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    let maxDim = 1000;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                    }
+
+                    canvas.width = w;
+                    canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const now = new Date();
+                    const toko = document.getElementById('selectToko').value || "Toko Unselected";
+                    const nama = document.getElementById('selectNama').value || "No Name";
+                    const watermarkText = `[${currentMode}] ${toko} - ${nama} | ${now.toLocaleString('id-ID')} | ${currentCoords}`;
+
+                    const fontSize = Math.max(16, Math.floor(canvas.width / 25));
+                    ctx.font = `bold ${fontSize}px sans-serif`;
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+                    ctx.fillRect(0, canvas.height - (fontSize * 2.5), canvas.width, fontSize * 2.5);
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillText(watermarkText, 15, canvas.height - (fontSize * 0.8));
+
+                    processedImageData = canvas.toDataURL('image/jpeg', 0.75);
+                    document.getElementById('imgPreview').src = processedImageData;
+                    document.getElementById('previewBox').style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSubmit(e) {
+            if (!processedImageData) {
+                e.preventDefault();
+                alert("Harap sertakan Bukti Foto!");
+                return false;
+            }
+
+            document.getElementById('hiddenToko').value = document.getElementById('selectToko').value;
+            document.getElementById('hiddenNama').value = document.getElementById('selectNama').value;
+            document.getElementById('hiddenDatetime').value = document.getElementById('inputDateTime').value;
+            document.getElementById('hiddenKehadiran').value = selectedKehadiran;
+            document.getElementById('hiddenLocation').value = document.getElementById('inputLocation').value;
+            document.getElementById('hiddenPhoto').value = processedImageData;
+            document.getElementById('hiddenRemarks').value = document.getElementById('inputRemarks').value || "-";
+
+            const btnSubmit = document.getElementById('btnSubmitAbsensi');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Mengirim data...";
+            submitted = true;
+        }
+
+        function onSuccessSubmit() {
+            alert(`Berhasil mengirim absensi [${currentMode}]! Data tersimpan di Spreadsheet.`);
+            location.reload();
+        }
+
         window.onload = () => {
             initTheme();
             updateRealtimeClock();
             addItemRow('', '', '', '');
             renderSystemLogs();
+            startClock();
+            getGPSLocation();
             lucide.createIcons();
         };
     </script>
