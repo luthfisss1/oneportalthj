@@ -304,8 +304,8 @@
                     <h3 class="text-sm font-bold text-sky-400 flex items-center gap-2">
                         <i class="fa-solid fa-barcode"></i> Step 2: Input Pemindaian
                     </h3>
-                    <span class="text-[10px] bg-emerald-900/40 text-emerald-400 px-3 py-1 rounded-full font-bold border border-emerald-800/50">
-                        SatSet Mode
+                    <span class="text-[10px] bg-emerald-900/40 text-emerald-400 px-2.5 py-1 rounded-full font-bold border border-emerald-800/50 flex items-center gap-1">
+                        <i class="fa-solid fa-bolt text-[9px]"></i> Auto-Consolidate Active
                     </span>
                 </div>
 
@@ -366,7 +366,7 @@
                     <button onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-file-arrow-up text-sky-400"></i> Import TXT/CSV
                     </button>
-                    <button onclick="consolidateDuplicates()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
+                    <button onclick="consolidateDuplicates(true)" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-rotate text-emerald-400"></i> Konsolidasi
                     </button>
                     <button onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
@@ -556,6 +556,7 @@
                 document.getElementById('masterStatusText').innerText = `Data Master Toko ${currentStore} Loaded (${Object.keys(masterSystem).length.toLocaleString('id-ID')} SKU)`;
             }
 
+            consolidateDuplicates(false);
             renderScanHistory();
             processToPOS();
         }
@@ -579,6 +580,7 @@
                     masterSystem = data.masterSystem || masterSystem;
                     rawScanning = data.rawScanning || rawScanning;
 
+                    consolidateDuplicates(false);
                     await saveToLocalStorage();
 
                     renderScanHistory();
@@ -840,6 +842,9 @@
                     }, 'INPUT MANUAL');
                 }
 
+                // Konsolidasi Otomatis
+                consolidateDuplicates(false);
+
                 document.getElementById('inputSKU').value = '';
                 lookupSkuSystemInfo();
                 document.getElementById('inputSKU').focus();
@@ -896,6 +901,7 @@
                 }, 'ENTRY DIHAPUS');
             }
             rawScanning.splice(index, 1);
+            consolidateDuplicates(false);
             renderScanHistory();
             processToPOS();
             saveToLocalStorage();
@@ -947,16 +953,20 @@
                     }
                 });
 
+                consolidateDuplicates(false);
                 renderScanHistory();
                 processToPOS();
                 saveToLocalStorage();
-                alert(`Berhasil import ${count} item scan!`);
+                alert(`Berhasil import ${count} item scan! (Telah dikonsolidasi otomatis)`);
             };
             reader.readAsText(file);
         }
 
-        function consolidateDuplicates() {
-            if (rawScanning.length === 0) return;
+        function consolidateDuplicates(showAlert = false) {
+            if (rawScanning.length === 0) {
+                if (showAlert) alert("Data scanning masih kosong.");
+                return;
+            }
             const map = {};
             const timeStr = getCurrentFormattedDate();
 
@@ -974,8 +984,10 @@
             rawScanning = Object.values(map);
             renderScanHistory();
             processToPOS();
-            saveToLocalStorage();
-            alert("SKU duplikat berhasil dikonsolidasi!");
+            if (showAlert) {
+                saveToLocalStorage();
+                alert("SKU duplikat berhasil dikonsolidasi!");
+            }
         }
 
         // --- STEP 3: HASIL OLAHAN POS ---
