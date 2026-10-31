@@ -42,7 +42,7 @@
         }
     </style>
 </head>
-<body class="bg-[#0b1120] font-sans text-slate-100 pb-24 min-h-screen antialiased select-none">
+<body class="bg-[#0b1120] font-sans text-slate-100 pb-24 md:pb-8 min-h-screen antialiased select-none">
 
     <!-- MODAL POPUP PILIHAN TOKO -->
     <div id="storeSelectionModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
@@ -128,18 +128,35 @@
     </div>
 
     <!-- HEADER / TOP NAVBAR -->
-    <header class="bg-[#0f172a] border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-slate-950 font-black shadow-lg shadow-sky-500/20 text-base">SBC</div>
-                <div>
-                    <h1 class="text-sm font-bold tracking-tight text-white">SATSET v2.6</h1>
-                    <p class="text-[11px] text-slate-400">Cabang: <span id="headerStoreBadge" class="text-amber-400 font-bold">XCIH</span></p>
+    <header class="bg-[#0f172a]/95 border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md backdrop-blur-md">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="w-full md:w-auto flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-slate-950 font-black shadow-lg shadow-sky-500/20 text-base">SBC</div>
+                    <div>
+                        <h1 class="text-sm font-bold tracking-tight text-white">SATSET v2.6</h1>
+                        <p class="text-[11px] text-slate-400">Cabang: <span id="headerStoreBadge" class="text-amber-400 font-bold">XCMG</span></p>
+                    </div>
                 </div>
+                <!-- DESKTOP TOP TABS (HIDDEN ON MOBILE) -->
+                <nav class="hidden md:flex items-center gap-1 bg-slate-950/60 p-1 rounded-2xl border border-slate-800">
+                    <button onclick="switchTab('step1Container')" id="deskNavStep1" class="desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-database"></i> Master
+                    </button>
+                    <button onclick="switchTab('step2Container')" id="deskNavStep2" class="desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-sky-400 bg-sky-500/10 border border-sky-500/20 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-barcode"></i> Scan
+                    </button>
+                    <button onclick="switchTab('step3Container')" id="deskNavStep3" class="desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-calculator"></i> POS
+                    </button>
+                    <button onclick="switchTab('step4Container')" id="deskNavStep4" class="desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Untally
+                    </button>
+                </nav>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="restoreFromCloud()" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30">
-                    <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-down"></i> Pulihkan
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800/60">
+                <button onclick="restoreFromCloud()" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30">
+                    <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-down"></i> <span id="syncTextLabel">Pulihkan</span>
                 </button>
                 <button onclick="openStoreSelector()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-md">
                     <i class="fa-solid fa-store"></i> Cabang
@@ -148,47 +165,47 @@
         </div>
     </header>
 
-    <main class="max-w-md mx-auto px-4 mt-4 space-y-5">
+    <main class="max-w-5xl mx-auto px-4 mt-4 space-y-5">
         <!-- DASHBOARD PROGRESS OPNAME -->
-        <section class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 shadow-md space-y-3">
+        <section class="bg-[#0f172a] p-4 md:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-pie"></i> PROGRESS STOCK TAKE
                 </h2>
                 <span id="txtProgressPercent" class="text-xs font-bold text-sky-400">0% Completed</span>
             </div>
-            <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
+            <div class="w-full bg-slate-950 rounded-full h-2.5 border border-slate-800 overflow-hidden">
                 <div id="progressBarFill" class="bg-sky-500 h-full transition-all duration-300 w-0"></div>
             </div>
-            <div class="grid grid-cols-4 gap-2 text-center pt-1">
-                <div class="bg-[#0b1120] p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="text-[9px] text-slate-400 font-semibold block mb-1">Total Master</span>
-                    <span id="statTotalMaster" class="text-sm font-bold text-white">0</span>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-center pt-1">
+                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] text-slate-400 font-semibold block mb-1">Total Master</span>
+                    <span id="statTotalMaster" class="text-base font-bold text-white">0</span>
                 </div>
-                <div class="bg-[#0b1120] p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="text-[9px] text-emerald-400 font-semibold block mb-1">Sudah Scan</span>
-                    <span id="statScannedSKU" class="text-sm font-bold text-emerald-400">0</span>
+                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] text-emerald-400 font-semibold block mb-1">Sudah Scan</span>
+                    <span id="statScannedSKU" class="text-base font-bold text-emerald-400">0</span>
                 </div>
-                <div class="bg-[#0b1120] p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="text-[9px] text-rose-400 font-semibold block mb-1">Belum Scan</span>
-                    <span id="statRemainingSKU" class="text-sm font-bold text-rose-400">0</span>
+                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] text-rose-400 font-semibold block mb-1">Belum Scan</span>
+                    <span id="statRemainingSKU" class="text-base font-bold text-rose-400">0</span>
                 </div>
-                <div class="bg-[#0b1120] p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="text-[9px] text-sky-400 font-semibold block mb-1">Qty Fisik</span>
-                    <span id="statTotalQtyPhysical" class="text-sm font-bold text-sky-400">0</span>
+                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] text-sky-400 font-semibold block mb-1">Qty Fisik</span>
+                    <span id="statTotalQtyPhysical" class="text-base font-bold text-sky-400">0</span>
                 </div>
             </div>
         </section>
 
         <!-- VIEW SECTION 1: MASTER SYSTEM -->
         <section id="step1Container" class="tab-content hidden space-y-4">
-            <div class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-3">
+            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4 max-w-3xl mx-auto">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master
                     </h3>
                 </div>
-                <div class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-800/60 space-y-2">
+                <div class="bg-emerald-950/40 p-4 rounded-2xl border border-emerald-800/60 space-y-2.5">
                     <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
                         <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i> Pulihkan Data dari Spreadsheet
                     </span>
@@ -202,16 +219,16 @@
                 <p class="text-[11px] text-slate-400 leading-relaxed pt-1">
                     Atau tempelkan data tarikan POS baru (Format: <code>SKU, RAK, HARGA, SYS_QTY, ..., DESKRIPSI</code>):
                 </p>
-                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="4" placeholder="Paste data tarikan master (Kolom 4=SYS, Kolom 9=NAMA)..." class="w-full p-3 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
-                <div class="flex items-center gap-2">
-                    <button onclick="processMasterPaste()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="5" placeholder="Paste data tarikan master (Kolom 4=SYS, Kolom 9=NAMA)..." class="w-full p-3.5 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
+                <div class="flex items-center gap-3">
+                    <button onclick="processMasterPaste()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
                         <i class="fa-solid fa-play"></i> Proses Master Data
                     </button>
-                    <button onclick="downloadUnscannedToExcel()" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center gap-1.5">
+                    <button onclick="downloadUnscannedToExcel()" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 font-bold py-3 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-file-excel"></i> Belum Scan
                     </button>
                 </div>
-                <div id="masterStatusContainer" class="hidden p-3 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-1">
+                <div id="masterStatusContainer" class="hidden p-3.5 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-1">
                     <p id="masterStatusText" class="font-bold"></p>
                     <div id="masterSummaryDetails" class="text-[10px] text-emerald-400/80"></div>
                 </div>
@@ -220,124 +237,123 @@
 
         <!-- VIEW SECTION 2: INPUT SCANNING -->
         <section id="step2Container" class="tab-content space-y-4">
-            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-sky-400 flex items-center gap-2">
-                        <i class="fa-solid fa-barcode"></i> Step 2: Input Pemindaian
-                    </h3>
-                    <span class="text-[10px] bg-emerald-900/40 text-emerald-400 px-2.5 py-1 rounded-full font-bold border border-emerald-800/50 flex items-center gap-1">
-                        <i class="fa-solid fa-bolt text-[9px]"></i> Auto-Consolidate Active
-                    </span>
-                </div>
-                <form id="scanForm" onsubmit="addScanEntry(event)" class="space-y-4">
-                    <div class="grid grid-cols-5 gap-3">
-                        <div class="col-span-2">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">LOKASI / RAK</label>
-                            <div class="relative">
-                                <input type="text" id="inputRack" placeholder="e.g. AW01-03" required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none uppercase font-bold text-white">
-                                <button type="button" onclick="openCameraScanner('RAK')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400">
-                                    <i class="fa-solid fa-camera text-xs"></i>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                <div class="md:col-span-6 bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-barcode"></i> Step 2: Input Pemindaian
+                        </h3>
+                        <span class="text-[10px] bg-emerald-900/40 text-emerald-400 px-2.5 py-1 rounded-full font-bold border border-emerald-800/50 flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-[9px]"></i> Auto-Sync Active
+                        </span>
+                    </div>
+                    <form id="scanForm" onsubmit="addScanEntry(event)" class="space-y-4">
+                        <div class="grid grid-cols-5 gap-3">
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">LOKASI / RAK</label>
+                                <div class="relative">
+                                    <input type="text" id="inputRack" placeholder="e.g. AW01-03" required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none uppercase font-bold text-white">
+                                    <button type="button" onclick="openCameraScanner('RAK')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400">
+                                        <i class="fa-solid fa-camera text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">KODE SKU / BARCODE</label>
+                                <div class="relative">
+                                    <input type="text" id="inputSKU" oninput="lookupSkuSystemInfo()" placeholder="Scan / Ketik SKU..." required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none text-slate-300 font-mono">
+                                    <button type="button" onclick="openCameraScanner('SKU')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-400">
+                                        <i class="fa-solid fa-barcode text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="skuPreviewBox" class="hidden bg-[#080d1a] p-2.5 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span id="previewSkuName" class="text-slate-200 font-medium truncate max-w-[220px] md:max-w-[300px]">Deskripsi Produk</span>
+                                <span id="previewSkuBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">Terdaftar</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-5 gap-3 items-end">
+                            <div class="col-span-2 space-y-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">QTY FISIK</label>
+                                <input type="number" id="inputQty" min="1" value="1" required class="w-full px-3 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-center outline-none font-bold text-emerald-400">
+                            </div>
+                            <div class="col-span-1 space-y-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">SYS</label>
+                                <div id="displaySysQty" class="w-full py-3 bg-[#080d1a] border border-slate-800 rounded-xl text-xs text-center font-black text-sky-400">0</div>
+                            </div>
+                            <div class="col-span-2">
+                                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold py-3 px-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-lg uppercase tracking-wider">
+                                    <i class="fa-solid fa-plus-circle text-xs"></i> SIMPAN SCAN
                                 </button>
                             </div>
                         </div>
-                        <div class="col-span-3">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">KODE SKU / BARCODE</label>
-                            <div class="relative">
-                                <input type="text" id="inputSKU" oninput="lookupSkuSystemInfo()" placeholder="Scan / Ketik SKU..." required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none text-slate-300 font-mono">
-                                <button type="button" onclick="openCameraScanner('SKU')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-400">
-                                    <i class="fa-solid fa-barcode text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
+                    </form>
+                    <div class="pt-2 flex items-center gap-2">
+                        <button onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-arrow-up text-sky-400"></i> Import TXT/CSV
+                        </button>
+                        <button onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
+                            <i class="fa-solid fa-file-excel text-rose-400"></i> Belum Scan
+                        </button>
                     </div>
-                    <div id="skuPreviewBox" class="hidden bg-[#080d1a] p-2.5 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span id="previewSkuName" class="text-slate-200 font-medium truncate max-w-[220px]">Deskripsi Produk</span>
-                            <span id="previewSkuBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">Terdaftar</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-5 gap-3 items-end">
-                        <div class="col-span-2 space-y-1">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">QTY FISIK</label>
-                            <input type="number" id="inputQty" min="1" value="1" required class="w-full px-3 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-center outline-none font-bold text-emerald-400">
-                        </div>
-                        <div class="col-span-1 space-y-1">
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">SYS</label>
-                            <div id="displaySysQty" class="w-full py-3 bg-[#080d1a] border border-slate-800 rounded-xl text-xs text-center font-black text-sky-400">0</div>
-                        </div>
-                        <div class="col-span-2">
-                            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 px-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-lg uppercase tracking-wider">
-                                <i class="fa-solid fa-plus-circle text-xs"></i> SIMPAN SCAN
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                <div class="pt-2 flex items-center gap-2">
-                    <button onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-file-arrow-up text-sky-400"></i> Import TXT/CSV
-                    </button>
-                    <button onclick="consolidateDuplicates(true)" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-rotate text-emerald-400"></i> Konsolidasi
-                    </button>
-                    <button onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
-                        <i class="fa-solid fa-file-excel text-rose-400"></i> Belum Scan
-                    </button>
                 </div>
-            </div>
 
-            <!-- SCAN HISTORY LIST -->
-            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-3">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                        RIWAYAT SCAN TERAKHIR (<span id="lblScanCount">0</span>)
-                    </h4>
-                    <button onclick="clearScanLogs()" class="text-[10px] text-rose-400 hover:underline">Hapus Semua</button>
-                </div>
-                <div id="listScanHistory" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <p class="text-center py-6 text-xs text-slate-500 italic">Belum ada item dipindai.</p>
+                <!-- SCAN HISTORY LIST -->
+                <div class="md:col-span-6 bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                            RIWAYAT SCAN TERAKHIR (<span id="lblScanCount">0</span>)
+                        </h4>
+                        <button onclick="clearScanLogs()" class="text-[10px] text-rose-400 hover:underline font-bold">Hapus Semua</button>
+                    </div>
+                    <div id="listScanHistory" class="space-y-2 max-h-[380px] md:max-h-[460px] overflow-y-auto pr-1">
+                        <p class="text-center py-8 text-xs text-slate-500 italic">Belum ada item dipindai.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- VIEW SECTION 3: HASIL OLAHAN POS -->
         <section id="step3Container" class="tab-content hidden space-y-4">
-            <div class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-3">
+            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-calculator text-sky-400"></i> Step 3: Hasil Olahan POS
                     </h3>
-                    <div class="flex gap-1">
-                        <span id="badgeTally" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Tally: 0</span>
-                        <span id="badgeUntally" class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold border border-rose-500/30">UnTally: 0</span>
+                    <div class="flex gap-2">
+                        <span id="badgeTally" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold border border-emerald-500/30">Tally: 0</span>
+                        <span id="badgeUntally" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold border border-rose-500/30">UnTally: 0</span>
                     </div>
                 </div>
-                <div id="listPosCard" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1"></div>
+                <div id="listPosCard" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[65vh] overflow-y-auto pr-1"></div>
             </div>
         </section>
 
         <!-- VIEW SECTION 4: UNTALLY MANAGEMENT -->
         <section id="step4Container" class="tab-content hidden space-y-4">
-            <div id="printAreaUNTALLY" class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-4">
+            <div id="printAreaUNTALLY" class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
                 <div class="flex items-center justify-between no-print">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY
                     </h3>
                     <div class="flex items-center gap-2">
-                        <button id="btnDownloadVerifyABM" onclick="downloadVerifyABMToExcel()" disabled class="bg-slate-800 text-slate-500 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700/80 font-bold transition-all">
+                        <button id="btnDownloadVerifyABM" onclick="downloadVerifyABMToExcel()" disabled class="bg-slate-800 text-slate-500 text-xs px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold transition-all">
                             <i class="fa-solid fa-download"></i> ABM
                         </button>
-                        <button onclick="printUntallyReport()" class="bg-slate-800 text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700/80 font-bold">
+                        <button onclick="printUntallyReport()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold transition-all">
                             <i class="fa-solid fa-print"></i> Print
                         </button>
                     </div>
                 </div>
-                <div id="listUntallyCard" class="space-y-3"></div>
+                <div id="listUntallyCard" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </section>
     </main>
 
-    <!-- BOTTOM MOBILE NAVIGATION BAR -->
-    <nav class="fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2">
+    <!-- BOTTOM MOBILE NAVIGATION BAR (DESKTOP HIDDEN) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2">
         <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
             <button onclick="switchTab('step1Container')" id="navStep1" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
                 <i class="fa-solid fa-database text-base"></i>
@@ -362,21 +378,27 @@
     <input type="file" id="hiddenScanFileInput" accept=".txt,.csv" class="hidden" onchange="handleImportScanFile(event)">
 
     <script>
+        // URL Google Apps Script Cloud Spreadsheet Permanen
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWtrkgMI_65SKNNE2-kE0tvgv0_3CNwOBE4-ww5No1wgKusM5wwu2RbpI_bMZBYjTq/exec";
 
-        let currentStore = localStorage.getItem('sbc_selectedStore') || 'XCIH';
+        // Daftar Petugas Terdaftar per Cabang Toko
+        const STORE_STAFF_MAP = {
+            'XKLR': ['SENDI NUGRAHA', 'RATIH OCTAVIANI', 'KAMALUDIN'],
+            'XCIH': ['NINA', 'GALANG TAKBIR AKBARI', 'TENDI'],
+            'XCMG': ['NUR ALIM', 'DIKI LUKMAN HAKIM', 'JAJANG NURJAMAN']
+        };
+
+        let currentStore = localStorage.getItem('sbc_selectedStore') || 'XCMG';
         let pendingStore = '';
         let rawScanning = [];
         let masterSystem = {};
         let posData = [];
         let activityLogs = [];
 
-        // Camera Scanner Globals
         let html5QrCode = null;
         let currentTargetField = 'SKU';
         let currentCameraId = null;
-        let availableCameras = [];
-        let isTorchOn = false;
+        let syncTimeout = null;
 
         function getCurrentFormattedDate() {
             const now = new Date();
@@ -394,7 +416,6 @@
             await loadFromLocalStorage();
         });
 
-        // FUNGSI UTAMA PERPINDAHAN TAB
         function switchTab(tabId) {
             const allContainers = ['step1Container', 'step2Container', 'step3Container', 'step4Container'];
             
@@ -404,10 +425,9 @@
             });
 
             const targetEl = document.getElementById(tabId);
-            if (targetEl) {
-                targetEl.classList.remove('hidden');
-            }
+            if (targetEl) targetEl.classList.remove('hidden');
 
+            // Mobile Bottom Nav Highlights
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.className = "nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all";
             });
@@ -423,6 +443,25 @@
             if (activeNav) {
                 activeNav.className = "nav-btn flex flex-col items-center gap-1 p-2 text-sky-400 font-bold rounded-xl transition-all bg-sky-500/10 border border-sky-500/20";
             }
+
+            // Desktop Top Nav Highlights
+            document.querySelectorAll('.desk-nav-btn').forEach(btn => {
+                btn.className = "desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-1.5";
+            });
+
+            const deskNavMap = {
+                'step1Container': 'deskNavStep1',
+                'step2Container': 'deskNavStep2',
+                'step3Container': 'deskNavStep3',
+                'step4Container': 'deskNavStep4'
+            };
+
+            const activeDeskNav = document.getElementById(deskNavMap[tabId]);
+            if (activeDeskNav) {
+                activeDeskNav.className = "desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-sky-400 bg-sky-500/10 border border-sky-500/20 transition-all flex items-center gap-1.5";
+            }
+
+            processToPOS();
         }
 
         async function saveToLocalStorage() {
@@ -434,6 +473,80 @@
                 await localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs);
             } catch (err) {
                 console.error("Gagal simpan ke localforage:", err);
+            }
+
+            triggerAutoSyncToCloud();
+        }
+
+        function triggerAutoSyncToCloud() {
+            const icon = document.getElementById('syncStatusIcon');
+            const label = document.getElementById('syncTextLabel');
+            if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-amber-400 fa-bounce";
+            if (label) label.innerText = "Syncing...";
+
+            if (syncTimeout) clearTimeout(syncTimeout);
+
+            syncTimeout = setTimeout(() => {
+                const payloadData = {
+                    action: "saveAllData",
+                    storeCode: currentStore,
+                    rawScanning: rawScanning,
+                    masterSystem: masterSystem,
+                    posData: posData,
+                    activityLogs: activityLogs,
+                    updatedAt: new Date().toISOString()
+                };
+
+                fetch(WEB_APP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payloadData)
+                }).then(() => {
+                    if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
+                    if (label) label.innerText = "Tersimpan";
+                }).catch(err => {
+                    console.warn("Auto-sync fetch fallback...", err);
+                    sendDataViaForm(payloadData);
+                });
+            }, 800);
+        }
+
+        function sendDataViaForm(payloadData) {
+            const icon = document.getElementById('syncStatusIcon');
+            const label = document.getElementById('syncTextLabel');
+
+            try {
+                let iframe = document.getElementById('hidden_sync_iframe');
+                if (!iframe) {
+                    iframe = document.createElement('iframe');
+                    iframe.id = 'hidden_sync_iframe';
+                    iframe.name = 'hidden_sync_iframe';
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                }
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = WEB_APP_URL;
+                form.target = 'hidden_sync_iframe';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'postData';
+                input.value = JSON.stringify(payloadData);
+                form.appendChild(input);
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+
+                if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
+                if (label) label.innerText = "Tersimpan";
+            } catch (e) {
+                console.error("Form submit sync error:", e);
+                if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
+                if (label) label.innerText = "Pulihkan";
             }
         }
 
@@ -459,40 +572,93 @@
             processToPOS();
         }
 
-        async function restoreFromCloud() {
+        function restoreFromCloud() {
             if (!currentStore) return;
 
             const icon = document.getElementById('syncStatusIcon');
+            const label = document.getElementById('syncTextLabel');
             if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
+            if (label) label.innerText = "Memuat...";
 
-            try {
-                const response = await fetch(`${WEB_APP_URL}?storeCode=${currentStore}`);
-                const data = await response.json();
+            const randomId = Math.floor(Math.random() * 1000000);
+            const callbackName = 'sbcCallback_' + randomId;
+            let resolved = false;
 
-                if (data.status === "success" && data.posData && data.posData.length > 0) {
-                    posData = data.posData;
-                    masterSystem = data.masterSystem || masterSystem;
-                    rawScanning = data.rawScanning || rawScanning;
+            window[callbackName] = function(data) {
+                if (resolved) return;
+                resolved = true;
+                cleanupScript();
+                processCloudRestoreData(data);
+            };
 
-                    consolidateDuplicates(false);
-                    await saveToLocalStorage();
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = `${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}&callback=${callbackName}&t=${Date.now()}`;
 
-                    renderScanHistory();
-                    renderPOSCards();
-                    renderUntallyCards();
-                    updateProgressDashboard();
-                    checkVerifyABMStatus();
-                    lookupSkuSystemInfo();
+            function cleanupScript() {
+                delete window[callbackName];
+                const scriptEl = document.getElementById(callbackName);
+                if (scriptEl) scriptEl.remove();
+            }
 
-                    if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
-                    alert(`BERHASIL!\n\nData Toko ${currentStore} berhasil dipulihkan dari Cloud Spreadsheet (${posData.length} SKU). Seluruh Step 1, 2, 3, dan 4 telah terisi otomatis!`);
-                } else {
-                    if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
-                    alert(`Informasi: Belum ada data tersimpan untuk Toko ${currentStore} di Cloud Spreadsheet.`);
+            script.onerror = function() {
+                if (resolved) return;
+                cleanupScript();
+                fetchFallback();
+            };
+
+            document.body.appendChild(script);
+
+            setTimeout(() => {
+                if (!resolved) {
+                    cleanupScript();
+                    fetchFallback();
                 }
-            } catch (err) {
-                if (icon) icon.className = "fa-solid fa-cloud-exclamation text-rose-400";
-                alert("Gagal terhubung ke Cloud Spreadsheet. Pastikan koneksi internet HP Anda stabil.");
+            }, 5000);
+
+            async function fetchFallback() {
+                try {
+                    const response = await fetch(`${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}&t=${Date.now()}`);
+                    const data = await response.json();
+                    if (!resolved) {
+                        resolved = true;
+                        processCloudRestoreData(data);
+                    }
+                } catch (err) {
+                    if (!resolved) {
+                        resolved = true;
+                        if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
+                        if (label) label.innerText = "Pulihkan";
+                        alert(`Gagal terhubung ke Cloud Google Spreadsheet.\n\nPastikan koneksi internet HP Anda stabil.`);
+                    }
+                }
+            }
+        }
+
+        function processCloudRestoreData(data) {
+            const icon = document.getElementById('syncStatusIcon');
+            const label = document.getElementById('syncTextLabel');
+            if (data && (data.status === "success" || data.posData || data.masterSystem || data.rawScanning)) {
+                if (data.posData && data.posData.length > 0) posData = data.posData;
+                if (data.masterSystem && Object.keys(data.masterSystem).length > 0) masterSystem = data.masterSystem;
+                if (data.rawScanning && data.rawScanning.length > 0) rawScanning = data.rawScanning;
+
+                consolidateDuplicates(false);
+                saveToLocalStorage();
+
+                renderScanHistory();
+                processToPOS();
+                updateProgressDashboard();
+                checkVerifyABMStatus();
+                lookupSkuSystemInfo();
+
+                if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
+                if (label) label.innerText = "Tersimpan";
+                alert(`PULIH BERHASIL!\n\nData Toko ${currentStore} telah dipulihkan dari Cloud Spreadsheet!`);
+            } else {
+                if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
+                if (label) label.innerText = "Pulihkan";
+                alert(`Belum ada data tersimpan untuk Toko ${currentStore} di Google Spreadsheet.`);
             }
         }
 
@@ -534,6 +700,7 @@
 
         function applyStoreConfig(storeCode) {
             document.getElementById('headerStoreBadge').innerText = storeCode;
+            renderUntallyCards();
         }
 
         function autoProcessPaste(e) {
@@ -641,23 +808,27 @@
             e.preventDefault();
             const rack = document.getElementById('inputRack').value.trim().toUpperCase();
             const sku = document.getElementById('inputSKU').value.trim();
-            const qty = parseInt(document.getElementById('inputQty').value) || 0;
+            const qtyInput = document.getElementById('inputQty');
+            const qty = parseInt(qtyInput.value) || 0;
             const timeStr = getCurrentFormattedDate();
 
             if (rack && sku && qty > 0) {
                 const existingIndex = rawScanning.findIndex(i => i.sku === sku);
                 if (existingIndex !== -1) {
-                    rawScanning[existingIndex].qty += qty;
-                    if (!rawScanning[existingIndex].rack.includes(rack)) {
-                        rawScanning[existingIndex].rack += `/${rack}`;
+                    const existingItem = rawScanning.splice(existingIndex, 1)[0];
+                    existingItem.qty += qty;
+                    if (!existingItem.rack.includes(rack)) {
+                        existingItem.rack += `/${rack}`;
                     }
-                    rawScanning[existingIndex].scanTime = timeStr;
+                    existingItem.scanTime = timeStr;
+                    rawScanning.unshift(existingItem);
                 } else {
                     rawScanning.unshift({ rack, sku, qty, scanTime: timeStr });
                 }
 
-                consolidateDuplicates(false);
+                // Reset kolom input SKU dan set Qty Fisik kembali ke 1
                 document.getElementById('inputSKU').value = '';
+                qtyInput.value = '1';
                 lookupSkuSystemInfo();
                 document.getElementById('inputSKU').focus();
 
@@ -673,24 +844,29 @@
 
             if (rawScanning.length === 0) {
                 list.innerHTML = `<p class="text-center py-6 text-xs text-slate-500 italic">Belum ada item dipindai.</p>`;
+                updateProgressDashboard();
                 return;
             }
 
             list.innerHTML = '';
             rawScanning.forEach((item, idx) => {
                 const master = masterSystem[item.sku] || {};
+                const sysQty = master.sys !== undefined ? master.sys : 0;
                 list.innerHTML += `
-                    <div class="bg-[#080d1a] p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs">
-                        <div class="space-y-0.5">
+                    <div class="bg-[#080d1a] p-3 rounded-xl border border-slate-800/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-sky-400 font-mono">${item.sku}</span>
-                                <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-bold">${item.rack}</span>
+                                <span class="font-bold text-sky-400 font-mono text-xs">${item.sku}</span>
+                                <span class="text-[10px] bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded font-bold">${item.rack}</span>
                             </div>
-                            <p class="text-[10px] text-slate-400 truncate max-w-[200px]">${master.desc || 'DESKRIPSI TIDAK TERDAFTAR'}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Fisik: ${item.qty}</span>
+                                <button onclick="deleteScanLog(${idx})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-black text-emerald-400">+${item.qty}</span>
-                            <button onclick="deleteScanLog(${idx})" class="text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-900/80 pt-1">
+                            <span class="truncate max-w-[200px]">${master.desc || 'DESKRIPSI TIDAK TERDAFTAR'}</span>
+                            <span class="text-sky-400 font-semibold">SYS: ${sysQty}</span>
                         </div>
                     </div>
                 `;
@@ -700,7 +876,6 @@
 
         function deleteScanLog(index) {
             rawScanning.splice(index, 1);
-            consolidateDuplicates(false);
             renderScanHistory();
             processToPOS();
             saveToLocalStorage();
@@ -777,6 +952,7 @@
             if (showAlert) alert("SKU duplikat berhasil dikonsolidasi!");
         }
 
+        // INTEGRASI MUTLAK DAN REAL-TIME TERHUBUNG DENGAN DATA PEMINDAIAN (STEP 2)
         function processToPOS() {
             const existingMap = {};
             posData.forEach(p => existingMap[p.sku] = p);
@@ -784,8 +960,9 @@
             posData = rawScanning.map(scan => {
                 const prev = existingMap[scan.sku] || {};
                 const master = masterSystem[scan.sku] || { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0 };
-                const sys = master.sys;
+                const sys = master.sys !== undefined ? master.sys : 0;
                 
+                // Mengambil nilai fisik mutlak dan terbarui dari Step 2 Scan
                 const latestCheck = prev.check3 || prev.check2 || prev.check1;
                 const fisik = latestCheck ? latestCheck.qty : scan.qty;
                 const dif = fisik - sys;
@@ -796,12 +973,12 @@
                     sku: scan.sku,
                     desc: master.desc,
                     sys: sys,
-                    initialFisik: prev.initialFisik !== undefined ? prev.initialFisik : scan.qty,
-                    initialDif: prev.initialDif !== undefined ? prev.initialDif : (scan.qty - sys),
+                    initialFisik: scan.qty,
+                    initialDif: scan.qty - sys,
                     fisik: fisik,
                     dif: dif,
                     status: isTally ? "TALLY" : "UNTALLY",
-                    finalStatus: prev.finalStatus || (isTally ? "TALLY" : "UNTALLY"),
+                    finalStatus: isTally ? "TALLY" : "UNTALLY",
                     check1: prev.check1 || null,
                     check2: prev.check2 || null,
                     check3: prev.check3 || null
@@ -811,13 +988,20 @@
             renderPOSCards();
             renderUntallyCards();
             updateProgressDashboard();
-            saveToLocalStorage();
         }
 
         function renderPOSCards() {
             const list = document.getElementById('listPosCard');
+            if (!list) return;
             list.innerHTML = '';
             let tally = 0, untally = 0;
+
+            if (posData.length === 0) {
+                list.innerHTML = `<p class="text-center py-6 text-xs text-slate-500 italic">Belum ada data olahan POS.</p>`;
+                document.getElementById('badgeTally').innerText = `Tally: 0`;
+                document.getElementById('badgeUntally').innerText = `UnTally: 0`;
+                return;
+            }
 
             posData.forEach(item => {
                 const isTally = item.status === "TALLY";
@@ -850,6 +1034,7 @@
 
         function renderUntallyCards() {
             const list = document.getElementById('listUntallyCard');
+            if (!list) return;
             list.innerHTML = '';
 
             const untallyItems = posData.filter(i => i.status === "UNTALLY");
@@ -897,7 +1082,7 @@
             }
             if (!isEnabled) return `<span class="text-slate-600 italic text-[9px]">Terkunci</span>`;
 
-            const staffList = ['SENDI NUGRAHA', 'KAMALUDIN', 'RATIH OCTAVIANI', 'NUR ALIM', 'DIKI LUKMAN', 'NINA', 'GALANG TAKBIR'];
+            const staffList = STORE_STAFF_MAP[currentStore] || STORE_STAFF_MAP['XCMG'];
             let opts = `<option value="" disabled selected>-- Petugas --</option>`;
             staffList.forEach(s => opts += `<option value="${s}">${s}</option>`);
 
