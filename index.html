@@ -46,7 +46,7 @@
         .landing-screen { display: flex; flex-direction: column; gap: 24px; text-align: center; padding: 10px 0; }
         .landing-title { font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; }
         .mode-cards-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
-        .mode-card { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .mode-card { display: flex; align-items: center; justify-space-between: space-between; padding: 20px 24px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; text-align: left; }
         .mode-card.checkin { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(59, 130, 246, 0.4); }
         .mode-card.checkin:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(30, 41, 59, 0.9)); border-color: var(--accent-blue); transform: translateY(-2px); }
         .mode-card.checkout { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(245, 158, 11, 0.4); }
@@ -164,7 +164,21 @@
                     <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING (Baris 5-Selesai).</p>
                 </div>
 
-                <!-- 4. STOCK BALANCE CHECK (PENGHAPUS DATA DUPLIKAT SKU) -->
+                <!-- 4. SBC SATSET -->
+                <a href="https://luthfisss1.github.io/oneportalthj/sbcsatset.html" target="_blank" rel="noopener noreferrer" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-violet-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1 block">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-violet-500/10 text-violet-400 rounded-xl border border-violet-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="external-link" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-violet-400 bg-violet-500/10 px-2.5 py-1 rounded-full border border-violet-500/20 flex items-center gap-1">
+                            <i data-lucide="zap" class="w-3 h-3"></i> LIVE
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-violet-400 transition-colors uppercase">4. SBC SATSET</h3>
+                    <p class="text-slate-400 text-xs mt-2">Akses modul SBC SATSET langsung melalui GitHub Pages.</p>
+                </a>
+
+                <!-- 5. STOCK BALANCE CHECK (PENGHAPUS DATA DUPLIKAT SKU) -->
                 <div onclick="navigateTo('stockBalance')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20 group-hover:scale-110 transition-transform">
@@ -172,11 +186,11 @@
                         </div>
                         <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">AKTIF</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">4. STOCK BALANCE CHECK</h3>
+                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">5. STOCK BALANCE CHECK</h3>
                     <p class="text-slate-400 text-xs mt-2">Filter & hapus SKU duplikat hasil scanning, gabungkan Qty input, lalu salin kembali ke Excel.</p>
                 </div>
 
-                <!-- 5. EXPIRED DATA -->
+                <!-- 6. EXPIRED DATA -->
                 <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
@@ -184,20 +198,8 @@
                         </div>
                         <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-300 uppercase">5. EXPIRED DATA</h3>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">6. EXPIRED DATA</h3>
                     <p class="text-slate-500 text-xs mt-2">Modul pendataan dan pengawasan barang yang mendekati tanggal kadaluarsa toko.</p>
-                </div>
-
-                <!-- 6. SHORTCUT LAINNYA -->
-                <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
-                            <i data-lucide="layout-grid" class="w-8 h-8"></i>
-                        </div>
-                        <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-300 uppercase">6. SHORTCUT LAINNYA</h3>
-                    <p class="text-slate-500 text-xs mt-2">Akses cepat menu internal operasional tambahan lainnya di masa mendatang.</p>
                 </div>
             </div>
         </div>
@@ -434,7 +436,7 @@
             </div>
         </div>
 
-        <!-- 4. STOCK BALANCE CHECK PAGE (DUPLICATE SCANNING & CLEANER) -->
+        <!-- 5. STOCK BALANCE CHECK PAGE (DUPLICATE SCANNING & CLEANER) -->
         <div id="pageStockBalance" class="hidden space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-6">
                 <!-- Header Section -->
