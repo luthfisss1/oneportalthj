@@ -6,63 +6,28 @@
     <title>SBC SATSET v2.6 Mobile</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS for Excel Upload & Export -->
+    <!-- SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- LocalForage for IndexedDB Offline Storage -->
+    <!-- LocalForage for Offline Storage -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <!-- HTML5 QRCode Scanner Library for Live Camera Scanning -->
+    <!-- HTML5 QRCode Scanner Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
     <style>
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
-        @page {
-            size: A4 landscape;
-            margin: 8mm;
-        }
-
+        @page { size: A4 landscape; margin: 8mm; }
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printAreaUNTALLY, #printAreaUNTALLY * {
-                visibility: visible;
-            }
-            #printAreaUNTALLY {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white;
-                color: black;
-                padding: 0;
-                margin: 0;
-            }
-            .no-print, button, input, textarea, select, nav {
-                display: none !important;
-            }
-            table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                font-size: 9px !important;
-            }
-            th, td {
-                border: 1px solid #000 !important;
-                padding: 4px 5px !important;
-                color: #000 !important;
-            }
+            body * { visibility: hidden; }
+            #printAreaUNTALLY, #printAreaUNTALLY * { visibility: visible; }
+            #printAreaUNTALLY { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 0; margin: 0; }
+            .no-print, button, input, textarea, select, nav { display: none !important; }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 9px !important; }
+            th, td { border: 1px solid #000 !important; padding: 4px 5px !important; color: #000 !important; }
         }
 
         @keyframes scanLaser {
@@ -71,12 +36,8 @@
             100% { top: 10%; }
         }
         .animate-laser {
-            position: absolute;
-            left: 5%;
-            right: 5%;
-            height: 2px;
-            background: #38bdf8;
-            box-shadow: 0 0 12px #0284c7;
+            position: absolute; left: 5%; right: 5%; height: 2px;
+            background: #38bdf8; box-shadow: 0 0 12px #0284c7;
             animation: scanLaser 2s infinite ease-in-out;
         }
     </style>
@@ -86,41 +47,36 @@
     <!-- MODAL POPUP PILIHAN TOKO -->
     <div id="storeSelectionModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
         <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-md w-full p-6 text-center space-y-6">
-            <div class="mx-auto w-16 h-16 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-sky-500/30">
+            <div class="mx-auto w-16 h-16 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-3xl border border-sky-500/30">
                 <i class="fa-solid fa-store"></i>
             </div>
-            
             <div>
                 <h2 class="text-2xl font-black text-white tracking-tight">Pilih Cabang Toko</h2>
                 <p class="text-xs text-slate-400 mt-1">Pilih lokasi cabang untuk memulai sesi opname</p>
             </div>
-
             <div class="grid grid-cols-1 gap-3 pt-2">
-                <button onclick="openPasswordModal('XKLR')" class="group relative bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 hover:border-sky-500 p-4 rounded-2xl transition-all flex items-center justify-between shadow-sm">
+                <button onclick="openPasswordModal('XKLR')" class="group bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 p-4 rounded-2xl transition-all flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="w-10 h-10 rounded-xl bg-sky-950 text-sky-400 font-black text-sm flex items-center justify-center border border-sky-800/50">1</span>
                         <span class="font-bold text-base text-slate-200 group-hover:text-white">TOKO XKLR</span>
                     </div>
-                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white transition-transform"></i>
+                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white"></i>
                 </button>
-
-                <button onclick="openPasswordModal('XCMG')" class="group relative bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 hover:border-sky-500 p-4 rounded-2xl transition-all flex items-center justify-between shadow-sm">
+                <button onclick="openPasswordModal('XCMG')" class="group bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 p-4 rounded-2xl transition-all flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="w-10 h-10 rounded-xl bg-sky-950 text-sky-400 font-black text-sm flex items-center justify-center border border-sky-800/50">2</span>
                         <span class="font-bold text-base text-slate-200 group-hover:text-white">TOKO XCMG</span>
                     </div>
-                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white transition-transform"></i>
+                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white"></i>
                 </button>
-
-                <button onclick="openPasswordModal('XCIH')" class="group relative bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 hover:border-sky-500 p-4 rounded-2xl transition-all flex items-center justify-between shadow-sm">
+                <button onclick="openPasswordModal('XCIH')" class="group bg-slate-800/80 active:bg-sky-600 hover:bg-sky-600 hover:text-white border border-slate-700/80 p-4 rounded-2xl transition-all flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="w-10 h-10 rounded-xl bg-sky-950 text-sky-400 font-black text-sm flex items-center justify-center border border-sky-800/50">3</span>
                         <span class="font-bold text-base text-slate-200 group-hover:text-white">TOKO XCIH</span>
                     </div>
-                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white transition-transform"></i>
+                    <i class="fa-solid fa-lock text-slate-500 group-hover:text-white"></i>
                 </button>
             </div>
-
             <p class="text-[11px] text-slate-500 pt-1">SBC Stock Take System v2.6 Mobile</p>
         </div>
     </div>
@@ -131,24 +87,16 @@
             <div class="mx-auto w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl border border-sky-500/30">
                 <i class="fa-solid fa-key"></i>
             </div>
-            
             <div>
                 <h3 class="text-lg font-bold text-white">Akses Cabang <span id="lblTargetStore" class="text-sky-400">XKLR</span></h3>
                 <p class="text-xs text-slate-400 mt-1">Masukkan password otorisasi cabang toko</p>
             </div>
-
             <form onsubmit="verifyStorePassword(event)" class="space-y-4 pt-1">
                 <input type="password" id="inputStorePassword" placeholder="Masukkan PIN/Password" required autocomplete="off" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:border-sky-500 text-center text-sm font-bold text-white outline-none tracking-widest">
-                
                 <p id="txtPasswordError" class="text-xs text-rose-400 font-bold hidden"></p>
-
                 <div class="grid grid-cols-2 gap-2 pt-2">
-                    <button type="button" onclick="closePasswordModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition-all">
-                        Batal
-                    </button>
-                    <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">
-                        Masuk
-                    </button>
+                    <button type="button" onclick="closePasswordModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
+                    <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">Masuk</button>
                 </div>
             </form>
         </div>
@@ -157,22 +105,16 @@
     <!-- MODAL LIVE CAMERA BARCODE SCANNER -->
     <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-[120] hidden flex flex-col items-center justify-between p-4">
         <div class="w-full max-w-md flex items-center justify-between pt-2">
-            <div class="flex items-center gap-2">
-                <span id="scanTypeBadge" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold border border-amber-500/30 uppercase tracking-wider">
-                    SCAN RAK
-                </span>
-            </div>
+            <span id="scanTypeBadge" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold border border-amber-500/30 uppercase tracking-wider">SCAN RAK</span>
             <button onclick="closeCameraScanner()" class="w-10 h-10 bg-slate-800/80 text-slate-300 rounded-full flex items-center justify-center active:scale-95 transition-all">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
         </div>
-
         <div class="relative w-full max-w-sm aspect-square bg-slate-900 rounded-3xl overflow-hidden border-2 border-sky-500/50 my-auto shadow-2xl flex items-center justify-center">
             <div id="qr-reader" class="w-full h-full object-cover"></div>
             <div class="animate-laser pointer-events-none"></div>
             <div class="absolute inset-0 border-2 border-dashed border-sky-400/30 rounded-3xl pointer-events-none"></div>
         </div>
-
         <div class="w-full max-w-md bg-slate-900/80 p-4 rounded-2xl border border-slate-800/80 flex items-center justify-around gap-4 backdrop-blur-md">
             <button onclick="toggleTorch()" id="btnTorch" class="flex flex-col items-center gap-1 text-slate-400 active:text-amber-400">
                 <i class="fa-solid fa-lightbulb text-xl"></i>
@@ -189,19 +131,13 @@
     <header class="bg-[#0f172a] border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md">
         <div class="max-w-md mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-slate-950 font-black shadow-lg shadow-sky-500/20 text-base">
-                    SBC
-                </div>
+                <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-slate-950 font-black shadow-lg shadow-sky-500/20 text-base">SBC</div>
                 <div>
-                    <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
-                        SATSET v2.6
-                    </h1>
-                    <p class="text-[11px] text-slate-400">Cabang: <span id="headerStoreBadge" class="text-amber-400 font-bold">XKLR</span></p>
+                    <h1 class="text-sm font-bold tracking-tight text-white">SATSET v2.6</h1>
+                    <p class="text-[11px] text-slate-400">Cabang: <span id="headerStoreBadge" class="text-amber-400 font-bold">XCIH</span></p>
                 </div>
             </div>
-
             <div class="flex items-center gap-2">
-                <!-- TOMBOL RESTORE DARI CLOUD PADA HEADER -->
                 <button onclick="restoreFromCloud()" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30">
                     <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-down"></i> Pulihkan
                 </button>
@@ -213,24 +149,17 @@
     </header>
 
     <main class="max-w-md mx-auto px-4 mt-4 space-y-5">
-
         <!-- DASHBOARD PROGRESS OPNAME -->
         <section class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 shadow-md space-y-3">
             <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-pie"></i> PROGRESS STOCK TAKE
-                    </h2>
-                </div>
-                <div class="text-right">
-                    <span id="txtProgressPercent" class="text-xs font-bold text-sky-400">0% Completed</span>
-                </div>
+                <h2 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie"></i> PROGRESS STOCK TAKE
+                </h2>
+                <span id="txtProgressPercent" class="text-xs font-bold text-sky-400">0% Completed</span>
             </div>
-
             <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
                 <div id="progressBarFill" class="bg-sky-500 h-full transition-all duration-300 w-0"></div>
             </div>
-
             <div class="grid grid-cols-4 gap-2 text-center pt-1">
                 <div class="bg-[#0b1120] p-2.5 rounded-xl border border-slate-800/80">
                     <span class="text-[9px] text-slate-400 font-semibold block mb-1">Total Master</span>
@@ -252,44 +181,36 @@
         </section>
 
         <!-- VIEW SECTION 1: MASTER SYSTEM -->
-        <section id="secStep1" class="tab-content space-y-4">
+        <section id="step1Container" class="tab-content hidden space-y-4">
             <div class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master
                     </h3>
                 </div>
-
-                <!-- BUBBLE UTAMA PULIHKAN DATA SPREADSHEET KHUSUS STEP 1 -->
                 <div class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-800/60 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i> Pulihkan Data dari Spreadsheet
-                        </span>
-                    </div>
+                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i> Pulihkan Data dari Spreadsheet
+                    </span>
                     <p class="text-[11px] text-emerald-200/80 leading-relaxed">
-                        Tekan tombol di bawah untuk memuat seluruh data <b>Step 1, 2, 3, dan 4</b> yang telah tersimpan di Cloud tanpa perlu input ulang.
+                        Tekan tombol di bawah untuk memuat seluruh data <b>Step 1, 2, 3, dan 4</b> yang tersimpan di Cloud.
                     </p>
-                    <button onclick="restoreFromCloud()" class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-98 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10">
+                    <button onclick="restoreFromCloud()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg">
                         <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN DATA CLOUD (SPREADSHEET)
                     </button>
                 </div>
-
                 <p class="text-[11px] text-slate-400 leading-relaxed pt-1">
-                    Atau tempelkan data tarikan POS/Excel baru (Format: <code>SKU, RAK, HARGA, SYS_QTY, ..., DESKRIPSI</code>):
+                    Atau tempelkan data tarikan POS baru (Format: <code>SKU, RAK, HARGA, SYS_QTY, ..., DESKRIPSI</code>):
                 </p>
-
-                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="4" placeholder="Paste data tarikan baru disini..." class="w-full p-3 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
-
+                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="4" placeholder="Paste data tarikan master (Kolom 4=SYS, Kolom 9=NAMA)..." class="w-full p-3 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
                 <div class="flex items-center gap-2">
                     <button onclick="processMasterPaste()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bolt"></i> Proses Data Baru
+                        <i class="fa-solid fa-play"></i> Proses Master Data
                     </button>
                     <button onclick="downloadUnscannedToExcel()" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-file-excel"></i> Belum Scan
                     </button>
                 </div>
-
                 <div id="masterStatusContainer" class="hidden p-3 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-1">
                     <p id="masterStatusText" class="font-bold"></p>
                     <div id="masterSummaryDetails" class="text-[10px] text-emerald-400/80"></div>
@@ -298,7 +219,7 @@
         </section>
 
         <!-- VIEW SECTION 2: INPUT SCANNING -->
-        <section id="secStep2" class="tab-content space-y-4">
+        <section id="step2Container" class="tab-content space-y-4">
             <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-sky-400 flex items-center gap-2">
@@ -308,19 +229,17 @@
                         <i class="fa-solid fa-bolt text-[9px]"></i> Auto-Consolidate Active
                     </span>
                 </div>
-
                 <form id="scanForm" onsubmit="addScanEntry(event)" class="space-y-4">
                     <div class="grid grid-cols-5 gap-3">
                         <div class="col-span-2">
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">LOKASI / RAK</label>
                             <div class="relative">
-                                <input type="text" id="inputRack" placeholder="RAK-A1" required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none uppercase font-bold text-white">
+                                <input type="text" id="inputRack" placeholder="e.g. AW01-03" required class="w-full pl-3 pr-8 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs outline-none uppercase font-bold text-white">
                                 <button type="button" onclick="openCameraScanner('RAK')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400">
                                     <i class="fa-solid fa-camera text-xs"></i>
                                 </button>
                             </div>
                         </div>
-
                         <div class="col-span-3">
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">KODE SKU / BARCODE</label>
                             <div class="relative">
@@ -331,37 +250,28 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- PREVIEW DESKRIPSI SKU REAL-TIME -->
                     <div id="skuPreviewBox" class="hidden bg-[#080d1a] p-2.5 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
                         <div class="flex items-center justify-between">
                             <span id="previewSkuName" class="text-slate-200 font-medium truncate max-w-[220px]">Deskripsi Produk</span>
                             <span id="previewSkuBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">Terdaftar</span>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-5 gap-3 items-end">
                         <div class="col-span-2 space-y-1">
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">QTY FISIK</label>
                             <input type="number" id="inputQty" min="1" value="1" required class="w-full px-3 py-3 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-center outline-none font-bold text-emerald-400">
                         </div>
-
-                        <!-- INDICATOR SYSTEM STOK DARI TARIKAN DATA -->
                         <div class="col-span-1 space-y-1">
                             <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">SYS</label>
-                            <div id="displaySysQty" class="w-full py-3 bg-[#080d1a] border border-slate-800 rounded-xl text-xs text-center font-black text-sky-400">
-                                0
-                            </div>
+                            <div id="displaySysQty" class="w-full py-3 bg-[#080d1a] border border-slate-800 rounded-xl text-xs text-center font-black text-sky-400">0</div>
                         </div>
-
                         <div class="col-span-2">
-                            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 active:scale-98 text-slate-950 font-bold py-3 px-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-lg shadow-sky-500/10 uppercase tracking-wider">
+                            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 px-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-lg uppercase tracking-wider">
                                 <i class="fa-solid fa-plus-circle text-xs"></i> SIMPAN SCAN
                             </button>
                         </div>
                     </div>
                 </form>
-
                 <div class="pt-2 flex items-center gap-2">
                     <button onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-file-arrow-up text-sky-400"></i> Import TXT/CSV
@@ -383,7 +293,6 @@
                     </h4>
                     <button onclick="clearScanLogs()" class="text-[10px] text-rose-400 hover:underline">Hapus Semua</button>
                 </div>
-
                 <div id="listScanHistory" class="space-y-2 max-h-60 overflow-y-auto pr-1">
                     <p class="text-center py-6 text-xs text-slate-500 italic">Belum ada item dipindai.</p>
                 </div>
@@ -391,7 +300,7 @@
         </section>
 
         <!-- VIEW SECTION 3: HASIL OLAHAN POS -->
-        <section id="secStep3" class="tab-content space-y-4">
+        <section id="step3Container" class="tab-content hidden space-y-4">
             <div class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -402,18 +311,16 @@
                         <span id="badgeUntally" class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold border border-rose-500/30">UnTally: 0</span>
                     </div>
                 </div>
-
-                <div id="listPosCard" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
-                </div>
+                <div id="listPosCard" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1"></div>
             </div>
         </section>
 
         <!-- VIEW SECTION 4: UNTALLY MANAGEMENT -->
-        <section id="secStep4" class="tab-content space-y-4">
+        <section id="step4Container" class="tab-content hidden space-y-4">
             <div id="printAreaUNTALLY" class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800/80 space-y-4">
                 <div class="flex items-center justify-between no-print">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY (Verifikasi 3 Tahap)
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY
                     </h3>
                     <div class="flex items-center gap-2">
                         <button id="btnDownloadVerifyABM" onclick="downloadVerifyABMToExcel()" disabled class="bg-slate-800 text-slate-500 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700/80 font-bold transition-all">
@@ -424,30 +331,27 @@
                         </button>
                     </div>
                 </div>
-
-                <div id="listUntallyCard" class="space-y-3">
-                </div>
+                <div id="listUntallyCard" class="space-y-3"></div>
             </div>
         </section>
-
     </main>
 
     <!-- BOTTOM MOBILE NAVIGATION BAR -->
     <nav class="fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2">
         <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-            <button onclick="switchTab('secStep1')" id="navStep1" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
-                <i class="fa-solid fa-right-to-bracket text-base"></i>
+            <button onclick="switchTab('step1Container')" id="navStep1" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
+                <i class="fa-solid fa-database text-base"></i>
                 <span class="text-[9px] font-bold">Step 1 Master</span>
             </button>
-            <button onclick="switchTab('secStep2')" id="navStep2" class="nav-btn flex flex-col items-center gap-1 p-2 text-sky-400 font-bold rounded-xl transition-all bg-sky-500/10 border border-sky-500/20">
+            <button onclick="switchTab('step2Container')" id="navStep2" class="nav-btn flex flex-col items-center gap-1 p-2 text-sky-400 font-bold rounded-xl transition-all bg-sky-500/10 border border-sky-500/20">
                 <i class="fa-solid fa-barcode text-base"></i>
                 <span class="text-[9px] font-bold">Step 2 Scan</span>
             </button>
-            <button onclick="switchTab('secStep3')" id="navStep3" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
+            <button onclick="switchTab('step3Container')" id="navStep3" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
                 <i class="fa-solid fa-calculator text-base"></i>
                 <span class="text-[9px] font-bold">Step 3 POS</span>
             </button>
-            <button onclick="switchTab('secStep4')" id="navStep4" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
+            <button onclick="switchTab('step4Container')" id="navStep4" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
                 <i class="fa-solid fa-triangle-exclamation text-base"></i>
                 <span class="text-[9px] font-bold">Step 4 Untally</span>
             </button>
@@ -460,13 +364,12 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWtrkgMI_65SKNNE2-kE0tvgv0_3CNwOBE4-ww5No1wgKusM5wwu2RbpI_bMZBYjTq/exec";
 
-        let currentStore = localStorage.getItem('sbc_selectedStore') || 'XKLR';
+        let currentStore = localStorage.getItem('sbc_selectedStore') || 'XCIH';
         let pendingStore = '';
         let rawScanning = [];
         let masterSystem = {};
         let posData = [];
         let activityLogs = [];
-        let syncTimer = null;
 
         // Camera Scanner Globals
         let html5QrCode = null;
@@ -485,41 +388,37 @@
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        function recordActivityLog(item, customStatus) {
-            activityLogs.push({
-                tanggal: getCurrentFormattedDate(),
-                store: currentStore,
-                rack: item.rack || '-',
-                sku: item.sku || '-',
-                desc: item.desc || 'DESKRIPSI TIDAK TERDAFTAR',
-                fisik: item.fisik !== undefined ? item.fisik : (item.qty || 0),
-                sys: item.sys !== undefined ? item.sys : 0,
-                dif: item.dif !== undefined ? item.dif : 0,
-                status: customStatus || item.status || 'INPUT SCAN'
-            });
-        }
-
         window.addEventListener('DOMContentLoaded', async () => {
-            switchTab('secStep2');
+            switchTab('step2Container');
             applyStoreConfig(currentStore);
             await loadFromLocalStorage();
         });
 
+        // FUNGSI UTAMA PERPINDAHAN TAB
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            const activeTab = document.getElementById(tabId);
-            if (activeTab) activeTab.classList.remove('hidden');
+            const allContainers = ['step1Container', 'step2Container', 'step3Container', 'step4Container'];
+            
+            allContainers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            const targetEl = document.getElementById(tabId);
+            if (targetEl) {
+                targetEl.classList.remove('hidden');
+            }
 
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.className = "nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all";
             });
 
             const navMap = {
-                'secStep1': 'navStep1',
-                'secStep2': 'navStep2',
-                'secStep3': 'navStep3',
-                'secStep4': 'navStep4'
+                'step1Container': 'navStep1',
+                'step2Container': 'navStep2',
+                'step3Container': 'navStep3',
+                'step4Container': 'navStep4'
             };
+            
             const activeNav = document.getElementById(navMap[tabId]);
             if (activeNav) {
                 activeNav.className = "nav-btn flex flex-col items-center gap-1 p-2 text-sky-400 font-bold rounded-xl transition-all bg-sky-500/10 border border-sky-500/20";
@@ -536,7 +435,6 @@
             } catch (err) {
                 console.error("Gagal simpan ke localforage:", err);
             }
-            triggerAutoSync();
         }
 
         async function loadFromLocalStorage() {
@@ -561,12 +459,8 @@
             processToPOS();
         }
 
-        // --- FUNGSI PULIHKAN DATA DARI SPREADSHEET (CLOUD RESTORE) ---
         async function restoreFromCloud() {
-            if (!currentStore) {
-                alert("Silakan pilih cabang toko terlebih dahulu.");
-                return;
-            }
+            if (!currentStore) return;
 
             const icon = document.getElementById('syncStatusIcon');
             if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
@@ -602,46 +496,12 @@
             }
         }
 
-        function triggerAutoSync() {
-            const icon = document.getElementById('syncStatusIcon');
-            if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
-
-            clearTimeout(syncTimer);
-            syncTimer = setTimeout(async () => {
-                if (!currentStore || posData.length === 0) {
-                    if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
-                    return;
-                }
-
-                try {
-                    await fetch(WEB_APP_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "text/plain" },
-                        body: JSON.stringify({
-                            storeCode: currentStore,
-                            posData: posData,
-                            logEntries: [...activityLogs]
-                        })
-                    });
-                    activityLogs = [];
-                    await localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs);
-                    if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
-                } catch (err) {
-                    if (icon) icon.className = "fa-solid fa-cloud-exclamation text-rose-400";
-                }
-            }, 2500);
-        }
-
         function openPasswordModal(storeCode) {
             pendingStore = storeCode;
             document.getElementById('lblTargetStore').innerText = storeCode;
             document.getElementById('inputStorePassword').value = '';
             document.getElementById('txtPasswordError').classList.add('hidden');
             document.getElementById('passwordModal').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('inputStorePassword').focus();
-            }, 100);
         }
 
         function closePasswordModal() {
@@ -658,7 +518,6 @@
                 currentStore = pendingStore;
                 localStorage.setItem('sbc_selectedStore', currentStore);
                 applyStoreConfig(currentStore);
-                
                 closePasswordModal();
                 document.getElementById('storeSelectionModal').classList.add('hidden');
                 loadFromLocalStorage();
@@ -677,7 +536,6 @@
             document.getElementById('headerStoreBadge').innerText = storeCode;
         }
 
-        // --- STEP 1: MASTER SYSTEM PARSING ---
         function autoProcessPaste(e) {
             setTimeout(() => processMasterPaste(), 100);
         }
@@ -688,12 +546,10 @@
 
             const lines = rawText.split(/\r?\n/);
             let loadedCount = 0;
-            let lockedCount = 0;
             let totalSysQty = 0;
 
             lines.forEach(line => {
                 if (!line.trim()) return;
-                
                 const parts = line.includes('\t') ? line.split('\t') : line.split(',');
 
                 if (parts.length >= 1) {
@@ -703,33 +559,18 @@
                     const sys = parseInt(parts[3]) || 0;
                     const desc = String(parts[8] || parts[4] || 'DESKRIPSI TIDAK TERDAFTAR').trim();
 
-                    if (sku && sku !== 'undefined' && sku !== 'NaN' && sku !== '0' && sku !== 'S_PLUCODE') {
-                        const existingPOS = posData.find(p => p.sku === sku);
-                        const isLocked = existingPOS && (existingPOS.status === "TALLY" || existingPOS.isLocked);
-
-                        if (!isLocked) {
-                            masterSystem[sku] = { desc, sys, rackMaster, harga };
-                            loadedCount++;
-                        } else {
-                            lockedCount++;
-                        }
+                    if (sku && sku !== 'undefined' && sku !== 'S_PLUCODE') {
+                        masterSystem[sku] = { desc, sys, rackMaster, harga };
+                        loadedCount++;
                         totalSysQty += sys;
                     }
                 }
             });
 
             const statusBox = document.getElementById('masterStatusContainer');
-            const statusText = document.getElementById('masterStatusText');
-            const summaryDetails = document.getElementById('masterSummaryDetails');
-
             statusBox.classList.remove('hidden');
-            statusBox.className = "p-3 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-1";
-            statusText.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Berhasil memproses master data Toko <b>${currentStore}</b>!`;
-
-            summaryDetails.innerHTML = `
-                <div>SKU Diupdate: <b>${loadedCount.toLocaleString('id-ID')}</b> | SKUs Terkunci: <b>${lockedCount.toLocaleString('id-ID')}</b></div>
-                <div>Total System Stock: <b>${totalSysQty.toLocaleString('id-ID')} unit</b></div>
-            `;
+            document.getElementById('masterStatusText').innerHTML = `Berhasil memproses master data Toko <b>${currentStore}</b>!`;
+            document.getElementById('masterSummaryDetails').innerHTML = `SKU Diupdate: <b>${loadedCount.toLocaleString('id-ID')}</b> | Total System Stock: <b>${totalSysQty.toLocaleString('id-ID')} unit</b>`;
 
             processToPOS();
             saveToLocalStorage();
@@ -739,7 +580,7 @@
         function downloadUnscannedToExcel() {
             const allMasterSKUs = Object.keys(masterSystem);
             if (allMasterSKUs.length === 0) {
-                alert(`Data Master System untuk Toko ${currentStore} masih kosong. Silakan masukkan data master terlebih dahulu.`);
+                alert(`Data Master System untuk Toko ${currentStore} masih kosong.`);
                 return;
             }
 
@@ -761,21 +602,12 @@
                 }
             });
 
-            if (rows.length === 0) {
-                alert(`Luar biasa! Seluruh SKU dari Master System Toko ${currentStore} telah di-scan!`);
-                return;
-            }
-
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Belum Scan");
-            
-            const now = new Date();
-            const dateStr = now.toISOString().slice(0, 10);
-            XLSX.writeFile(wb, `SKU_Belum_Di_Scan_${currentStore}_${dateStr}.xlsx`);
+            XLSX.writeFile(wb, `SKU_Belum_Di_Scan_${currentStore}.xlsx`);
         }
 
-        // --- LOOKUP SYSTEM INFO PADA STEP 2 ---
         function lookupSkuSystemInfo() {
             const skuInput = document.getElementById('inputSKU').value.trim();
             const previewBox = document.getElementById('skuPreviewBox');
@@ -805,7 +637,6 @@
             }
         }
 
-        // --- STEP 2: INPUT SCANNING ---
         function addScanEntry(e) {
             e.preventDefault();
             const rack = document.getElementById('inputRack').value.trim().toUpperCase();
@@ -814,7 +645,6 @@
             const timeStr = getCurrentFormattedDate();
 
             if (rack && sku && qty > 0) {
-                const master = masterSystem[sku] || {};
                 const existingIndex = rawScanning.findIndex(i => i.sku === sku);
                 if (existingIndex !== -1) {
                     rawScanning[existingIndex].qty += qty;
@@ -822,34 +652,15 @@
                         rawScanning[existingIndex].rack += `/${rack}`;
                     }
                     rawScanning[existingIndex].scanTime = timeStr;
-                    recordActivityLog({
-                        rack: rawScanning[existingIndex].rack,
-                        sku: sku,
-                        desc: master.desc,
-                        qty: rawScanning[existingIndex].qty,
-                        sys: master.sys || 0,
-                        dif: rawScanning[existingIndex].qty - (master.sys || 0)
-                    }, 'INPUT MANUAL (TAMBAH)');
                 } else {
                     rawScanning.unshift({ rack, sku, qty, scanTime: timeStr });
-                    recordActivityLog({
-                        rack: rack,
-                        sku: sku,
-                        desc: master.desc,
-                        qty: qty,
-                        sys: master.sys || 0,
-                        dif: qty - (master.sys || 0)
-                    }, 'INPUT MANUAL');
                 }
 
-                // Konsolidasi Otomatis
                 consolidateDuplicates(false);
-
                 document.getElementById('inputSKU').value = '';
                 lookupSkuSystemInfo();
                 document.getElementById('inputSKU').focus();
 
-                playBeepSound();
                 renderScanHistory();
                 processToPOS();
                 saveToLocalStorage();
@@ -888,18 +699,6 @@
         }
 
         function deleteScanLog(index) {
-            const removed = rawScanning[index];
-            if (removed) {
-                const master = masterSystem[removed.sku] || {};
-                recordActivityLog({
-                    rack: removed.rack,
-                    sku: removed.sku,
-                    desc: master.desc,
-                    qty: 0,
-                    sys: master.sys || 0,
-                    dif: 0 - (master.sys || 0)
-                }, 'ENTRY DIHAPUS');
-            }
             rawScanning.splice(index, 1);
             consolidateDuplicates(false);
             renderScanHistory();
@@ -934,32 +733,14 @@
                     const trimmedLine = line.trim();
                     if (!trimmedLine) return;
 
-                    // Mendukung pembagi koma (,), tab (\t), maupun satu/beberapa spasi berurutan (\s+)
-                    let parts = [];
-                    if (trimmedLine.includes(',')) {
-                        parts = trimmedLine.split(',');
-                    } else if (trimmedLine.includes('\t')) {
-                        parts = trimmedLine.split('\t');
-                    } else {
-                        parts = trimmedLine.split(/\s+/);
-                    }
-
-                    if (parts.length >= 3) {
+                    let parts = trimmedLine.includes(',') ? trimmedLine.split(',') : trimmedLine.split(/\s+/);
+                    if (parts.length >= 2) {
                         const rack = parts[0].trim().toUpperCase();
                         const sku = parts[1].trim();
-                        const qty = parseInt(parts[2].trim()) || 0;
+                        const qty = parts[2] ? parseInt(parts[2].trim()) || 1 : 1;
 
                         if (rack && sku && qty > 0) {
                             rawScanning.unshift({ rack, sku, qty, scanTime: timeStr });
-                            const master = masterSystem[sku] || {};
-                            recordActivityLog({
-                                rack: rack,
-                                sku: sku,
-                                desc: master.desc,
-                                qty: qty,
-                                sys: master.sys || 0,
-                                dif: qty - (master.sys || 0)
-                            }, 'IMPORT FILE TXT/CSV');
                             count++;
                         }
                     }
@@ -969,16 +750,13 @@
                 renderScanHistory();
                 processToPOS();
                 saveToLocalStorage();
-                alert(`Berhasil import ${count} item scan! (Telah dikonsolidasi otomatis)`);
+                alert(`Berhasil import ${count} item scan!`);
             };
             reader.readAsText(file);
         }
 
         function consolidateDuplicates(showAlert = false) {
-            if (rawScanning.length === 0) {
-                if (showAlert) alert("Data scanning masih kosong.");
-                return;
-            }
+            if (rawScanning.length === 0) return;
             const map = {};
             const timeStr = getCurrentFormattedDate();
 
@@ -996,13 +774,9 @@
             rawScanning = Object.values(map);
             renderScanHistory();
             processToPOS();
-            if (showAlert) {
-                saveToLocalStorage();
-                alert("SKU duplikat berhasil dikonsolidasi!");
-            }
+            if (showAlert) alert("SKU duplikat berhasil dikonsolidasi!");
         }
 
-        // --- STEP 3: HASIL OLAHAN POS ---
         function processToPOS() {
             const existingMap = {};
             posData.forEach(p => existingMap[p.sku] = p);
@@ -1012,30 +786,22 @@
                 const master = masterSystem[scan.sku] || { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0 };
                 const sys = master.sys;
                 
-                const hasChecks = prev.check1 || prev.check2 || prev.check3;
                 const latestCheck = prev.check3 || prev.check2 || prev.check1;
                 const fisik = latestCheck ? latestCheck.qty : scan.qty;
                 const dif = fisik - sys;
-
-                const initialFisik = (prev.initialFisik !== undefined) ? prev.initialFisik : scan.qty;
-                const initialDif = (prev.initialDif !== undefined) ? prev.initialDif : (initialFisik - sys);
-
-                let status = (dif === 0) ? "TALLY" : "UNTALLY";
-                if (prev.finalStatus && prev.finalStatus.includes("RESOLVED")) {
-                    status = "TALLY";
-                }
+                const isTally = (dif === 0);
 
                 return {
                     rack: scan.rack,
                     sku: scan.sku,
                     desc: master.desc,
                     sys: sys,
-                    initialFisik: initialFisik,
-                    initialDif: initialDif,
+                    initialFisik: prev.initialFisik !== undefined ? prev.initialFisik : scan.qty,
+                    initialDif: prev.initialDif !== undefined ? prev.initialDif : (scan.qty - sys),
                     fisik: fisik,
                     dif: dif,
-                    status: status,
-                    finalStatus: prev.finalStatus || status,
+                    status: isTally ? "TALLY" : "UNTALLY",
+                    finalStatus: prev.finalStatus || (isTally ? "TALLY" : "UNTALLY"),
                     check1: prev.check1 || null,
                     check2: prev.check2 || null,
                     check3: prev.check3 || null
@@ -1051,12 +817,10 @@
         function renderPOSCards() {
             const list = document.getElementById('listPosCard');
             list.innerHTML = '';
-
-            let tally = 0;
-            let untally = 0;
+            let tally = 0, untally = 0;
 
             posData.forEach(item => {
-                const isTally = item.status === "TALLY" || (item.finalStatus && item.finalStatus.includes("RESOLVED"));
+                const isTally = item.status === "TALLY";
                 if (isTally) tally++; else untally++;
 
                 list.innerHTML += `
@@ -1064,7 +828,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-sky-400 font-mono text-xs">${item.sku}</span>
-                                <span class="text-[10px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded font-bold border border-slate-700/80"><i class="fa-solid fa-location-dot text-[9px] mr-1"></i>${item.rack || '-'}</span>
+                                <span class="text-[10px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded font-bold">${item.rack || '-'}</span>
                             </div>
                             <span class="text-[9px] font-extrabold px-2 py-0.5 rounded uppercase ${isTally ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
                                 ${isTally ? 'TALLY' : 'UNTALLY'}
@@ -1072,18 +836,9 @@
                         </div>
                         <p class="text-[11px] text-slate-300 font-medium truncate">${item.desc}</p>
                         <div class="grid grid-cols-3 gap-2 text-center pt-1 border-t border-slate-900/80 text-[10px]">
-                            <div>
-                                <span class="text-slate-500 block">System</span>
-                                <b class="text-sky-400 font-black">${item.sys}</b>
-                            </div>
-                            <div>
-                                <span class="text-slate-500 block">Fisik</span>
-                                <b class="text-emerald-400 font-black">${item.fisik}</b>
-                            </div>
-                            <div>
-                                <span class="text-slate-500 block">Selisih</span>
-                                <b class="${item.dif === 0 || isTally ? 'text-slate-400' : 'text-rose-400'} font-black">${item.dif > 0 ? '+' + item.dif : item.dif}</b>
-                            </div>
+                            <div><span class="text-slate-500 block">System</span><b class="text-sky-400">${item.sys}</b></div>
+                            <div><span class="text-slate-500 block">Fisik</span><b class="text-emerald-400">${item.fisik}</b></div>
+                            <div><span class="text-slate-500 block">Selisih</span><b class="${item.dif === 0 ? 'text-slate-400' : 'text-rose-400'}">${item.dif > 0 ? '+' + item.dif : item.dif}</b></div>
                         </div>
                     </div>
                 `;
@@ -1097,7 +852,7 @@
             const list = document.getElementById('listUntallyCard');
             list.innerHTML = '';
 
-            const untallyItems = posData.filter(i => i.status === "UNTALLY" && !(i.finalStatus && i.finalStatus.includes("RESOLVED")));
+            const untallyItems = posData.filter(i => i.status === "UNTALLY");
             if (untallyItems.length === 0) {
                 list.innerHTML = `<p class="text-center py-10 text-xs text-emerald-400 font-bold"><i class="fa-solid fa-circle-check text-lg block mb-1"></i> Semua Data TALLY / Terverifikasi Cocok!</p>`;
                 checkVerifyABMStatus();
@@ -1106,9 +861,6 @@
 
             untallyItems.forEach((item) => {
                 const globalIndex = posData.findIndex(p => p.sku === item.sku);
-                const displayFisikAwal = item.initialFisik !== undefined ? item.initialFisik : item.fisik;
-                const displayDifAwal = item.initialDif !== undefined ? item.initialDif : item.dif;
-
                 list.innerHTML += `
                     <div class="bg-[#080d1a] p-3.5 rounded-2xl border border-rose-900/50 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
@@ -1116,27 +868,18 @@
                                 <span class="font-bold text-sky-400 font-mono text-xs">${item.sku}</span>
                                 <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-bold ml-1.5">${item.rack}</span>
                             </div>
-                            <span class="text-[10px] font-black text-rose-400">Selisih Awal: ${displayDifAwal > 0 ? '+' + displayDifAwal : displayDifAwal}</span>
+                            <span class="text-[10px] font-black text-rose-400">Selisih: ${item.dif > 0 ? '+' + item.dif : item.dif}</span>
                         </div>
                         <p class="text-[11px] text-slate-300 font-medium truncate">${item.desc}</p>
-                        
-                        <div class="bg-[#0f172a] p-2 rounded-xl text-[10px] text-slate-400 flex justify-between font-mono">
-                            <span>SYS: <b class="text-white">${item.sys}</b></span>
-                            <span>INPUT AWAL: <b class="text-amber-400">${displayFisikAwal}</b></span>
-                            <span>FISIK SAAT INI: <b class="text-emerald-400">${item.fisik}</b></span>
-                        </div>
-
                         <div class="grid grid-cols-3 gap-2 pt-1 text-[10px]">
                             <div class="bg-[#0d1527] p-2 rounded-xl border border-slate-800/80">
                                 <span class="text-[9px] font-bold text-slate-400 block mb-1 uppercase">Check 1</span>
                                 ${renderCheckStepMobile(globalIndex, 1, item.check1, true)}
                             </div>
-
                             <div class="bg-[#0d1527] p-2 rounded-xl border border-slate-800/80">
                                 <span class="text-[9px] font-bold text-slate-400 block mb-1 uppercase">Check 2</span>
                                 ${renderCheckStepMobile(globalIndex, 2, item.check2, item.check1 !== null)}
                             </div>
-
                             <div class="bg-[#0d1527] p-2 rounded-xl border border-slate-800/80">
                                 <span class="text-[9px] font-bold text-sky-400 block mb-1 uppercase">Verify MP</span>
                                 ${renderCheckStepMobile(globalIndex, 3, item.check3, item.check2 !== null)}
@@ -1145,43 +888,24 @@
                     </div>
                 `;
             });
-
             checkVerifyABMStatus();
         }
 
         function renderCheckStepMobile(globalIndex, checkNum, checkData, isEnabled) {
             if (checkData) {
-                return `
-                    <div class="space-y-0.5 text-emerald-400">
-                        <div class="font-black text-xs">Qty: ${checkData.qty} <i class="fa-solid fa-circle-check text-[10px]"></i></div>
-                        <div class="text-[8px] text-slate-400 truncate">${checkData.inspector}</div>
-                    </div>
-                `;
+                return `<div class="font-black text-xs text-emerald-400">Qty: ${checkData.qty}</div><div class="text-[8px] text-slate-400 truncate">${checkData.inspector}</div>`;
             }
+            if (!isEnabled) return `<span class="text-slate-600 italic text-[9px]">Terkunci</span>`;
 
-            if (!isEnabled) {
-                return `<span class="text-slate-600 italic text-[9px]">Terkunci</span>`;
-            }
-
-            const storeStaff = {
-                'XKLR': ['SENDI NUGRAHA', 'KAMALUDIN', 'RATIH OCTAVIANI'],
-                'XCMG': ['NUR ALIM', 'DIKI LUKMAN HAKIM', 'JAJANG NURJAMAN'],
-                'XCIH': ['NINA', 'GALANG TAKBIR AKBARI', 'TENDI']
-            };
-
-            const staffList = storeStaff[currentStore] || ['SENDI NUGRAHA', 'KAMALUDIN', 'RATIH OCTAVIANI'];
+            const staffList = ['SENDI NUGRAHA', 'KAMALUDIN', 'RATIH OCTAVIANI', 'NUR ALIM', 'DIKI LUKMAN', 'NINA', 'GALANG TAKBIR'];
             let opts = `<option value="" disabled selected>-- Petugas --</option>`;
             staffList.forEach(s => opts += `<option value="${s}">${s}</option>`);
 
             return `
                 <div class="space-y-1">
-                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty" class="w-full px-1.5 py-1 bg-[#050914] border border-slate-700/80 rounded text-[10px] text-center font-bold text-white outline-none focus:border-sky-500">
-                    <select id="user_${globalIndex}_${checkNum}" class="w-full px-1 py-1 bg-[#050914] border border-slate-700/80 rounded text-[8px] text-slate-300 outline-none">
-                        ${opts}
-                    </select>
-                    <button onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold py-1 rounded text-[8px] uppercase tracking-tighter">
-                        Submit
-                    </button>
+                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty" class="w-full px-1.5 py-1 bg-[#050914] border border-slate-700/80 rounded text-[10px] text-center font-bold text-white outline-none">
+                    <select id="user_${globalIndex}_${checkNum}" class="w-full px-1 py-1 bg-[#050914] border border-slate-700/80 rounded text-[8px] text-slate-300 outline-none">${opts}</select>
+                    <button onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 text-slate-950 font-extrabold py-1 rounded text-[8px] uppercase">Submit</button>
                 </div>
             `;
         }
@@ -1189,52 +913,22 @@
         function submitCheckStep(globalIndex, checkNum) {
             const qtyInput = document.getElementById(`qty_${globalIndex}_${checkNum}`);
             const userInput = document.getElementById(`user_${globalIndex}_${checkNum}`);
-
             const qty = parseInt(qtyInput.value);
             const inspector = userInput.value;
 
-            if (isNaN(qty) || qty < 0) {
-                alert("Harap masukkan Qty hasil re-scan yang valid.");
-                return;
-            }
-            if (!inspector) {
-                alert("Harap pilih Nama Petugas dari daftar.");
+            if (isNaN(qty) || qty < 0 || !inspector) {
+                alert("Harap masukkan Qty dan Petugas yang valid.");
                 return;
             }
 
-            const timeStr = getCurrentFormattedDate();
-            const checkRecord = { qty, inspector, time: timeStr };
-
-            if (posData[globalIndex].check1 === null && posData[globalIndex].check2 === null && posData[globalIndex].check3 === null) {
-                posData[globalIndex].initialFisik = posData[globalIndex].fisik;
-                posData[globalIndex].initialDif = posData[globalIndex].dif;
-            }
-
+            const checkRecord = { qty, inspector, time: getCurrentFormattedDate() };
             if (checkNum === 1) posData[globalIndex].check1 = checkRecord;
             if (checkNum === 2) posData[globalIndex].check2 = checkRecord;
             if (checkNum === 3) posData[globalIndex].check3 = checkRecord;
 
             posData[globalIndex].fisik = qty;
             posData[globalIndex].dif = qty - posData[globalIndex].sys;
-
-            if (posData[globalIndex].dif === 0) {
-                posData[globalIndex].finalStatus = "RESOLVED (TALLY)";
-                posData[globalIndex].status = "TALLY";
-            } else {
-                const diff = posData[globalIndex].dif;
-                posData[globalIndex].finalStatus = `UNTALLY (SELISIH ${diff > 0 ? '+' + diff : diff})`;
-                posData[globalIndex].status = "UNTALLY";
-            }
-
-            const checkLabel = checkNum === 3 ? 'VERIFY MP' : `CHECK ${checkNum}`;
-            recordActivityLog({
-                rack: posData[globalIndex].rack,
-                sku: posData[globalIndex].sku,
-                desc: posData[globalIndex].desc,
-                fisik: qty,
-                sys: posData[globalIndex].sys,
-                dif: posData[globalIndex].dif
-            }, `${checkLabel} (${inspector})`);
+            if (posData[globalIndex].dif === 0) posData[globalIndex].status = "TALLY";
 
             renderPOSCards();
             renderUntallyCards();
@@ -1244,48 +938,18 @@
         function checkVerifyABMStatus() {
             const btn = document.getElementById("btnDownloadVerifyABM");
             if (!btn) return;
-
-            const hasCompletedVerifyMP = posData.some(item => item.check3 !== null);
-            if (hasCompletedVerifyMP) {
-                btn.disabled = false;
-                btn.className = "bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs px-2.5 py-1.5 rounded-xl font-bold transition-all shadow-md cursor-pointer";
-            } else {
-                btn.disabled = true;
-                btn.className = "bg-slate-800 text-slate-500 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700/80 font-bold cursor-not-allowed";
-            }
+            const hasCompleted = posData.some(item => item.check3 !== null);
+            btn.disabled = !hasCompleted;
+            btn.className = hasCompleted ? "bg-emerald-500 text-slate-950 text-xs px-2.5 py-1.5 rounded-xl font-bold" : "bg-slate-800 text-slate-500 text-xs px-2.5 py-1.5 rounded-xl font-bold cursor-not-allowed";
         }
 
         function downloadVerifyABMToExcel() {
-            const verifyRows = [];
-            let no = 1;
+            const rows = posData.filter(i => i.check3 !== null).map((item, idx) => ({
+                "No": idx + 1, "Toko": currentStore, "SKU": item.sku, "Deskripsi": item.desc,
+                "SYS": item.sys, "FISIK": item.fisik, "Petugas MP": item.check3 ? item.check3.inspector : '-'
+            }));
 
-            posData.forEach(item => {
-                if (item.check3 !== null) {
-                    verifyRows.push({
-                        "No": no++,
-                        "Toko": currentStore,
-                        "Rack": item.rack || '-',
-                        "SKU Code": item.sku,
-                        "Deskripsi": item.desc || 'DESKRIPSI TIDAK TERSEDIA',
-                        "Input Awal (Qty)": item.initialFisik !== undefined ? item.initialFisik : item.fisik,
-                        "System (Qty)": item.sys,
-                        "Check 1 (Qty)": item.check1 ? item.check1.qty : '-',
-                        "Petugas Check 1": item.check1 ? item.check1.inspector : '-',
-                        "Check 2 (Qty)": item.check2 ? item.check2.qty : '-',
-                        "Petugas Check 2": item.check2 ? item.check2.inspector : '-',
-                        "Verify MP / Check 3 (Qty)": item.check3.qty,
-                        "Petugas Verify MP": item.check3.inspector,
-                        "Final Status": item.finalStatus || item.status
-                    });
-                }
-            });
-
-            if (verifyRows.length === 0) {
-                alert("Belum ada data yang menyelesaikan tahap Verify MP.");
-                return;
-            }
-
-            const ws = XLSX.utils.json_to_sheet(verifyRows);
+            const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Verify ABM");
             XLSX.writeFile(wb, `Laporan_Verify_ABM_${currentStore}.xlsx`);
@@ -1307,86 +971,29 @@
             document.getElementById('progressBarFill').style.width = `${pct}%`;
         }
 
-        // --- CAMERA SCANNER LOGIC ---
-        async function openCameraScanner(targetField) {
+        function openCameraScanner(targetField) {
             currentTargetField = targetField;
             document.getElementById('scanTypeBadge').innerText = `SCAN ${targetField}`;
             document.getElementById('cameraScannerModal').classList.remove('hidden');
 
-            try {
-                availableCameras = await Html5Qrcode.getCameras();
-                if (availableCameras.length === 0) {
-                    alert("Kamera tidak ditemukan di perangkat.");
-                    closeCameraScanner();
-                    return;
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras.length > 0) {
+                    currentCameraId = cameras[cameras.length - 1].id;
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                    html5QrCode.start(currentCameraId, { fps: 20, qrbox: { width: 250, height: 180 } }, (decodedText) => {
+                        if (currentTargetField === 'RAK') {
+                            document.getElementById('inputRack').value = decodedText.toUpperCase();
+                            closeCameraScanner();
+                            document.getElementById('inputSKU').focus();
+                        } else {
+                            document.getElementById('inputSKU').value = decodedText;
+                            lookupSkuSystemInfo();
+                            closeCameraScanner();
+                            document.getElementById('scanForm').requestSubmit();
+                        }
+                    }).catch(err => console.error(err));
                 }
-
-                currentCameraId = availableCameras[availableCameras.length - 1].id;
-                startCameraStream(currentCameraId);
-            } catch (err) {
-                alert("Gagal mengakses kamera: " + err);
-                closeCameraScanner();
-            }
-        }
-
-        function startCameraStream(cameraId) {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => initHtml5QrCode(cameraId)).catch(() => initHtml5QrCode(cameraId));
-            } else {
-                initHtml5QrCode(cameraId);
-            }
-        }
-
-        function initHtml5QrCode(cameraId) {
-            html5QrCode = new Html5Qrcode("qr-reader");
-            const config = {
-                fps: 30,
-                qrbox: { width: 250, height: 180 },
-                aspectRatio: 1.0,
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39
-                ]
-            };
-
-            html5QrCode.start(
-                cameraId,
-                config,
-                (decodedText) => onBarcodeDetected(decodedText),
-                () => {}
-            ).catch(err => console.error(err));
-        }
-
-        function onBarcodeDetected(decodedText) {
-            playBeepSound();
-            if (navigator.vibrate) navigator.vibrate(80);
-
-            if (currentTargetField === 'RAK') {
-                const rackInput = document.getElementById('inputRack');
-                rackInput.value = decodedText.toUpperCase();
-                rackInput.dispatchEvent(new Event('input', { bubbles: true }));
-                rackInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-                closeCameraScanner();
-                setTimeout(() => {
-                    document.getElementById('inputSKU').focus();
-                }, 150);
-            } else {
-                const skuInput = document.getElementById('inputSKU');
-                skuInput.value = decodedText;
-                skuInput.dispatchEvent(new Event('input', { bubbles: true }));
-                skuInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-                lookupSkuSystemInfo();
-                closeCameraScanner();
-                setTimeout(() => {
-                    document.getElementById('scanForm').requestSubmit();
-                }, 150);
-            }
+            });
         }
 
         function closeCameraScanner() {
@@ -1402,40 +1009,7 @@
             }
         }
 
-        function switchCamera() {
-            if (availableCameras.length < 2) return;
-            let currentIdx = availableCameras.findIndex(c => c.id === currentCameraId);
-            let nextIdx = (currentIdx + 1) % availableCameras.length;
-            currentCameraId = availableCameras[nextIdx].id;
-            startCameraStream(currentCameraId);
-        }
-
-        function toggleTorch() {
-            if (!html5QrCode) return;
-            isTorchOn = !isTorchOn;
-            html5QrCode.applyVideoConstraints({
-                advanced: [{ torch: isTorchOn }]
-            }).catch(() => alert("Lampu senter tidak didukung"));
-        }
-
-        function playBeepSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1200, ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.08);
-            } catch (e) {}
-        }
-
-        function printUntallyReport() {
-            window.print();
-        }
+        function printUntallyReport() { window.print(); }
     </script>
 </body>
 </html>
