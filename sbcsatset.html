@@ -201,8 +201,9 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="triggerAutoSync()" class="w-9 h-9 bg-slate-800/80 text-sky-400 rounded-xl flex items-center justify-center border border-slate-700/80">
-                    <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-up"></i>
+                <!-- TOMBOL RESTORE DARI CLOUD PADA HEADER -->
+                <button onclick="restoreFromCloud()" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30">
+                    <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-down"></i> Pulihkan
                 </button>
                 <button onclick="openStoreSelector()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-md">
                     <i class="fa-solid fa-store"></i> Cabang
@@ -259,15 +260,30 @@
                     </h3>
                 </div>
 
-                <p class="text-[11px] text-slate-400 leading-relaxed">
-                    Tempelkan data tarikan POS/Excel (Format: <code>SKU, RAK, HARGA, SYS_QTY, ..., DESKRIPSI</code>)
+                <!-- BUBBLE UTAMA PULIHKAN DATA SPREADSHEET KHUSUS STEP 1 -->
+                <div class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-800/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i> Pulihkan Data dari Spreadsheet
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-emerald-200/80 leading-relaxed">
+                        Tekan tombol di bawah untuk memuat seluruh data <b>Step 1, 2, 3, dan 4</b> yang telah tersimpan di Cloud tanpa perlu input ulang.
+                    </p>
+                    <button onclick="restoreFromCloud()" class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-98 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN DATA CLOUD (SPREADSHEET)
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-400 leading-relaxed pt-1">
+                    Atau tempelkan data tarikan POS/Excel baru (Format: <code>SKU, RAK, HARGA, SYS_QTY, ..., DESKRIPSI</code>):
                 </p>
 
-                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="4" placeholder="Paste data tarikan disini..." class="w-full p-3 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
+                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="4" placeholder="Paste data tarikan baru disini..." class="w-full p-3 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
 
                 <div class="flex items-center gap-2">
                     <button onclick="processMasterPaste()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bolt"></i> Proses Data
+                        <i class="fa-solid fa-bolt"></i> Proses Data Baru
                     </button>
                     <button onclick="downloadUnscannedToExcel()" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-file-excel"></i> Belum Scan
@@ -353,7 +369,6 @@
                     <button onclick="consolidateDuplicates()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-rotate text-emerald-400"></i> Konsolidasi
                     </button>
-                    <!-- TOMBOL DOWNLOAD SKU BELUM SCAN PADA STEP 2 -->
                     <button onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
                         <i class="fa-solid fa-file-excel text-rose-400"></i> Belum Scan
                     </button>
@@ -545,6 +560,46 @@
             processToPOS();
         }
 
+        // --- FUNGSI PULIHKAN DATA DARI SPREADSHEET (CLOUD RESTORE) ---
+        async function restoreFromCloud() {
+            if (!currentStore) {
+                alert("Silakan pilih cabang toko terlebih dahulu.");
+                return;
+            }
+
+            const icon = document.getElementById('syncStatusIcon');
+            if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
+
+            try {
+                const response = await fetch(`${WEB_APP_URL}?storeCode=${currentStore}`);
+                const data = await response.json();
+
+                if (data.status === "success" && data.posData && data.posData.length > 0) {
+                    posData = data.posData;
+                    masterSystem = data.masterSystem || masterSystem;
+                    rawScanning = data.rawScanning || rawScanning;
+
+                    await saveToLocalStorage();
+
+                    renderScanHistory();
+                    renderPOSCards();
+                    renderUntallyCards();
+                    updateProgressDashboard();
+                    checkVerifyABMStatus();
+                    lookupSkuSystemInfo();
+
+                    if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
+                    alert(`BERHASIL!\n\nData Toko ${currentStore} berhasil dipulihkan dari Cloud Spreadsheet (${posData.length} SKU). Seluruh Step 1, 2, 3, dan 4 telah terisi otomatis!`);
+                } else {
+                    if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
+                    alert(`Informasi: Belum ada data tersimpan untuk Toko ${currentStore} di Cloud Spreadsheet.`);
+                }
+            } catch (err) {
+                if (icon) icon.className = "fa-solid fa-cloud-exclamation text-rose-400";
+                alert("Gagal terhubung ke Cloud Spreadsheet. Pastikan koneksi internet HP Anda stabil.");
+            }
+        }
+
         function triggerAutoSync() {
             const icon = document.getElementById('syncStatusIcon');
             if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
@@ -552,7 +607,7 @@
             clearTimeout(syncTimer);
             syncTimer = setTimeout(async () => {
                 if (!currentStore || posData.length === 0) {
-                    if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-sky-400";
+                    if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
                     return;
                 }
 
@@ -1287,16 +1342,20 @@
             if (navigator.vibrate) navigator.vibrate(80);
 
             if (currentTargetField === 'RAK') {
-                document.getElementById('inputRack').value = decodedText.toUpperCase();
+                const rackInput = document.getElementById('inputRack');
+                rackInput.value = decodedText.toUpperCase();
                 closeCameraScanner();
-                document.getElementById('inputSKU').focus();
+                setTimeout(() => {
+                    document.getElementById('inputSKU').focus();
+                }, 150);
             } else {
-                document.getElementById('inputSKU').value = decodedText;
+                const skuInput = document.getElementById('inputSKU');
+                skuInput.value = decodedText;
                 lookupSkuSystemInfo();
                 closeCameraScanner();
                 setTimeout(() => {
                     document.getElementById('scanForm').requestSubmit();
-                }, 100);
+                }, 150);
             }
         }
 
