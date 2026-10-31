@@ -931,7 +931,19 @@
                 const timeStr = getCurrentFormattedDate();
 
                 lines.forEach(line => {
-                    const parts = line.split(',');
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) return;
+
+                    // Mendukung pembagi koma (,), tab (\t), maupun satu/beberapa spasi berurutan (\s+)
+                    let parts = [];
+                    if (trimmedLine.includes(',')) {
+                        parts = trimmedLine.split(',');
+                    } else if (trimmedLine.includes('\t')) {
+                        parts = trimmedLine.split('\t');
+                    } else {
+                        parts = trimmedLine.split(/\s+/);
+                    }
+
                     if (parts.length >= 3) {
                         const rack = parts[0].trim().toUpperCase();
                         const sku = parts[1].trim();
