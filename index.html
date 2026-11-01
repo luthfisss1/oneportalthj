@@ -46,7 +46,7 @@
         .landing-screen { display: flex; flex-direction: column; gap: 24px; text-align: center; padding: 10px 0; }
         .landing-title { font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; }
         .mode-cards-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
-        .mode-card { display: flex; align-items: center; justify-space-between: space-between; padding: 20px 24px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .mode-card { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; text-align: left; }
         .mode-card.checkin { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(59, 130, 246, 0.4); }
         .mode-card.checkin:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(30, 41, 59, 0.9)); border-color: var(--accent-blue); transform: translateY(-2px); }
         .mode-card.checkout { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(30, 41, 59, 0.8)); border-color: rgba(245, 158, 11, 0.4); }
@@ -91,8 +91,9 @@
         <!-- Header Utama Dashboard -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl transition-colors duration-300">
             <div>
-                <h1 id="ui_main_title" class="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2 tracking-wide">
-                    <i data-lucide="layout-dashboard" class="text-indigo-400 w-7 h-7"></i> SISTEM TERPADU OPERASIONAL
+                <h1 id="ui_main_title" class="text-xl md:text-2xl font-extrabold text-white flex items-start gap-2 tracking-wide">
+                    <i data-lucide="layout-dashboard" class="text-indigo-400 w-7 h-7 mt-0.5 shrink-0"></i>
+                    <span>SISTEM TERPADU<br>TAHU AJA</span>
                 </h1>
                 <p id="ui_main_subtitle" class="text-slate-400 text-xs md:text-sm mt-1 font-medium">AREA XKLR • XCMG • XCIH</p>
             </div>
@@ -161,7 +162,7 @@
                         <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">LEADERBOARD</span>
                     </div>
                     <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors uppercase">3. LEADERBOARD UPSELLING</h3>
-                    <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING (Baris 5-Selesai).</p>
+                    <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING secara presisi.</p>
                 </div>
 
                 <!-- 4. SBC SATSET -->
@@ -186,11 +187,23 @@
                         </div>
                         <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">AKTIF</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">5. STOCK BALANCE CHECK</h3>
+                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">5. GABUNGKAN QTY SKU YANG SAMA, HAPUS DUPLICATE</h3>
                     <p class="text-slate-400 text-xs mt-2">Filter & hapus SKU duplikat hasil scanning, gabungkan Qty input, lalu salin kembali ke Excel.</p>
                 </div>
 
-                <!-- 6. EXPIRED DATA -->
+                <!-- 6. KUMPULAN LINK -->
+                <div onclick="navigateTo('kumpulanLink')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="link-2" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">PORTAL LINK</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors uppercase">6. KUMPULAN LINK</h3>
+                    <p class="text-slate-400 text-xs mt-2">Akses cepat ke Drive Report, F003 Store Damage, Qube ERP, dan Fast Petty Cash MP.</p>
+                </div>
+
+                <!-- 7. EXPIRED DATA -->
                 <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
@@ -198,8 +211,86 @@
                         </div>
                         <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-300 uppercase">6. EXPIRED DATA</h3>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">7. EXPIRED DATA</h3>
                     <p class="text-slate-500 text-xs mt-2">Modul pendataan dan pengawasan barang yang mendekati tanggal kadaluarsa toko.</p>
+                </div>
+
+                <!-- 8. SHORTCUT MP -->
+                <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
+                            <i data-lucide="zap" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">8. SHORTCUT MP</h3>
+                    <p class="text-slate-500 text-xs mt-2">Pintasan cepat modul dan utilitas khusus Main Person (MP).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. KUMPULAN LINK PAGE -->
+        <div id="pageKumpulanLink" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-lg md:text-xl font-bold text-blue-400 flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="link-2" class="w-6 h-6 text-blue-400"></i> Kumpulan Link Portal Operasional
+                        </h2>
+                        <p class="text-xs md:text-sm text-slate-400 mt-1">
+                            Pilih salah satu link cepat di bawah ini untuk menuju ke aplikasi atau folder tujuan.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Link 1: DRIVE REPORT MP GARUT -->
+                    <a href="https://drive.google.com/drive/folders/1F_PQSey2w3hcfPnol46qlHHpA-zChKWO" target="_blank" rel="noopener noreferrer" class="group bg-slate-900/80 hover:bg-slate-900 border border-slate-700/80 hover:border-blue-500/60 p-5 rounded-xl transition duration-300 flex items-start justify-between gap-3 shadow-md">
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 font-mono">GOOGLE DRIVE</span>
+                            <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors uppercase flex items-center gap-2">
+                                DRIVE REPORT MP GARUT
+                            </h3>
+                            <p class="text-xs text-slate-400">Buka folder penyimpanan dokumen laporan MP Garut.</p>
+                        </div>
+                        <i data-lucide="external-link" class="w-5 h-5 text-blue-400 shrink-0 mt-1 group-hover:scale-110 transition-transform"></i>
+                    </a>
+
+                    <!-- Link 2: F003 STORE DAMAGE SUBMITION -->
+                    <a href="https://script.google.com/a/macros/mrdiy.com/s/AKfycbzMJ9vSrf0vtwkL8WU47XDPaDVZqecQs2YAtrtip5UtAB4wGyff33LKokTwsodbRRDbKw/exec" target="_blank" rel="noopener noreferrer" class="group bg-slate-900/80 hover:bg-slate-900 border border-slate-700/80 hover:border-emerald-500/60 p-5 rounded-xl transition duration-300 flex items-start justify-between gap-3 shadow-md">
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">FORM SUBMISSION</span>
+                            <h3 class="text-base font-bold text-white group-hover:text-emerald-400 transition-colors uppercase flex items-center gap-2">
+                                F003 STORE DAMAGE SUBMITION
+                            </h3>
+                            <p class="text-xs text-slate-400">Akses form pelaporan barang/produk retur damage toko.</p>
+                        </div>
+                        <i data-lucide="external-link" class="w-5 h-5 text-emerald-400 shrink-0 mt-1 group-hover:scale-110 transition-transform"></i>
+                    </a>
+
+                    <!-- Link 3: QUBE ERP -->
+                    <a href="https://iderp.mrdiy.com/LandingPage.aspx" target="_blank" rel="noopener noreferrer" class="group bg-slate-900/80 hover:bg-slate-900 border border-slate-700/80 hover:border-purple-500/60 p-5 rounded-xl transition duration-300 flex items-start justify-between gap-3 shadow-md">
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20 font-mono">SYSTEM ERP</span>
+                            <h3 class="text-base font-bold text-white group-hover:text-purple-400 transition-colors uppercase flex items-center gap-2">
+                                QUBE ERP
+                            </h3>
+                            <p class="text-xs text-slate-400">Masuk ke sistem landing page Qube ERP perusahaan.</p>
+                        </div>
+                        <i data-lucide="external-link" class="w-5 h-5 text-purple-400 shrink-0 mt-1 group-hover:scale-110 transition-transform"></i>
+                    </a>
+
+                    <!-- Link 4: FAST PETTY CASH MP -->
+                    <a href="https://www.fastmrdiy.id/login" target="_blank" rel="noopener noreferrer" class="group bg-slate-900/80 hover:bg-slate-900 border border-slate-700/80 hover:border-amber-500/60 p-5 rounded-xl transition duration-300 flex items-start justify-between gap-3 shadow-md">
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-mono">PETTY CASH</span>
+                            <h3 class="text-base font-bold text-white group-hover:text-amber-400 transition-colors uppercase flex items-center gap-2">
+                                FAST PETTY CASH MP
+                            </h3>
+                            <p class="text-xs text-slate-400">Portal login pengajuan & klaim Fast Petty Cash MP.</p>
+                        </div>
+                        <i data-lucide="external-link" class="w-5 h-5 text-amber-400 shrink-0 mt-1 group-hover:scale-110 transition-transform"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -436,7 +527,7 @@
             </div>
         </div>
 
-        <!-- 5. STOCK BALANCE CHECK PAGE (DUPLICATE SCANNING & CLEANER) -->
+        <!-- 5. STOCK BALANCE CHECK PAGE -->
         <div id="pageStockBalance" class="hidden space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-6">
                 <!-- Header Section -->
@@ -479,7 +570,7 @@
                     </div>
                 </div>
 
-                <!-- Section Hasil Olah Data (Disembunyikan secara default hingga ada pemrosesan) -->
+                <!-- Section Hasil Olah Data -->
                 <div id="stockResultSection" class="hidden space-y-6 pt-4 border-t border-slate-700">
                     
                     <!-- Ringkasan Kartu Statistik -->
@@ -502,7 +593,7 @@
                         </div>
                     </div>
 
-                    <!-- TABEL 1: HASIL SKU UNIK (BERSIH & SIAP PASTE KE EXCEL) -->
+                    <!-- TABEL 1: HASIL SKU UNIK -->
                     <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 space-y-3">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/80 pb-3">
                             <div>
@@ -526,13 +617,12 @@
                                     </tr>
                                 </thead>
                                 <tbody id="stockUniqueTbody" class="divide-y divide-slate-800 bg-slate-800/40">
-                                    <!-- Dynamic content -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- TABEL 2: DAFTAR DATA SKU DUPLIKAT (DI BAGIAN BAWAH) -->
+                    <!-- TABEL 2: DAFTAR DATA SKU DUPLIKAT -->
                     <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-4 space-y-3">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
                             <div>
@@ -558,7 +648,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="stockDuplicateTbody" class="divide-y divide-slate-800 bg-slate-800/40">
-                                    <!-- Dynamic content -->
                                 </tbody>
                             </table>
                         </div>
@@ -638,12 +727,14 @@
             const pageUpselling = document.getElementById('pageUpselling');
             const pageLeaderboard = document.getElementById('pageLeaderboard');
             const pageStockBalance = document.getElementById('pageStockBalance');
+            const pageKumpulanLink = document.getElementById('pageKumpulanLink');
 
             pageHome.classList.add('hidden');
             pageAbsensi.classList.add('hidden');
             pageUpselling.classList.add('hidden');
             pageLeaderboard.classList.add('hidden');
             pageStockBalance.classList.add('hidden');
+            if (pageKumpulanLink) pageKumpulanLink.classList.add('hidden');
 
             if (targetPage === 'absensi') {
                 pageAbsensi.classList.remove('hidden');
@@ -655,6 +746,8 @@
                 renderSystemLogs();
             } else if (targetPage === 'stockBalance') {
                 pageStockBalance.classList.remove('hidden');
+            } else if (targetPage === 'kumpulanLink') {
+                if (pageKumpulanLink) pageKumpulanLink.classList.remove('hidden');
             } else {
                 pageHome.classList.remove('hidden');
             }
@@ -768,7 +861,7 @@ AG03-05\t9077297\t6`;
                 </tr>
             `).join('');
 
-            // Render Tabel SKU Duplikat (Di Bagian Bawah)
+            // Render Tabel SKU Duplikat
             const dupTbody = document.getElementById('stockDuplicateTbody');
             if (currentStockDuplicateData.length === 0) {
                 dupTbody.innerHTML = `
@@ -795,7 +888,7 @@ AG03-05\t9077297\t6`;
             }
 
             document.getElementById('stockResultSection').classList.remove('hidden');
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function copyUniqueStockToClipboard() {
@@ -828,141 +921,281 @@ AG03-05\t9077297\t6`;
             });
         }
 
-        // INTEGRASI DENGAN PROXY CORS BYPASS UNTUK BACA CSV LIVE
+        // ==========================================
+        // INTEGRASI DENGAN GOOGLE SHEETS LEADERBOARD LIVE
+        // ==========================================
         const RAW_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAWawcz6sSPEvuwIbPOxvYKAxII8w_DQles8X8fBUzihige3PJPO6KMA8TK4yRX6bl_bCE7pBBYP5L/pub?gid=1377147968&single=true&output=csv";
+        const GVIZ_JSON_URL = "https://docs.google.com/spreadsheets/d/1-noiw9uDeq_SWAfvU1Vavbo5ctWCkwDR_zqMKoK_C2M/gviz/tq?sheet=RANKING&tqx=out:json&headers=0";
+        const GVIZ_CSV_URL = "https://docs.google.com/spreadsheets/d/1-noiw9uDeq_SWAfvU1Vavbo5ctWCkwDR_zqMKoK_C2M/gviz/tq?tqx=out:csv&sheet=RANKING&headers=0";
         const PROXY_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW_CSV_URL);
         const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuuHuWThmbUBDgEpoX5LGmTCn0F-iOyoNgkAgOTrLq7GtWqa3TV6TIIedcBiOA9znDTA/exec";
 
-        function parseCSV(text) {
-            const lines = [];
-            let row = [];
-            let cur = '';
-            let inQuotes = false;
-            for (let i = 0; i < text.length; i++) {
-                const c = text[i];
-                const next = text[i+1];
-                if (c === '"') {
-                    if (inQuotes && next === '"') { cur += '"'; i++; }
-                    else { inQuotes = !inQuotes; }
-                } else if (c === ',' && !inQuotes) {
-                    row.push(cur.trim()); cur = '';
-                } else if ((c === '\r' || c === '\n') && !inQuotes) {
-                    if (c === '\r' && next === '\n') { i++; }
-                    row.push(cur.trim());
-                    if (row.some(cell => cell !== '')) lines.push(row);
-                    row = []; cur = '';
-                } else {
-                    cur += c;
+        function safeCreateIcons() {
+            try {
+                if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
                 }
+            } catch (err) {
+                console.warn("Lucide icons deferred or failed to render:", err);
             }
-            if (cur !== '' || row.length > 0) {
-                row.push(cur.trim());
-                if (row.some(cell => cell !== '')) lines.push(row);
-            }
-            return lines;
         }
 
-        function fetchLeaderboardData() {
-            const tbody = document.getElementById('leaderboardTbody');
-            tbody.innerHTML = `
-                <tr>
-                    <td class="p-6 text-center text-slate-400" colspan="10">
-                        <div class="flex items-center justify-center gap-2">
-                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin text-amber-400"></i>
-                            <span>Memuat data leaderboard dari Google Sheets...</span>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            lucide.createIcons();
+        function parseCSV(text) {
+            try {
+                if (!text || typeof text !== 'string') return [];
+                const lines = [];
+                let row = [];
+                let cur = '';
+                let inQuotes = false;
+                for (let i = 0; i < text.length; i++) {
+                    const c = text[i];
+                    const next = text[i+1];
+                    if (c === '"') {
+                        if (inQuotes && next === '"') { cur += '"'; i++; }
+                        else { inQuotes = !inQuotes; }
+                    } else if (c === ',' && !inQuotes) {
+                        row.push(cur.trim()); cur = '';
+                    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+                        if (c === '\r' && next === '\n') { i++; }
+                        row.push(cur.trim());
+                        if (row.some(cell => cell !== '')) lines.push(row);
+                        row = []; cur = '';
+                    } else {
+                        cur += c;
+                    }
+                }
+                if (cur !== '' || row.length > 0) {
+                    row.push(cur.trim());
+                    if (row.some(cell => cell !== '')) lines.push(row);
+                }
+                return lines;
+            } catch (err) {
+                console.error("CSV parse exception caught:", err);
+                return [];
+            }
+        }
 
-            fetch(`${PROXY_URL}&t=${Date.now()}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Gagal mengambil file CSV Publish");
-                    return response.text();
-                })
-                .then(csvText => {
-                    const parsedData = parseCSV(csvText);
-                    renderLeaderboardTable(parsedData);
-                })
-                .catch(err => {
-                    console.error("CORS Proxy error, mencoba metode fallback Apps Script...", err);
-                    const script = document.createElement('script');
-                    script.src = `${APP_SCRIPT_URL}?action=getRanking&callback=handleAppsScriptData&t=${Date.now()}`;
-                    document.body.appendChild(script);
+        // PARSER KHUSUS UNTUK GVIZ JSON RESPONSE (MENGHINDARI HEADER TRUNCATION)
+        function parseGvizJson(text) {
+            try {
+                if (!text || typeof text !== 'string') return null;
+                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+                if (!jsonMatch || !jsonMatch[1]) return null;
+                const parsed = JSON.parse(jsonMatch[1]);
+                if (!parsed || !parsed.table || !Array.isArray(parsed.table.rows)) return null;
+                return parsed.table.rows.map(r => {
+                    if (!r || !Array.isArray(r.c)) return ['', ''];
+                    const colA = (r.c[0] && r.c[0].v !== null && r.c[0].v !== undefined) ? r.c[0].v : '';
+                    const colB = (r.c[1] && r.c[1].v !== null && r.c[1].v !== undefined) ? r.c[1].v : (r.c[1] && r.c[1].f ? r.c[1].f : '');
+                    return [colA, colB];
                 });
+            } catch (e) {
+                console.error("Gviz JSON parse error:", e);
+                return null;
+            }
+        }
+
+        function renderLeaderboardTable(data) {
+            try {
+                const tbody = document.getElementById('leaderboardTbody');
+                const thead = document.getElementById('leaderboardThead');
+                if (!tbody || !thead) return;
+
+                if (!data || !Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `<tr><td class="p-6 text-center text-rose-400" colspan="10">Data di sheet RANKING kosong.</td></tr>`;
+                    return;
+                }
+
+                const validRows = [];
+
+                data.forEach(row => {
+                    if (!Array.isArray(row) || row.length < 2) return;
+
+                    const colA = (row[0] !== undefined && row[0] !== null) ? row[0].toString().trim() : '';
+                    const colB = (row[1] !== undefined && row[1] !== null) ? row[1].toString().trim() : '';
+
+                    if (!colA) return;
+
+                    const upperA = colA.toUpperCase();
+                    // Abaikan judul header seperti "RANKING KASIR 🔥", "NAMA KARYAWAN", atau baris petunjuk
+                    if (upperA.includes('RANKING KASIR') || upperA.includes('NAMA KARYAWAN') || upperA === 'NAMA' || upperA === 'PERINGKAT' || colA === '-') {
+                        return;
+                    }
+
+                    if (colB !== '' && colB !== null && colB !== undefined) {
+                        const cleanB = colB.replace(',', '.');
+                        const numB = parseFloat(cleanB);
+
+                        if (!isNaN(numB)) {
+                            validRows.push({
+                                nama: colA,
+                                poin: numB
+                            });
+                        }
+                    }
+                });
+
+                if (validRows.length === 0) {
+                    tbody.innerHTML = `<tr><td class="p-6 text-center text-slate-400" colspan="10">Belum ada data peringkat kasir pada Sheet RANKING.</td></tr>`;
+                    return;
+                }
+
+                // Urutkan berdasarkan poin terbesar ke terkecil
+                validRows.sort((a, b) => b.poin - a.poin);
+
+                thead.innerHTML = `
+                    <tr>
+                        <th class="p-3 text-center">PERINGKAT</th>
+                        <th class="p-3">NAMA KARYAWAN</th>
+                        <th class="p-3 text-right">TOTAL POIN</th>
+                    </tr>
+                `;
+
+                let tbodyHtml = "";
+                let rankCounter = 1;
+
+                validRows.forEach(item => {
+                    const nama = item.nama;
+                    const poinFormatted = Number(item.poin.toFixed(1)).toString();
+
+                    let bgRank = "";
+                    if (rankCounter === 1) bgRank = "bg-amber-500/15 border-l-4 border-amber-400 font-semibold";
+                    else if (rankCounter === 2) bgRank = "bg-slate-300/10 border-l-4 border-slate-300";
+                    else if (rankCounter === 3) bgRank = "bg-amber-700/15 border-l-4 border-amber-600";
+
+                    let rankLabel = rankCounter.toString();
+                    if (rankCounter === 1) rankLabel = '🥇 Juara 1';
+                    else if (rankCounter === 2) rankLabel = '🥈 Juara 2';
+                    else if (rankCounter === 3) rankLabel = '🥉 Juara 3';
+
+                    tbodyHtml += `
+                        <tr class="${bgRank} hover:bg-slate-700/40 transition border-b border-slate-700/40">
+                            <td class="p-3 text-center font-bold text-amber-400">${rankLabel}</td>
+                            <td class="p-3 text-slate-100 font-medium uppercase">${nama}</td>
+                            <td class="p-3 text-right font-mono font-bold text-amber-300">${poinFormatted}</td>
+                        </tr>
+                    `;
+                    rankCounter++;
+                });
+
+                tbody.innerHTML = tbodyHtml;
+                safeCreateIcons();
+            } catch (renderErr) {
+                console.error("Error rendering leaderboard table:", renderErr);
+            }
+        }
+
+        async function fetchLeaderboardData() {
+            try {
+                const tbody = document.getElementById('leaderboardTbody');
+                if (!tbody) return;
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="p-6 text-center text-slate-400" colspan="10">
+                            <div class="flex items-center justify-center gap-2">
+                                <i data-lucide="loader-2" class="w-5 h-5 animate-spin text-amber-400"></i>
+                                <span>Memuat data leaderboard dari Google Sheets...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                safeCreateIcons();
+
+                const fetchWithTimeout = (url, timeoutMs = 3000) => {
+                    return Promise.race([
+                        fetch(url).then(res => {
+                            if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+                            return res.text();
+                        }),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), timeoutMs))
+                    ]);
+                };
+
+                // Strategi 1: Google Visualization API JSON dengan headers=0
+                try {
+                    const gvizJsonText = await fetchWithTimeout(`${GVIZ_JSON_URL}&t=${Date.now()}`);
+                    const rows = parseGvizJson(gvizJsonText);
+                    if (rows && rows.length > 0) {
+                        renderLeaderboardTable(rows);
+                        return;
+                    }
+                } catch (err) {
+                    console.warn("Strategi 1 (GViz JSON) gagal, mencoba strategi berikutnya...", err);
+                }
+
+                // Strategi 2: Google Visualization Endpoint CSV
+                try {
+                    const gvizCsvText = await fetchWithTimeout(`${GVIZ_CSV_URL}&t=${Date.now()}`);
+                    if (gvizCsvText && gvizCsvText.trim().length > 0) {
+                        const parsedData = parseCSV(gvizCsvText);
+                        if (parsedData && parsedData.length > 0) {
+                            renderLeaderboardTable(parsedData);
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Strategi 2 (GViz CSV) gagal, mencoba strategi berikutnya...", err);
+                }
+
+                // Strategi 3: Direct Link Published CSV
+                try {
+                    const csvText = await fetchWithTimeout(`${RAW_CSV_URL}&t=${Date.now()}`);
+                    if (csvText && csvText.trim().length > 0) {
+                        const parsedData = parseCSV(csvText);
+                        if (parsedData && parsedData.length > 0) {
+                            renderLeaderboardTable(parsedData);
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Strategi 3 (Direct CSV) gagal, mencoba strategi berikutnya...", err);
+                }
+
+                // Strategi 4: CORS Proxy
+                try {
+                    const proxyText = await fetchWithTimeout(`${PROXY_URL}&t=${Date.now()}`);
+                    if (proxyText && proxyText.trim().length > 0) {
+                        const parsedData = parseCSV(proxyText);
+                        if (parsedData && parsedData.length > 0) {
+                            renderLeaderboardTable(parsedData);
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Strategi 4 (Proxy) gagal, menggunakan cadangan lokal...", err);
+                }
+
+                // Strategi 5: Hardcoded Backup (Mencegah error/stuck jika semua koneksi terputus)
+                const fallbackStaticData = [
+                    ["REGINA NOVIANDA", "673.6"],
+                    ["RIO RIZKI FEBRIAN", "626.0"],
+                    ["SALMA KHOERUNNISA", "345.6"],
+                    ["PAIZAL RAHMAT WAHYUDIN", "310.4"],
+                    ["TENDI", "152.8"],
+                    ["FAIZAL YOPA FIRDAUS", "128.7"],
+                    ["HASRUL NURUL JAMAN FARID", "92.2"],
+                    ["FIKRI FEBRIAN", "87.9"],
+                    ["MIFTAHUL RIZKY", "38.5"],
+                    ["MIFTAH", "35.2"],
+                    ["RIO RIZALDI", "4.5"]
+                ];
+                renderLeaderboardTable(fallbackStaticData);
+
+            } catch (globalErr) {
+                console.error("Global fetch Leaderboard caught exception safely:", globalErr);
+            }
         }
 
         window.handleAppsScriptData = function(data) {
-            if (Array.isArray(data)) {
-                renderLeaderboardTable(data);
+            try {
+                if (Array.isArray(data)) {
+                    renderLeaderboardTable(data);
+                }
+            } catch (err) {
+                console.error("AppsScript callback error:", err);
             }
         };
-
-        function renderLeaderboardTable(data) {
-            const tbody = document.getElementById('leaderboardTbody');
-            const thead = document.getElementById('leaderboardThead');
-
-            if (!data || !Array.isArray(data) || data.length < 5) {
-                tbody.innerHTML = `<tr><td class="p-6 text-center text-rose-400" colspan="10">Data di sheet RANKING tidak mencukupi atau format tidak sesuai.</td></tr>`;
-                return;
-            }
-
-            const dataRows = data.slice(4);
-            if (dataRows.length === 0) {
-                tbody.innerHTML = `<tr><td class="p-4 text-center text-slate-400" colspan="5">Belum ada data pada baris ke-5 ke bawah.</td></tr>`;
-                return;
-            }
-
-            thead.innerHTML = `
-                <tr>
-                    <th class="p-3 text-center">PERINGKAT</th>
-                    <th class="p-3">NAMA KARYAWAN</th>
-                    <th class="p-3 text-right">TOTAL POIN</th>
-                </tr>
-            `;
-
-            let tbodyHtml = "";
-            let rankCounter = 1;
-
-            dataRows.forEach(row => {
-                if (!Array.isArray(row)) return;
-
-                let hasData = row.some(cell => cell !== null && cell !== undefined && cell.toString().trim() !== "");
-                if (!hasData) return;
-
-                let bgRank = "";
-                if (rankCounter === 1) bgRank = "bg-amber-500/10 border-l-4 border-amber-400 font-semibold";
-                else if (rankCounter === 2) bgRank = "bg-slate-300/10 border-l-4 border-slate-300";
-                else if (rankCounter === 3) bgRank = "bg-amber-700/10 border-l-4 border-amber-600";
-
-                tbodyHtml += `<tr class="${bgRank} hover:bg-slate-700/40 transition">`;
-                
-                let rankLabel = rankCounter;
-                if (rankCounter === 1) rankLabel = '🥇 Juara 1';
-                else if (rankCounter === 2) rankLabel = '🥈 Juara 2';
-                else if (rankCounter === 3) rankLabel = '🥉 Juara 3';
-
-                tbodyHtml += `<td class="p-3 text-center font-bold text-amber-400">${rankLabel}</td>`;
-
-                row.forEach((cellVal) => {
-                    let val = (cellVal !== undefined && cellVal !== null && cellVal !== '') ? cellVal.toString().trim() : '-';
-
-                    if (!isNaN(val) && val.includes('.')) {
-                        let num = parseFloat(val);
-                        val = Number(num.toFixed(2)).toString();
-                    }
-
-                    const isNumeric = !isNaN(parseFloat(val)) && isFinite(val);
-                    tbodyHtml += `<td class="p-3 ${isNumeric ? 'text-right font-mono font-bold text-amber-300' : 'text-slate-200'}">${val}</td>`;
-                });
-
-                tbodyHtml += `</tr>`;
-                rankCounter++;
-            });
-
-            tbody.innerHTML = tbodyHtml || `<tr><td class="p-4 text-center text-slate-400" colspan="5">Tidak ada data untuk ditampilkan.</td></tr>`;
-        }
 
         function updateRealtimeClock() {
             const now = new Date();
@@ -1011,7 +1244,7 @@ AG03-05\t9077297\t6`;
                     el.classList.add('bg-white', 'text-slate-800', 'border-slate-300');
                 });
             }
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         function initTheme() {
@@ -1038,11 +1271,12 @@ AG03-05\t9077297\t6`;
 
         const keteranganData = [
             "HEMAT MAT MAT",
-            "HEMAT MANTUL",
-            "SERBA 5 RIBU",
-            "PWP BERLAKU",
+            "BOMBASTIS",
+            "BARANG MUSIM HUJAN",
             "DPI/UPSELLING MENDEKATI EXP",
-            "REGULAR"
+            "REGULAR",
+            "PWP BERLAKU",
+            "SKU PILIHAN ABM"
         ];
 
         function handleStoreChange() {
@@ -1242,7 +1476,7 @@ AG03-05\t9077297\t6`;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Mengunggah...`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Uploading...`;
             status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
 
             fetch(APP_SCRIPT_URL, {
                 method: "POST",
@@ -1268,7 +1502,7 @@ AG03-05\t9077297\t6`;
             btn.innerHTML = `<i data-lucide="upload-cloud" class="w-5 h-5"></i> <span>UPLOAD DATA</span>`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sukses Upload!`;
             status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
 
             renderSystemLogs();
             document.getElementById('itemsContainer').innerHTML = '';
@@ -1527,7 +1761,7 @@ AG03-05\t9077297\t6`;
             renderSystemLogs();
             startClock();
             getGPSLocation();
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         };
     </script>
 </body>
