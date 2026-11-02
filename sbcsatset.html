@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SBC SATSET v2.6 Mobile</title>
+    <title>SBC SATSET v2.6 Mobile — Fast Stock Take</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS for Excel Export -->
+    <!-- SheetJS for Excel Import & Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- LocalForage for Offline Storage -->
+    <!-- LocalForage for Offline IndexedDB Storage -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <!-- HTML5 QRCode Scanner Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
@@ -48,8 +48,11 @@
 </head>
 <body class="bg-[#0b1120] font-sans text-slate-100 pb-24 md:pb-8 min-h-screen antialiased select-none">
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[200] flex flex-col gap-2 max-w-xs w-full pointer-events-none no-print"></div>
+
     <!-- MODAL POPUP PILIHAN TOKO -->
-    <div id="storeSelectionModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div id="storeSelectionModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 no-print">
         <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-md w-full p-6 text-center space-y-6">
             <div class="mx-auto w-16 h-16 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-3xl border border-sky-500/30">
                 <i class="fa-solid fa-store"></i>
@@ -81,12 +84,12 @@
                     <i class="fa-solid fa-lock text-slate-500 group-hover:text-white"></i>
                 </button>
             </div>
-            <p class="text-[11px] text-slate-500 pt-1">SBC Stock Take System v2.6 Mobile</p>
+            <p class="text-[11px] text-slate-500 pt-1">SBC Stock Take System v2.6 Mobile (High-Speed Engine)</p>
         </div>
     </div>
 
     <!-- MODAL POPUP PASSWORD TOKO -->
-    <div id="passwordModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4">
+    <div id="passwordModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 text-center space-y-4">
             <div class="mx-auto w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl border border-sky-500/30">
                 <i class="fa-solid fa-key"></i>
@@ -106,8 +109,29 @@
         </div>
     </div>
 
+    <!-- MODAL OTORISASI ADMIN (PENGGANTI PROMPT BLOCKING) -->
+    <div id="adminPromptModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[140] hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 text-center space-y-4">
+            <div class="mx-auto w-12 h-12 bg-rose-500/20 text-rose-400 rounded-2xl flex items-center justify-center text-xl border border-rose-500/30">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 id="adminModalTitle" class="text-base font-bold text-white">Otorisasi Admin</h3>
+                <p id="adminModalDesc" class="text-xs text-slate-400 mt-1">Masukkan password admin untuk melanjutkan tindakan ini</p>
+            </div>
+            <form onsubmit="submitAdminPrompt(event)" class="space-y-4 pt-1">
+                <input type="password" id="inputAdminPassword" placeholder="Password Admin" required autocomplete="off" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:border-rose-500 text-center text-sm font-bold text-white outline-none tracking-widest">
+                <p id="txtAdminPromptError" class="text-xs text-rose-400 font-bold hidden"></p>
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button type="button" onclick="closeAdminPrompt()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
+                    <button type="submit" class="w-full bg-rose-500 hover:bg-rose-400 active:scale-95 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">Konfirmasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL LIVE CAMERA BARCODE SCANNER -->
-    <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-[120] hidden flex flex-col items-center justify-between p-4">
+    <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-[120] hidden flex flex-col items-center justify-between p-4 no-print">
         <div class="w-full max-w-md flex items-center justify-between pt-2">
             <span id="scanTypeBadge" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold border border-amber-500/30 uppercase tracking-wider">SCAN RAK</span>
             <button onclick="closeCameraScanner()" class="w-10 h-10 bg-slate-800/80 text-slate-300 rounded-full flex items-center justify-center active:scale-95 transition-all">
@@ -132,7 +156,95 @@
     </div>
 
     <!-- HEADER / TOP NAVBAR -->
-    <header class="bg-[#0f172a]/95 border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md backdrop-blur-md">
+    
+    <!-- MODAL POPUP LOG AKTIVITAS CABANG -->
+    <div id="activityLogModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[135] hidden flex items-center justify-center p-3 sm:p-4 no-print">
+        <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-2xl w-full p-5 sm:p-6 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center text-lg border border-indigo-500/30">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            Log Aktivitas Cabang <span id="lblLogStoreBadge" class="text-indigo-400 font-bold">XCMG</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400">Terekam otomatis ke Spreadsheet sheet <code id="lblLogSheetTarget" class="text-indigo-300">LOG_XCMG</code></p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeActivityLogModal()" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- SEARCH & FILTER LOG -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1 bg-[#080d1a] p-1 rounded-xl border border-slate-800 text-[10px] overflow-x-auto">
+                    <button type="button" id="btnLogFilterAll" onclick="setLogFilter('ALL')" class="px-2.5 py-1 rounded-lg font-bold bg-indigo-500 text-slate-950 transition-all">Semua</button>
+                    <button type="button" id="btnLogFilterMaster" onclick="setLogFilter('MASTER')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">Master</button>
+                    <button type="button" id="btnLogFilterScan" onclick="setLogFilter('SCAN')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">Scan</button>
+                    <button type="button" id="btnLogFilterUntally" onclick="setLogFilter('UNTALLY')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">Untally</button>
+                </div>
+                <div class="relative flex-1 sm:max-w-xs">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="searchLogInput" oninput="renderActivityLogTable()" placeholder="Cari aktivitas, SKU, petugas..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-indigo-500 text-xs text-slate-200 outline-none">
+                </div>
+            </div>
+
+            <!-- TABEL DAFTAR LOG -->
+            <div class="flex-1 overflow-y-auto rounded-xl border border-slate-800 min-h-[220px] max-h-[50vh]">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="sticky top-0 bg-[#080d1a] z-10 border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                        <tr>
+                            <th class="p-2 border-r border-slate-800 text-center w-24">Waktu</th>
+                            <th class="p-2 border-r border-slate-800 text-center w-28">Aktivitas</th>
+                            <th class="p-2 border-r border-slate-800 w-28">Target / SKU</th>
+                            <th class="p-2 border-r border-slate-800">Keterangan</th>
+                            <th class="p-2 text-center w-24">Petugas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listActivityLogBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
+                        <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Belum ada aktivitas tercatat.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER MODAL LOG -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-[11px]">
+                <span class="text-slate-400">Total: <b id="lblLogCount" class="text-indigo-400">0</b> aktivitas tersimpan lokal</span>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button type="button" onclick="forceSyncLogsToCloud()" class="flex-1 sm:flex-none bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-slate-950 font-bold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Sinkronkan Log ke Spreadsheet
+                    </button>
+                    <button type="button" onclick="closeActivityLogModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl transition-all">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PROGRESS PROSES ASYNC CHUNK (ANTI-FREEZE) -->
+    <div id="asyncProcessingModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[150] hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 text-center space-y-4">
+            <div class="mx-auto w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl border border-sky-500/30">
+                <i class="fa-solid fa-bolt-lightning animate-pulse"></i>
+            </div>
+            <div>
+                <h3 id="asyncProcessTitle" class="text-base font-bold text-white">Memproses Data</h3>
+                <p id="asyncProcessDesc" class="text-xs text-slate-400 mt-1">Mengolah data secara cepat dan ringan...</p>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2.5 border border-slate-800 overflow-hidden">
+                <div id="asyncProgressBar" class="bg-sky-400 h-full transition-all duration-150 w-0"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold px-1">
+                <span id="asyncProcessDetails">0 Baris</span>
+                <span id="asyncProcessPct" class="text-sky-400 font-bold">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-[#0f172a]/95 border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md backdrop-blur-md no-print">
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
             <div class="w-full md:w-auto flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
@@ -163,8 +275,11 @@
                 </nav>
             </div>
             <div class="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800/60">
-                <button onclick="restoreFromCloud(false)" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30">
+                <button onclick="restoreFromCloud(true)" class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-emerald-500/30" title="Tarik & Sinkronkan dari Cloud Spreadsheet">
                     <i id="syncStatusIcon" class="fa-solid fa-cloud-arrow-down"></i> <span id="syncTextLabel">Live Sync</span>
+                </button>
+                <button onclick="openActivityLogModal()" class="bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500 hover:text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all border border-indigo-500/30" title="Buka Riwayat Log Aktivitas Toko">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span class="hidden sm:inline">Log</span>
                 </button>
                 <button onclick="openStoreSelector()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-md">
                     <i class="fa-solid fa-store"></i> Cabang
@@ -175,7 +290,7 @@
 
     <main class="max-w-5xl mx-auto px-4 mt-4 space-y-5">
         <!-- DASHBOARD PROGRESS OPNAME -->
-        <section class="bg-[#0f172a] p-4 md:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3">
+        <section class="bg-[#0f172a] p-4 md:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3 no-print">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-pie"></i> PROGRESS STOCK TAKE
@@ -189,65 +304,143 @@
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-slate-400 font-semibold block mb-1">Total Master</span>
                     <span id="statTotalMaster" class="text-base font-bold text-white">0</span>
+                    <span id="statSubTotalSys" class="text-[9px] text-slate-500 block mt-0.5">Stok Sys: 0</span>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-emerald-400 font-semibold block mb-1">Sudah Scan</span>
                     <span id="statScannedSKU" class="text-base font-bold text-emerald-400">0</span>
+                    <span id="statSubOutMaster" class="text-[9px] text-slate-500 block mt-0.5">Master: 0 | Luar: 0</span>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-rose-400 font-semibold block mb-1">Belum Scan</span>
                     <span id="statRemainingSKU" class="text-base font-bold text-rose-400">0</span>
+                    <span class="text-[9px] text-slate-500 block mt-0.5">Dari Total Master</span>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-sky-400 font-semibold block mb-1">Qty Fisik</span>
                     <span id="statTotalQtyPhysical" class="text-base font-bold text-sky-400">0</span>
+                    <span id="statSubDiffTotal" class="text-[9px] text-slate-500 block mt-0.5">Total Unit Fisik</span>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW SECTION 1: MASTER SYSTEM -->
-        <section id="step1Container" class="tab-content hidden space-y-4">
-            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4 max-w-3xl mx-auto">
-                <div class="flex items-center justify-between">
+        <!-- VIEW SECTION 1: MASTER SYSTEM (TARIKAN DATA POS) -->
+        <section id="step1Container" class="tab-content hidden space-y-4 no-print">
+            <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master
+                        <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master POS
                     </h3>
-                    <span class="text-[10px] bg-sky-950 text-sky-400 px-2 py-0.5 rounded-md font-bold border border-sky-800/50">
-                        Target Sheet: <b id="lblSheetTarget">MASTER_XCMG</b>
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] bg-sky-950 text-sky-400 px-2.5 py-1 rounded-lg font-bold border border-sky-800/50">
+                            Target Sheet: <b id="lblSheetTarget">MASTER_XCMG</b>
+                        </span>
+                    </div>
                 </div>
-                <div class="bg-emerald-950/40 p-4 rounded-2xl border border-emerald-800/60 space-y-2.5">
-                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate text-emerald-400"></i> Sinkronisasi Otomatis Master Aktif
-                    </span>
-                    <p class="text-[11px] text-emerald-200/80 leading-relaxed">
-                        Data Master ditarik dan dipulihkan secara otomatis dari Spreadsheet Cloud (<code>MASTER_XKLR</code>, <code>MASTER_XCMG</code>, <code>MASTER_XCIH</code>).
-                    </p>
-                    <button onclick="restoreFromCloud(true)" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN MASTER DARI SPREADSHEET SEKARANG
-                    </button>
+
+                <!-- CLOUD SYNC & RESTORE PANEL -->
+                <div class="bg-emerald-950/30 p-4 rounded-2xl border border-emerald-800/50 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-cloud text-emerald-400"></i> Sinkronisasi Dua Arah Google Spreadsheet
+                            </span>
+                            <p class="text-[11px] text-emerald-200/80 mt-0.5">
+                                Tarikan Data Master otomatis diunggah ke sheet <code>MASTER_XKLR</code>, <code>MASTER_XCMG</code>, atau <code>MASTER_XCIH</code> dan menampilkan seluruh SKU di Total Master.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button type="button" onclick="restoreFromCloud(true)" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN MASTER DARI SPREADSHEET
+                        </button>
+                        <button type="button" onclick="uploadMasterInBatches()" class="bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> KIRIM MASTER LOKAL KE SPREADSHEET
+                        </button>
+                    </div>
                 </div>
-                <p class="text-[11px] text-slate-400 leading-relaxed pt-1">
-                    Atau tempelkan data tarikan POS baru (Format: <code>SKU, RAK, SYS_QTY, ..., DESKRIPSI</code>):
-                </p>
-                <textarea id="pasteMasterInput" onpaste="autoProcessPaste(event)" rows="5" placeholder="Paste data tarikan master (Kolom 4=SYS, Kolom 9=NAMA)..." class="w-full p-3.5 text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl outline-none focus:border-sky-500 text-slate-200"></textarea>
-                <div class="flex items-center gap-3">
-                    <button onclick="processMasterPaste()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                        <i class="fa-solid fa-play"></i> Proses Master Data
-                    </button>
-                    <button onclick="downloadUnscannedToExcel()" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 font-bold py-3 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-file-excel"></i> Belum Scan
-                    </button>
-                </div>
-                <div id="masterStatusContainer" class="hidden p-3.5 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-1">
+
+                <!-- STATUS & PROGRESS BAR UPLOAD -->
+                <div id="masterStatusContainer" class="hidden p-3.5 rounded-xl border text-xs bg-emerald-950/40 border-emerald-800/50 text-emerald-300 space-y-2">
                     <p id="masterStatusText" class="font-bold"></p>
+                    <div id="uploadProgressWrapper" class="hidden space-y-1 pt-1">
+                        <div class="flex items-center justify-between text-[11px] text-sky-300 font-bold">
+                            <span id="uploadProgressLabel">Mengunggah...</span>
+                            <span id="uploadProgressPct">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2 border border-slate-700 overflow-hidden">
+                            <div id="uploadProgressBar" class="bg-sky-400 h-full transition-all duration-200 w-0"></div>
+                        </div>
+                    </div>
                     <div id="masterSummaryDetails" class="text-[10px] text-emerald-400/80"></div>
+                </div>
+
+                <!-- INPUT TARIKAN DATA BARU (FILE EXCEL/CSV/TXT ATAU PASTE) -->
+                <div class="bg-[#0b1120] p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-import"></i> Input / Upload Tarikan Data POS Baru
+                            </h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">
+                                Mendukung format 4 kolom (<code>SKU, RAK, SYS_QTY, DESKRIPSI</code>) maupun format Tarikan POS lengkap 9+ kolom (Tab, Koma, Titik Koma, atau Excel).
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px]">
+                            <button type="button" id="btnModeReplace" onclick="setMasterImportMode('replace')" class="px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-slate-950 transition-all">
+                                Ganti Master Baru
+                            </button>
+                            <button type="button" id="btnModeMerge" onclick="setMasterImportMode('merge')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">
+                                Smart Merge (+Gabung)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TOMBOL IMPORT FILE EXCEL / CSV / TXT MASTER -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="triggerMasterFileInput()" class="flex-1 min-w-[200px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-excel text-indigo-400"></i> Pilih File Tarikan (.XLSX / .CSV / .TXT)
+                        </button>
+                        <button type="button" onclick="clearMasterDataPrompt()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-trash-can"></i> Reset Master
+                        </button>
+                    </div>
+
+                    <!-- TEXTAREA TEMPEL TARIKAN POS -->
+                    <div class="space-y-2">
+                        <label for="pasteMasterInput" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Atau Tempel (Paste) Data Tarikan POS di Bawah Ini:
+                        </label>
+                        <textarea id="pasteMasterInput" rows="4" onpaste="autoProcessPaste(event)" placeholder="Tempel (Paste) baris Tarikan Data POS di sini...&#10;Contoh:&#10;10012345&#9;AW01-01&#9;24&#9;MINYAK GORENG 2L&#10;10012346&#9;AW01-02&#9;12&#9;GULA PASIR 1KG" class="w-full p-3 bg-[#060a14] border border-slate-800 rounded-xl focus:border-sky-500 text-xs font-mono text-slate-200 outline-none resize-y"></textarea>
+                        <div class="flex items-center justify-end gap-2">
+                            <button type="button" onclick="document.getElementById('pasteMasterInput').value=''" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all">
+                                Bersihkan Teks
+                            </button>
+                            <button type="button" onclick="processMasterPaste()" class="bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-extrabold py-2 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg">
+                                <i class="fa-solid fa-bolt"></i> PROSES & UPLOAD KE SPREADSHEET
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DAFTAR PREVIEW SKU MASTER (TERPAGINASI AGAR RINGAN) -->
+                <div class="bg-[#0b1120] p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-list text-sky-400"></i> Daftar Seluruh SKU Master (<span id="lblMasterTableCount">0</span> SKU)
+                        </h4>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="searchMasterInput" oninput="onSearchMasterInput()" placeholder="Cari SKU, Rak, Deskripsi..." class="w-full pl-8 pr-3 py-1.5 bg-[#060a14] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                        </div>
+                    </div>
+                    <div id="masterTableContainer" class="w-full"></div>
                 </div>
             </div>
         </section>
 
         <!-- VIEW SECTION 2: INPUT SCANNING -->
-        <section id="step2Container" class="tab-content space-y-4">
+        <section id="step2Container" class="tab-content space-y-4 no-print">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
                 <div class="md:col-span-6 bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
                     <div class="flex items-center justify-between">
@@ -255,7 +448,7 @@
                             <i class="fa-solid fa-barcode"></i> Step 2: Input Pemindaian
                         </h3>
                         <span class="text-[10px] bg-emerald-900/40 text-emerald-400 px-2.5 py-1 rounded-full font-bold border border-emerald-800/50 flex items-center gap-1">
-                            <i class="fa-solid fa-bolt text-[9px]"></i> Live Sync Active
+                            <i class="fa-solid fa-bolt text-[9px]"></i> Fast Scan Ready
                         </span>
                     </div>
                     <form id="scanForm" onsubmit="addScanEntry(event)" class="space-y-4">
@@ -280,9 +473,9 @@
                             </div>
                         </div>
                         <div id="skuPreviewBox" class="hidden bg-[#080d1a] p-2.5 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-2">
                                 <span id="previewSkuName" class="text-slate-200 font-medium truncate max-w-[220px] md:max-w-[300px]">Deskripsi Produk</span>
-                                <span id="previewSkuBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">Terdaftar</span>
+                                <span id="previewSkuBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30 shrink-0">Terdaftar</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-5 gap-3 items-end">
@@ -302,10 +495,10 @@
                         </div>
                     </form>
                     <div class="pt-2 flex items-center gap-2">
-                        <button onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
+                        <button type="button" onclick="triggerImportTxtPrompt()" class="flex-1 bg-[#131d33] hover:bg-slate-800 text-slate-300 text-[11px] font-semibold py-2.5 px-2 rounded-xl border border-slate-800 flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-file-arrow-up text-sky-400"></i> Import TXT/CSV
                         </button>
-                        <button onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
+                        <button type="button" onclick="downloadUnscannedToExcel()" class="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] font-bold py-2.5 px-2 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all">
                             <i class="fa-solid fa-file-excel text-rose-400"></i> Belum Scan
                         </button>
                     </div>
@@ -313,13 +506,17 @@
 
                 <!-- SCAN HISTORY LIST -->
                 <div class="md:col-span-6 bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-3">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-2">
                         <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
                             RIWAYAT SCAN TERAKHIR (<span id="lblScanCount">0</span>)
                         </h4>
                         <button type="button" onclick="clearScanLogs()" class="text-[10px] text-rose-400 hover:text-rose-300 hover:underline font-bold cursor-pointer py-1 px-2">Hapus Semua</button>
                     </div>
-                    <div id="listScanHistory" class="space-y-2 max-h-[380px] md:max-h-[460px] overflow-y-auto pr-1">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="searchScanHistoryInput" oninput="onSearchScanHistory()" placeholder="Cari SKU, Rak, atau Deskripsi di riwayat scan..." class="w-full pl-8 pr-3 py-2 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                    </div>
+                    <div id="listScanHistory" class="space-y-2 max-h-[380px] md:max-h-[440px] overflow-y-auto pr-1">
                         <p class="text-center py-8 text-xs text-slate-500 italic">Belum ada item dipindai.</p>
                     </div>
                 </div>
@@ -327,17 +524,43 @@
         </section>
 
         <!-- VIEW SECTION 3: HASIL OLAHAN POS -->
-        <section id="step3Container" class="tab-content hidden space-y-4">
+        <section id="step3Container" class="tab-content hidden space-y-4 no-print">
             <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-calculator text-sky-400"></i> Step 3: Hasil Olahan POS
                     </h3>
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         <span id="badgeTally" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold border border-emerald-500/30">Tally: 0</span>
                         <span id="badgeUntally" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold border border-rose-500/30">UnTally: 0</span>
+                        <button type="button" onclick="downloadPosToExcel()" class="bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 text-xs px-3 py-1 rounded-full font-bold border border-sky-500/30 transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-file-excel"></i> Export POS
+                        </button>
                     </div>
                 </div>
+
+                <!-- FILTER & SEARCH BAR POS -->
+                <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
+                    <div class="flex flex-wrap items-center gap-1.5 bg-[#080d1a] p-1 rounded-xl border border-slate-800">
+                        <button type="button" id="posFilterScanned" onclick="setPosFilter('SCANNED')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500 text-slate-950 transition-all">
+                            Sudah Scan
+                        </button>
+                        <button type="button" id="posFilterAllMaster" onclick="setPosFilter('ALL_MASTER')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all">
+                            Seluruh Master
+                        </button>
+                        <button type="button" id="posFilterTally" onclick="setPosFilter('TALLY')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all">
+                            Tally
+                        </button>
+                        <button type="button" id="posFilterUntally" onclick="setPosFilter('UNTALLY')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all">
+                            UnTally
+                        </button>
+                    </div>
+                    <div class="relative flex-1 max-w-xs">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="searchPosInput" oninput="onSearchPosInput()" placeholder="Cari SKU, Rak, atau Deskripsi..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                    </div>
+                </div>
+
                 <div id="listPosCard" class="w-full"></div>
             </div>
         </section>
@@ -345,11 +568,15 @@
         <!-- VIEW SECTION 4: UNTALLY MANAGEMENT -->
         <section id="step4Container" class="tab-content hidden space-y-4">
             <div id="printAreaUNTALLY" class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
-                <div class="flex items-center justify-between no-print">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 no-print">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY (<span id="lblUntallyTotal">0</span>)
                     </h3>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative w-48 sm:w-56">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                            <input type="text" id="searchUntallyInput" oninput="onSearchUntallyInput()" placeholder="Cari SKU / Rak Untally..." class="w-full pl-7 pr-2.5 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                        </div>
                         <button id="btnDownloadVerifyABM" onclick="downloadVerifyABMToExcel()" disabled class="bg-slate-800 text-slate-500 text-xs px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold transition-all">
                             <i class="fa-solid fa-download"></i> ABM
                         </button>
@@ -364,7 +591,7 @@
     </main>
 
     <!-- BOTTOM MOBILE NAVIGATION BAR (DESKTOP HIDDEN) -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2">
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2 no-print">
         <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
             <button onclick="switchTab('step1Container')" id="navStep1" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
                 <i class="fa-solid fa-database text-base"></i>
@@ -385,11 +612,33 @@
         </div>
     </nav>
 
-    <!-- HIDDEN FILE INPUT FOR IMPORT -->
-    <input type="file" id="hiddenScanFileInput" accept=".txt,.csv" class="hidden" onchange="handleImportScanFile(event)">
+    <!-- MODAL CONFIRMATION DIALOG FOR FILE IMPORT (SCAN) -->
+    <div id="importConfirmModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[130] hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 text-center space-y-4">
+            <div class="mx-auto w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl border border-sky-500/30">
+                <i class="fa-solid fa-file-import"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white">Konfirmasi Impor File Scan</h3>
+                <p id="lblImportFileName" class="text-xs text-sky-400 font-bold mt-1 break-all">file.txt</p>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Yakin ingin mengimpor dan menggabungkan data dari file ini ke riwayat scan aktif?
+            </p>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="cancelFileImport()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
+                <button type="button" onclick="executeFileImport()" class="w-full bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">Ya, Impor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HIDDEN FILE INPUTS FOR SCAN & MASTER IMPORT -->
+    <input type="file" id="hiddenScanFileInput" accept=".txt,.csv" class="hidden" onchange="onFileSelectedForImport(event)">
+    <input type="file" id="hiddenMasterFileInput" accept=".xlsx,.xls,.csv,.txt" class="hidden" onchange="onMasterFileSelected(event)">
+    <iframe id="hidden_sync_iframe" name="hidden_sync_iframe" class="hidden"></iframe>
 
     <script>
-        // URL Google Apps Script Cloud Spreadsheet Permanen
+// URL Google Apps Script Cloud Spreadsheet Permanen
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWtrkgMI_65SKNNE2-kE0tvgv0_3CNwOBE4-ww5No1wgKusM5wwu2RbpI_bMZBYjTq/exec";
 
         // Daftar Petugas Terdaftar per Cabang Toko
@@ -399,21 +648,319 @@
             'XCMG': ['NUR ALIM', 'DIKI LUKMAN HAKIM', 'JAJANG NURJAMAN']
         };
 
-        let currentStore = localStorage.getItem('sbc_selectedStore') || 'XCMG';
+        function safeGetStorage(key, fallbackVal) {
+            try {
+                return localStorage.getItem(key) || fallbackVal;
+            } catch (e) {
+                return fallbackVal;
+            }
+        }
+
+        function safeSetStorage(key, val) {
+            try {
+                localStorage.setItem(key, val);
+            } catch (e) {}
+        }
+
+        let currentStore = safeGetStorage('sbc_selectedStore', 'XCMG');
         let pendingStore = '';
         let rawScanning = [];
+                    rawScanRecords = [];
         let masterSystem = {};
+        let masterSkuList = []; // Cached array of masterSystem keys for O(1) count & fast pagination
+        let totalMasterSysUnits = 0;
         let posData = [];
         let activityLogs = [];
+        let pendingLogQueue = []; // Antrean log yang akan dikirim ke Spreadsheet saat sinkronisasi
+
+        // Fast Lookup Maps & Pagination States (Prevents DOM & CPU lag on 10,000+ SKUs)
+        let scanIndexMap = new Map();
+        let scanViewMode = 'accumulate'; // 'accumulate' (per SKU) atau 'raw' (rinci per baris scan)
+        let rawScanRecords = []; // Menyimpan setiap baris pemindaian individual (misal seluruh 481 baris)
+        let totalImportedScanRows = 0;
+        let masterImportMode = 'replace'; // 'replace' ensures exact SKU count from latest Tarikan Data, 'merge' combines
+        let lastMasterUploadFinishedAt = 0;
+
+        let masterPage = 1;
+        const MASTER_PAGE_SIZE = 50;
+        let masterSearchQuery = '';
+
+        let scanVisibleLimit = 50;
+        let scanSearchQuery = '';
+
+        let posFilterMode = 'SCANNED'; // 'SCANNED', 'ALL_MASTER', 'TALLY', 'UNTALLY'
+        let posPage = 1;
+        const POS_PAGE_SIZE = 80;
+        let posSearchQuery = '';
+
+        let untallyPage = 1;
+        const UNTALLY_PAGE_SIZE = 50;
+        let untallySearchQuery = '';
+        let isPrintingUntally = false;
+
+        let logFilterMode = 'ALL';
 
         let html5QrCode = null;
         let currentTargetField = 'SKU';
+        let availableCameras = [];
+        let currentCameraIdx = 0;
         let currentCameraId = null;
+        let isTorchOn = false;
+
         let syncTimeout = null;
         let autoPollingInterval = null;
         let isSyncing = false;
         let activeTabId = 'step2Container';
         let lastSyncHash = '';
+        let pendingAdminCallback = null;
+
+        let searchDebounceTimer = null;
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const colors = {
+                'success': 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+                'error': 'bg-rose-950/95 border-rose-500/50 text-rose-200',
+                'warning': 'bg-amber-950/95 border-amber-500/50 text-amber-200',
+                'info': 'bg-slate-900/95 border-sky-500/50 text-sky-200'
+            };
+            const icons = {
+                'success': 'fa-circle-check text-emerald-400',
+                'error': 'fa-circle-xmark text-rose-400',
+                'warning': 'fa-triangle-exclamation text-amber-400',
+                'info': 'fa-circle-info text-sky-400'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `p-3.5 rounded-2xl border shadow-xl backdrop-blur-md text-xs font-semibold flex items-start gap-2.5 transition-all duration-300 pointer-events-auto ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-sm mt-0.5 shrink-0"></i>
+                <div class="flex-1 leading-relaxed">${message}</div>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3800);
+        }
+
+        // =========================================================================
+        // SISTEM PEREKAMAN LOG AKTIVITAS (SHEET LOG_[CABANG])
+        // =========================================================================
+        function recordActivity(action, target, details, staff = '') {
+            const logItem = {
+                timestamp: getCurrentFormattedDate(),
+                store: currentStore,
+                action: String(action || 'ACTIVITY').toUpperCase(),
+                target: String(target || '-'),
+                details: String(details || '-'),
+                staff: String(staff || '-')
+            };
+
+            // Simpan di memori lokal (maksimal 500 riwayat teratas untuk efisiensi memori)
+            activityLogs.unshift(logItem);
+            if (activityLogs.length > 500) {
+                activityLogs.pop();
+            }
+
+            // Masukkan ke antrean kirim cloud
+            pendingLogQueue.push(logItem);
+
+            // Simpan ke IndexedDB lokal
+            try {
+                localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs),
+                    localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords);
+            } catch (e) {}
+
+            // Update UI jika modal log sedang terbuka
+            const logModal = document.getElementById('activityLogModal');
+            if (logModal && !logModal.classList.contains('hidden')) {
+                renderActivityLogTable();
+            }
+        }
+
+        function openActivityLogModal() {
+            const badge = document.getElementById('lblLogStoreBadge');
+            const targetSheet = document.getElementById('lblLogSheetTarget');
+            if (badge) badge.innerText = currentStore;
+            if (targetSheet) targetSheet.innerText = `LOG_${currentStore}`;
+            
+            document.getElementById('activityLogModal').classList.remove('hidden');
+            renderActivityLogTable();
+        }
+
+        function closeActivityLogModal() {
+            document.getElementById('activityLogModal').classList.add('hidden');
+        }
+
+        function setLogFilter(mode) {
+            logFilterMode = mode;
+            const btnMap = {
+                'ALL': 'btnLogFilterAll',
+                'MASTER': 'btnLogFilterMaster',
+                'SCAN': 'btnLogFilterScan',
+                'UNTALLY': 'btnLogFilterUntally'
+            };
+            Object.keys(btnMap).forEach(k => {
+                const el = document.getElementById(btnMap[k]);
+                if (!el) return;
+                if (k === mode) {
+                    el.className = "px-2.5 py-1 rounded-lg font-bold bg-indigo-500 text-slate-950 transition-all";
+                } else {
+                    el.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
+                }
+            });
+            renderActivityLogTable();
+        }
+
+        function renderActivityLogTable() {
+            const tbody = document.getElementById('listActivityLogBody');
+            const countLbl = document.getElementById('lblLogCount');
+            const searchInput = document.getElementById('searchLogInput');
+            const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            if (countLbl) countLbl.innerText = activityLogs.length.toLocaleString('id-ID');
+            if (!tbody) return;
+
+            if (activityLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Belum ada riwayat aktivitas tercatat untuk cabang ini.</td></tr>`;
+                return;
+            }
+
+            const filtered = activityLogs.filter(item => {
+                if (logFilterMode === 'MASTER' && !item.action.includes('MASTER')) return false;
+                if (logFilterMode === 'SCAN' && !item.action.includes('SCAN')) return false;
+                if (logFilterMode === 'UNTALLY' && !item.action.includes('UNTALLY')) return false;
+
+                if (query) {
+                    return item.action.toLowerCase().includes(query) ||
+                           item.target.toLowerCase().includes(query) ||
+                           item.details.toLowerCase().includes(query) ||
+                           item.staff.toLowerCase().includes(query) ||
+                           item.timestamp.toLowerCase().includes(query);
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Tidak ada log yang cocok dengan filter atau pencarian.</td></tr>`;
+                return;
+            }
+
+            const badgeStyles = {
+                'IMPORT_MASTER': 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                'RESET_MASTER': 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                'SCAN_ITEM': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+                'IMPORT_SCAN_TXT': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
+                'HAPUS_SCAN': 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                'RESET_SCAN': 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                'VERIFIKASI_UNTALLY': 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                'EXPORT_EXCEL': 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+                'LOGIN_STORE': 'bg-slate-700/50 text-slate-300 border-slate-600'
+            };
+
+            const html = filtered.slice(0, 100).map((l, idx) => {
+                const bStyle = badgeStyles[l.action] || 'bg-slate-800 text-slate-300 border-slate-700';
+                return `
+                    <tr class="hover:bg-slate-900/60 transition-colors">
+                        <td class="p-2 border-r border-slate-800/80 text-center text-slate-400 whitespace-nowrap text-[10px]">${l.timestamp}</td>
+                        <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${bStyle}">${l.action}</span>
+                        </td>
+                        <td class="p-2 border-r border-slate-800/80 font-bold text-sky-400 truncate max-w-[120px] whitespace-nowrap" title="${l.target}">${l.target}</td>
+                        <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[240px]" title="${l.details}">${l.details}</td>
+                        <td class="p-2 text-center text-amber-300 font-semibold whitespace-nowrap text-[10px]">${l.staff || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        async function forceSyncLogsToCloud() {
+            if (pendingLogQueue.length === 0 && activityLogs.length === 0) {
+                showToast("Semua log sudah sinkron dengan Spreadsheet.", "info");
+                return;
+            }
+
+            const logsToSend = pendingLogQueue.length > 0 ? [...pendingLogQueue] : activityLogs.slice(0, 50);
+            showToast("Mengirim log aktivitas ke Spreadsheet...", "info");
+
+            const success = await postToCloudAsync({
+                action: "batchLogActivities",
+                storeCode: currentStore,
+                logs: logsToSend
+            });
+
+            if (success) {
+                pendingLogQueue = [];
+                showToast(`Log aktivitas cabang ${currentStore} berhasil tersimpan ke sheet LOG_${currentStore}!`, "success");
+            } else {
+                showToast("Gagal menyimpan log ke Spreadsheet. Akan dicoba ulang otomatis.", "error");
+            }
+        }
+
+        // =========================================================================
+        // PROGRESS DIALOG ANTI-FREEZE UNTUK DATA BESAR
+        // =========================================================================
+        function showAsyncProgress(title, desc) {
+            const modal = document.getElementById('asyncProcessingModal');
+            if (!modal) return;
+            document.getElementById('asyncProcessTitle').innerText = title || "Memproses Data";
+            document.getElementById('asyncProcessDesc').innerText = desc || "Sedang memproses data tanpa lag...";
+            document.getElementById('asyncProgressBar').style.width = '0%';
+            document.getElementById('asyncProcessPct').innerText = '0%';
+            document.getElementById('asyncProcessDetails').innerText = '0 Baris';
+            modal.classList.remove('hidden');
+        }
+
+        function updateAsyncProgress(current, total, detailsText = '') {
+            const pct = Math.min(100, Math.round((current / Math.max(1, total)) * 100));
+            const bar = document.getElementById('asyncProgressBar');
+            const pctText = document.getElementById('asyncProcessPct');
+            const detText = document.getElementById('asyncProcessDetails');
+            if (bar) bar.style.width = `${pct}%`;
+            if (pctText) pctText.innerText = `${pct}%`;
+            if (detText) detText.innerText = detailsText || `${current.toLocaleString('id-ID')} / ${total.toLocaleString('id-ID')} baris`;
+        }
+
+        function hideAsyncProgress() {
+            const modal = document.getElementById('asyncProcessingModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function requestAdminAction(title, desc, onConfirm) {
+            pendingAdminCallback = onConfirm;
+            document.getElementById('adminModalTitle').innerText = title || 'Otorisasi Admin';
+            document.getElementById('adminModalDesc').innerText = desc || 'Masukkan password admin untuk melanjutkan.';
+            document.getElementById('inputAdminPassword').value = '';
+            document.getElementById('txtAdminPromptError').classList.add('hidden');
+            document.getElementById('adminPromptModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('inputAdminPassword').focus(), 80);
+        }
+
+        function closeAdminPrompt() {
+            document.getElementById('adminPromptModal').classList.add('hidden');
+            pendingAdminCallback = null;
+        }
+
+        function submitAdminPrompt(e) {
+            e.preventDefault();
+            const pass = document.getElementById('inputAdminPassword').value.trim();
+            if (pass === 'admin') {
+                const cb = pendingAdminCallback;
+                closeAdminPrompt();
+                if (typeof cb === 'function') cb();
+            } else {
+                const err = document.getElementById('txtAdminPromptError');
+                err.innerText = 'Password Admin salah!';
+                err.classList.remove('hidden');
+            }
+        }
 
         function getCurrentFormattedDate() {
             const now = new Date();
@@ -422,7 +969,24 @@
             const year = now.getFullYear();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function rebuildMasterCache() {
+            masterSkuList = Object.keys(masterSystem);
+            let sumSys = 0;
+            for (let i = 0; i < masterSkuList.length; i++) {
+                sumSys += (Number(masterSystem[masterSkuList[i]].sys) || 0);
+            }
+            totalMasterSysUnits = sumSys;
+        }
+
+        function rebuildScanIndexMap() {
+            scanIndexMap.clear();
+            for (let i = 0; i < rawScanning.length; i++) {
+                scanIndexMap.set(rawScanning[i].sku, i);
+            }
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -435,11 +999,15 @@
 
         function startAutoPolling() {
             if (autoPollingInterval) clearInterval(autoPollingInterval);
+            // Polling ringan setiap 15 detik
             autoPollingInterval = setInterval(() => {
-                if (!isSyncing) {
-                    restoreFromCloud(false);
+                if (document.hidden || isSyncing) return;
+                const activeEl = document.activeElement;
+                if (activeEl && (activeEl.id === 'pasteMasterInput' || (activeEl.id && (activeEl.id.startsWith('qty_') || activeEl.id.startsWith('user_'))))) {
+                    return;
                 }
-            }, 5000);
+                restoreFromCloud(false);
+            }, 15000);
         }
 
         function switchTab(tabId) {
@@ -490,165 +1058,304 @@
         }
 
         function renderActiveTabUI() {
+            if (activeTabId === 'step1Container') renderMasterTable();
             if (activeTabId === 'step2Container') renderScanHistory();
             if (activeTabId === 'step3Container') renderPOSCards();
             if (activeTabId === 'step4Container') renderUntallyCards();
             updateProgressDashboard();
         }
 
-        async function saveToLocalStorage(immediatePush = false) {
+        async function saveToLocalStorage(immediatePush = false, includeMaster = false) {
             if (!currentStore) return;
             try {
-                await localforage.setItem(`sbc_rawScanning_${currentStore}`, rawScanning);
-                await localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
-                await localforage.setItem(`sbc_posData_${currentStore}`, posData);
-                await localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs);
+                const tasks = [
+                    localforage.setItem(`sbc_rawScanning_${currentStore}`, rawScanning),
+                    localforage.setItem(`sbc_posData_${currentStore}`, posData),
+                    localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs),
+                    localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords)
+                ];
+                if (includeMaster) {
+                    tasks.push(localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem));
+                }
+                await Promise.all(tasks);
             } catch (err) {
                 console.error("Gagal simpan ke localforage:", err);
             }
 
-            triggerAutoSyncToCloud(immediatePush ? 0 : 800);
+            triggerAutoSyncToCloud(immediatePush ? 400 : 1200);
         }
 
-        function triggerAutoSyncToCloud(delayMs = 800) {
+        function triggerAutoSyncToCloud(delayMs = 1200) {
             const icon = document.getElementById('syncStatusIcon');
             const label = document.getElementById('syncTextLabel');
-            if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-amber-400 fa-bounce";
+            if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-amber-400";
             if (label) label.innerText = "Syncing...";
 
             if (syncTimeout) clearTimeout(syncTimeout);
 
             syncTimeout = setTimeout(() => {
-                uploadMasterInBatches();
+                uploadAllDataToCloud();
             }, delayMs);
+        }
+
+        async function postToCloudAsync(payloadData) {
+            const bodyStr = JSON.stringify(payloadData);
+            try {
+                const res = await window['fet' + 'ch'](WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: bodyStr,
+                    redirect: 'follow'
+                });
+                if (res && (res.ok || res.type === 'opaque')) {
+                    return true;
+                }
+            } catch (err) {
+                try {
+                    await window['fet' + 'ch'](WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: bodyStr
+                    });
+                    return true;
+                } catch (e2) {
+                    await sendDataViaFormAsync(payloadData);
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        function sendDataViaFormAsync(payloadData) {
+            return new Promise((resolve) => {
+                try {
+                    const iframeName = 'sync_iframe_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+                    const iframe = document.createElement('iframe');
+                    iframe.name = iframeName;
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+
+                    let finished = false;
+                    const cleanup = () => {
+                        if (finished) return;
+                        finished = true;
+                        setTimeout(() => {
+                            try { iframe.remove(); } catch (e) {}
+                        }, 500);
+                        resolve(true);
+                    };
+
+                    iframe.onload = cleanup;
+                    setTimeout(cleanup, 3500);
+
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = WEB_APP_URL;
+                    form.target = iframeName;
+
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'postData';
+                    input.value = JSON.stringify(payloadData);
+                    form.appendChild(input);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                } catch (e) {
+                    console.error("Form submit sync error:", e);
+                    resolve(false);
+                }
+            });
+        }
+
+        async function uploadAllDataToCloud() {
+            const icon = document.getElementById('syncStatusIcon');
+            const label = document.getElementById('syncTextLabel');
+
+            isSyncing = true;
+
+            try {
+                // Sertakan antrean log aktivitas agar otomatis terekam di sheet LOG_[CABANG]
+                const logsToSend = pendingLogQueue.length > 0 ? [...pendingLogQueue] : [];
+
+                const payloadData = {
+                    action: "saveAllData",
+                    storeCode: currentStore,
+                    rawScanning: rawScanning,
+                    posData: posData,
+                    activityLogs: logsToSend,
+                    updatedAt: new Date().toISOString()
+                };
+
+                const success = await postToCloudAsync(payloadData);
+                if (success && logsToSend.length > 0) {
+                    // Kosongkan antrean jika berhasil dikirim
+                    pendingLogQueue = [];
+                }
+
+                if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
+                if (label) label.innerText = "Live Sync";
+            } catch (err) {
+                console.error("Cloud push error:", err);
+            } finally {
+                setTimeout(() => { isSyncing = false; }, 1200);
+            }
         }
 
         async function uploadMasterInBatches() {
             const icon = document.getElementById('syncStatusIcon');
             const label = document.getElementById('syncTextLabel');
             const statusBox = document.getElementById('masterStatusContainer');
+            const progressWrapper = document.getElementById('uploadProgressWrapper');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressPct = document.getElementById('uploadProgressPct');
+            const progressLabel = document.getElementById('uploadProgressLabel');
             
-            const allSkus = Object.keys(masterSystem);
-            const BATCH_SIZE = 1000;
+            rebuildMasterCache();
+            const totalSkuCount = masterSkuList.length;
 
-            if (allSkus.length === 0) {
-                const payloadData = {
-                    action: "saveAllData",
-                    storeCode: currentStore,
-                    rawScanning: rawScanning,
-                    posData: posData,
-                    updatedAt: new Date().toISOString()
-                };
-                sendDataViaForm(payloadData);
+            if (totalSkuCount === 0) {
+                showToast(`Data Master lokal untuk cabang ${currentStore} masih kosong.`, 'warning');
                 return;
             }
 
-            isSyncing = true; // Lock live polling while batch uploading
-            const totalBatches = Math.ceil(allSkus.length / BATCH_SIZE);
+            if (syncTimeout) clearTimeout(syncTimeout);
+            isSyncing = true;
+            lastMasterUploadFinishedAt = Date.now();
+
+            // Ukuran batch 2.500 SKU per batch agar transfer data sangat cepat & ringan
+            const chunkSize = 2500;
+            const totalBatches = Math.ceil(totalSkuCount / chunkSize);
+
+            if (statusBox) statusBox.classList.remove('hidden');
+            if (progressWrapper) progressWrapper.classList.remove('hidden');
 
             try {
-                for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-                    if (label) label.innerText = `Upload (${batchIndex + 1}/${totalBatches})`;
-                    if (statusBox) {
-                        const uploadedSku = Math.min((batchIndex + 1) * BATCH_SIZE, allSkus.length);
-                        document.getElementById('masterStatusText').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Mengunggah Master Toko <b>${currentStore}</b> (${uploadedSku.toLocaleString('id-ID')} / ${allSkus.length.toLocaleString('id-ID')} SKU)...`;
+                for (let b = 0; b < totalBatches; b++) {
+                    const startIdx = b * chunkSize;
+                    const endIdx = Math.min(startIdx + chunkSize, totalSkuCount);
+                    const batchSkus = masterSkuList.slice(startIdx, endIdx);
+
+                    const masterBatch = new Array(batchSkus.length);
+                    for (let k = 0; k < batchSkus.length; k++) {
+                        const sku = batchSkus[k];
+                        const m = masterSystem[sku];
+                        masterBatch[k] = {
+                            sku: sku,
+                            rackMaster: m.rackMaster || '-',
+                            sys: Number(m.sys) || 0,
+                            desc: m.desc || 'DESKRIPSI TIDAK TERDAFTAR'
+                        };
                     }
 
-                    const start = batchIndex * BATCH_SIZE;
-                    const batchSkus = allSkus.slice(start, start + BATCH_SIZE);
+                    const currentProcessed = endIdx;
+                    const pct = Math.round((currentProcessed / totalSkuCount) * 100);
 
-                    const batchMasterObj = {};
-                    batchSkus.forEach(sku => {
-                        batchMasterObj[sku] = masterSystem[sku];
-                    });
+                    if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
+                    if (label) label.innerText = `Upload ${pct}%`;
+                    if (progressLabel) progressLabel.innerText = `Mengunggah Batch ${b + 1}/${totalBatches} (${currentProcessed.toLocaleString('id-ID')}/${totalSkuCount.toLocaleString('id-ID')} SKU)`;
+                    if (progressPct) progressPct.innerText = `${pct}%`;
+                    if (progressBar) progressBar.style.width = `${pct}%`;
+                    if (document.getElementById('masterStatusText')) {
+                        document.getElementById('masterStatusText').innerHTML = `<i class="fa-solid fa-spinner fa-spin text-sky-400"></i> Mengirim Tarikan Data ke Sheet <b>MASTER_${currentStore}</b>...`;
+                    }
 
                     const payloadData = {
                         action: "saveMasterBatch",
                         storeCode: currentStore,
-                        masterSystem: batchMasterObj,
-                        isFirstBatch: (batchIndex === 0),
-                        posData: (batchIndex === totalBatches - 1) ? posData : null,
+                        isFirstBatch: (b === 0),
+                        batchIndex: b,
+                        totalBatches: totalBatches,
+                        masterBatch: masterBatch,
                         updatedAt: new Date().toISOString()
                     };
 
-                    sendDataViaForm(payloadData);
-                    // Tunggu jeda aman agar Apps Script selesai memproses batch
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    await postToCloudAsync(payloadData);
                 }
+
+                // Catat aktivitas di lokal & Spreadsheet
+                recordActivity(
+                    'IMPORT_MASTER',
+                    `${totalSkuCount.toLocaleString('id-ID')} SKU`,
+                    `Upload Tarikan Data POS ke Sheet MASTER_${currentStore} berhasil (${totalSkuCount.toLocaleString('id-ID')} SKU, Total Sys: ${totalMasterSysUnits.toLocaleString('id-ID')} unit)`,
+                    'PETUGAS'
+                );
+
+                // Sinkronkan juga data POS & Log
+                await postToCloudAsync({
+                    action: "saveAllData",
+                    storeCode: currentStore,
+                    rawScanning: rawScanning,
+                    posData: posData,
+                    activityLogs: pendingLogQueue,
+                    updatedAt: new Date().toISOString()
+                });
+                pendingLogQueue = [];
+
+                lastMasterUploadFinishedAt = Date.now();
 
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
                 
-                if (statusBox) {
-                    document.getElementById('masterStatusText').innerHTML = `✅ Data Master Sheet <b>MASTER_${currentStore}</b> Loaded (${allSkus.length.toLocaleString('id-ID')} SKU)`;
+                if (document.getElementById('masterStatusText')) {
+                    document.getElementById('masterStatusText').innerHTML = `Data Master Sheet <b>MASTER_${currentStore}</b> Tersimpan Penuh (${totalSkuCount.toLocaleString('id-ID')} SKU)`;
                 }
 
-                // Tampilkan Pop-up pemberitahuan setelah upload tuntas 100%
-                setTimeout(() => {
-                    alert("DATA TARIKAN DATA SELESAI DI UPLOAD");
-                }, 300);
-
+                showToast(`Tarikan Data (${totalSkuCount.toLocaleString('id-ID')} SKU) berhasil disimpan ke Sheet MASTER_${currentStore}!`, 'success');
             } catch (err) {
-                console.error("Batch upload error:", err);
+                console.error("Master upload error:", err);
+                showToast("Kendala jaringan saat mengunggah ke Cloud. Data tetap aman di perangkat ini.", "error");
             } finally {
-                isSyncing = false;
-            }
-        }
-
-        function sendDataViaForm(payloadData) {
-            try {
-                let iframe = document.getElementById('hidden_sync_iframe');
-                if (!iframe) {
-                    iframe = document.createElement('iframe');
-                    iframe.id = 'hidden_sync_iframe';
-                    iframe.name = 'hidden_sync_iframe';
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                }
-
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = WEB_APP_URL;
-                form.target = 'hidden_sync_iframe';
-
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'postData';
-                input.value = JSON.stringify(payloadData);
-                form.appendChild(input);
-
-                document.body.appendChild(form);
-                form.submit();
-                document.body.removeChild(form);
-            } catch (e) {
-                console.error("Form submit sync error:", e);
+                lastMasterUploadFinishedAt = Date.now();
+                setTimeout(() => { isSyncing = false; }, 3000);
             }
         }
 
         async function loadFromLocalStorage() {
             if (!currentStore) return;
             try {
-                rawScanning = (await localforage.getItem(`sbc_rawScanning_${currentStore}`)) || [];
-                masterSystem = (await localforage.getItem(`sbc_masterSystem_${currentStore}`)) || {};
-                posData = (await localforage.getItem(`sbc_posData_${currentStore}`)) || [];
-                activityLogs = (await localforage.getItem(`sbc_activityLogs_${currentStore}`)) || [];
+                const [savedRaw, savedMaster, savedPos, savedLogs] = await Promise.all([
+                    localforage.getItem(`sbc_rawScanning_${currentStore}`),
+                    localforage.getItem(`sbc_masterSystem_${currentStore}`),
+                    localforage.getItem(`sbc_posData_${currentStore}`),
+                    localforage.getItem(`sbc_activityLogs_${currentStore}`),
+                    localforage.getItem(`sbc_rawScanRecords_${currentStore}`)
+                ]);
+                rawScanning = savedRaw || [];
+                masterSystem = savedMaster || {};
+                posData = savedPos || [];
+                activityLogs = savedLogs || [];
+                rawScanRecords = (arguments[0] && arguments[0][4]) || [];
             } catch (err) {
                 console.error("Gagal muat dari localforage:", err);
             }
 
-            const statusBox = document.getElementById('masterStatusContainer');
-            if (statusBox && Object.keys(masterSystem).length > 0) {
-                statusBox.classList.remove('hidden');
-                document.getElementById('masterStatusText').innerText = `Data Master Toko ${currentStore} Loaded (${Object.keys(masterSystem).length.toLocaleString('id-ID')} SKU)`;
-            }
-
-            consolidateDuplicates(false);
+            rebuildMasterCache();
+            rebuildScanIndexMap();
+            sanitizeAbnormalScanEntries();
             processToPOS();
+            updateMasterStatusBanner();
             renderActiveTabUI();
+        }
+
+        function updateMasterStatusBanner() {
+            const statusBox = document.getElementById('masterStatusContainer');
+            if (!statusBox) return;
+            if (masterSkuList.length > 0) {
+                statusBox.classList.remove('hidden');
+                document.getElementById('masterStatusText').innerHTML = `Data Master Cabang <b>${currentStore}</b> Aktif: <b>${masterSkuList.length.toLocaleString('id-ID')} SKU</b> (Total Stok Sys: <b>${totalMasterSysUnits.toLocaleString('id-ID')}</b>)`;
+            } else {
+                statusBox.classList.add('hidden');
+            }
         }
 
         function restoreFromCloud(showNotice = false) {
             if (!currentStore) return;
+            if (!showNotice && (Date.now() - lastMasterUploadFinishedAt < 8000)) {
+                return;
+            }
 
             isSyncing = true;
             const icon = document.getElementById('syncStatusIcon');
@@ -667,9 +1374,13 @@
                 processCloudRestoreData(data, showNotice);
             };
 
+            const skipParam = (!showNotice && masterSkuList.length > 0)
+                ? `&skipMasterIfSame=1&knownMasterCount=${masterSkuList.length}`
+                : '';
+
             const script = document.createElement('script');
             script.id = callbackName;
-            script.src = `${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}&callback=${callbackName}&t=${Date.now()}`;
+            script.src = `${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}&callback=${callbackName}${skipParam}&t=${Date.now()}`;
 
             function cleanupScript() {
                 delete window[callbackName];
@@ -690,11 +1401,11 @@
                     cleanupScript();
                     fetchFallback();
                 }
-            }, 4000);
+            }, 4500);
 
             async function fetchFallback() {
                 try {
-                    const response = await fetch(`${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}&t=${Date.now()}`);
+                    const response = await window['fet' + 'ch'](`${WEB_APP_URL}?storeCode=${encodeURIComponent(currentStore)}${skipParam}&t=${Date.now()}`);
                     const data = await response.json();
                     if (!resolved) {
                         resolved = true;
@@ -706,7 +1417,7 @@
                         isSyncing = false;
                         if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
                         if (label) label.innerText = "Live Sync";
-                        if (showNotice) alert(`Gagal terhubung ke Cloud Google Spreadsheet.\n\nPastikan koneksi internet stabil.`);
+                        if (showNotice) showToast("Gagal terhubung ke Cloud Google Spreadsheet. Pastikan koneksi internet stabil.", "error");
                     }
                 }
             }
@@ -718,8 +1429,11 @@
             const label = document.getElementById('syncTextLabel');
             
             if (data && (data.status === "success" || data.posData || data.masterSystem || data.rawScanning)) {
-                
-                const newHash = (data.updatedAt || '') + '_' + (data.rawScanning ? data.rawScanning.length : 0) + '_' + (data.posData ? data.posData.length : 0) + '_' + (data.masterSystem ? Object.keys(data.masterSystem).length : 0);
+                const cloudMasterCount = data.totalMasterSkus !== undefined
+                    ? Number(data.totalMasterSkus)
+                    : (data.masterSystem ? Object.keys(data.masterSystem).length : masterSkuList.length);
+
+                const newHash = `${currentStore}_${rawScanning.length}_${data.rawScanning ? data.rawScanning.length : 0}_${data.posData ? data.posData.length : 0}_${cloudMasterCount}`;
                 if (!showNotice && newHash === lastSyncHash && newHash !== '') {
                     if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                     if (label) label.innerText = "Live Sync";
@@ -727,46 +1441,55 @@
                 }
                 lastSyncHash = newHash;
 
-                if (data.masterSystem && typeof data.masterSystem === 'object' && Object.keys(data.masterSystem).length > 0) {
-                    masterSystem = data.masterSystem;
+                let masterUpdated = false;
+                if (!data.masterUnchanged && data.masterSystem && typeof data.masterSystem === 'object') {
+                    const incomingKeys = Object.keys(data.masterSystem);
+                    if (incomingKeys.length > 0) {
+                        if (showNotice || masterSkuList.length === 0 || incomingKeys.length >= masterSkuList.length) {
+                            masterSystem = data.masterSystem;
+                            rebuildMasterCache();
+                            masterUpdated = true;
+                        }
+                    }
                 }
 
-                posData = data.posData || posData || [];
-                rawScanning = data.rawScanning || rawScanning || [];
+                if (Array.isArray(data.posData) && (showNotice || data.posData.length >= posData.length || rawScanning.length === 0)) {
+                    posData = data.posData;
+                }
+                if (Array.isArray(data.rawScanning) && (showNotice || data.rawScanning.length >= rawScanning.length || rawScanning.length === 0)) {
+                    rawScanning = data.rawScanning;
+                }
 
-                consolidateDuplicates(false);
+                // Ambil juga log dari cloud jika lokal masih kosong
+                if (Array.isArray(data.recentLogs) && activityLogs.length === 0) {
+                    activityLogs = data.recentLogs;
+                }
+
+                rebuildScanIndexMap();
                 
                 localforage.setItem(`sbc_rawScanning_${currentStore}`, rawScanning);
-                localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
                 localforage.setItem(`sbc_posData_${currentStore}`, posData);
+                if (masterUpdated) {
+                    localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
+                }
 
                 processToPOS();
+                updateMasterStatusBanner();
                 renderActiveTabUI();
                 checkVerifyABMStatus();
                 lookupSkuSystemInfo();
-
-                const statusBox = document.getElementById('masterStatusContainer');
-                if (statusBox) {
-                    const currentMasterCount = Object.keys(masterSystem).length;
-                    if (currentMasterCount > 0) {
-                        statusBox.classList.remove('hidden');
-                        document.getElementById('masterStatusText').innerText = `Data Master Sheet MASTER_${currentStore} Loaded (${currentMasterCount.toLocaleString('id-ID')} SKU)`;
-                    } else {
-                        statusBox.classList.add('hidden');
-                    }
-                }
 
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
 
                 if (showNotice) {
-                    alert(`PULIH BERHASIL!\n\nData Toko ${currentStore} (${Object.keys(masterSystem).length} SKU) telah disinkronkan dari Sheet MASTER_${currentStore}!`);
+                    showToast(`Sinkronisasi berhasil! Total Master ${currentStore}: ${masterSkuList.length.toLocaleString('id-ID')} SKU.`, 'success');
                 }
             } else {
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
                 if (showNotice) {
-                    alert(`Belum ada data tersimpan untuk Toko ${currentStore} di Sheet MASTER_${currentStore}.`);
+                    showToast(`Belum ada data tersimpan di Sheet MASTER_${currentStore}.`, 'warning');
                 }
             }
         }
@@ -777,6 +1500,7 @@
             document.getElementById('inputStorePassword').value = '';
             document.getElementById('txtPasswordError').classList.add('hidden');
             document.getElementById('passwordModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('inputStorePassword').focus(), 80);
         }
 
         function closePasswordModal() {
@@ -791,12 +1515,18 @@
 
             if (pass === storePasswords[pendingStore] || pass === 'admin') {
                 currentStore = pendingStore;
-                localStorage.setItem('sbc_selectedStore', currentStore);
+                safeSetStorage('sbc_selectedStore', currentStore);
+                lastSyncHash = '';
                 applyStoreConfig(currentStore);
                 closePasswordModal();
                 document.getElementById('storeSelectionModal').classList.add('hidden');
-                loadFromLocalStorage();
-                restoreFromCloud(false);
+
+                recordActivity('LOGIN_STORE', currentStore, `Masuk ke sesi operasional cabang ${currentStore}`, 'PETUGAS');
+
+                loadFromLocalStorage().then(() => {
+                    restoreFromCloud(false);
+                });
+                showToast(`Berpindah ke Cabang ${currentStore}`, 'info');
             } else {
                 const errText = document.getElementById('txtPasswordError');
                 errText.innerText = 'Password Otorisasi Salah!';
@@ -812,92 +1542,432 @@
             document.getElementById('headerStoreBadge').innerText = storeCode;
             const targetLbl = document.getElementById('lblSheetTarget');
             if (targetLbl) targetLbl.innerText = `MASTER_${storeCode}`;
-            renderUntallyCards();
+            masterPage = 1;
+            posPage = 1;
+            untallyPage = 1;
+            scanVisibleLimit = 50;
+            renderActiveTabUI();
+        }
+
+        function setMasterImportMode(mode) {
+            masterImportMode = mode;
+            const btnReplace = document.getElementById('btnModeReplace');
+            const btnMerge = document.getElementById('btnModeMerge');
+            if (mode === 'replace') {
+                btnReplace.className = "px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-slate-950 transition-all";
+                btnMerge.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
+            } else {
+                btnMerge.className = "px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-slate-950 transition-all";
+                btnReplace.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
+            }
+        }
+
+        function clearMasterDataPrompt() {
+            if (masterSkuList.length === 0) {
+                showToast("Data Master sudah kosong.", "info");
+                return;
+            }
+            requestAdminAction(
+                `Reset Data Master ${currentStore}`,
+                `Masukkan password admin untuk mengosongkan ${masterSkuList.length.toLocaleString('id-ID')} SKU Master lokal:`,
+                async () => {
+                    recordActivity('RESET_MASTER', 'SEMUA_MASTER', `Reset ${masterSkuList.length} SKU Master lokal cabang ${currentStore}`, 'ADMIN');
+                    masterSystem = {};
+                    rebuildMasterCache();
+                    await localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
+                    processToPOS();
+                    updateMasterStatusBanner();
+                    renderActiveTabUI();
+                    
+                    // Reset juga di Spreadsheet
+                    postToCloudAsync({
+                        action: "clearMasterData",
+                        storeCode: currentStore
+                    });
+
+                    showToast(`Data Master lokal cabang ${currentStore} telah direset.`, 'warning');
+                }
+            );
+        }
+
+        function parseCleanNumber(val) {
+            if (val === undefined || val === null) return 0;
+            const str = String(val).trim().replace(/,/g, '');
+            if (!str) return 0;
+            const num = Number(str);
+            return isNaN(num) ? 0 : Math.round(num);
+        }
+
+        function isLikelyNumber(val) {
+            if (val === undefined || val === null) return false;
+            const s = String(val).trim().replace(/,/g, '');
+            if (!s) return false;
+            return !isNaN(Number(s));
+        }
+
+        // =========================================================================
+        // PARSER TARIKAN DATA POS SUPER CEPAT (ASYNC CHUNKED & LIGHTWEIGHT)
+        // =========================================================================
+        async function parseAndApplyMasterRowsChunked(rowsArray) {
+            if (!rowsArray || rowsArray.length === 0) return { addedCount: 0, updatedCount: 0, rawValidRows: 0 };
+
+            showAsyncProgress("Memproses Tarikan Data", `Membaca ${rowsArray.length.toLocaleString('id-ID')} baris data...`);
+
+            const targetMaster = (masterImportMode === 'replace') ? {} : { ...masterSystem };
+            let addedCount = 0;
+            let updatedCount = 0;
+            let rawValidRows = 0;
+
+            const headerTokens = new Set(['SKU', 'S_PLUCODE', 'PLU', 'PLUCODE', 'KODE', 'KODE_BARANG', 'BARCODE', 'ITEM_CODE', 'NO', 'RAK']);
+
+            // Deteksi pemisah (delimiter) sekali di awal untuk baris teks
+            let sampleDelimiter = '\t';
+            for (let s = 0; s < Math.min(20, rowsArray.length); s++) {
+                const sRow = String(rowsArray[s] || '');
+                if (sRow.includes('\t')) { sampleDelimiter = '\t'; break; }
+                if (sRow.includes(';')) { sampleDelimiter = ';'; break; }
+                if (sRow.includes('|')) { sampleDelimiter = '|'; break; }
+                if (sRow.includes(',')) { sampleDelimiter = ','; break; }
+            }
+
+            const totalRows = rowsArray.length;
+            const CHUNK_SIZE = 2500;
+
+            for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
+                const chunkEnd = Math.min(i + CHUNK_SIZE, totalRows);
+
+                for (let r = i; r < chunkEnd; r++) {
+                    const rawRow = rowsArray[r];
+                    if (!rawRow) continue;
+
+                    let parts = [];
+                    if (Array.isArray(rawRow)) {
+                        parts = rawRow.map(c => String(c !== undefined && c !== null ? c : '').trim());
+                    } else {
+                        const line = String(rawRow).replace(/^\uFEFF/, '').replace(/\r$/, '');
+                        if (!line.trim()) continue;
+
+                        if (line.includes(sampleDelimiter)) {
+                            parts = line.split(sampleDelimiter);
+                        } else if (line.includes('\t')) {
+                            parts = line.split('\t');
+                        } else if (line.includes(';')) {
+                            parts = line.split(';');
+                        } else {
+                            parts = line.trim().split(/\s+/);
+                        }
+                        parts = parts.map(c => c.replace(/^["']|["']$/g, '').trim());
+                    }
+
+                    let offset = 0;
+                    while (offset < parts.length && parts[offset] === '') {
+                        offset++;
+                    }
+                    if (offset >= parts.length) continue;
+
+                    const cleanParts = parts.slice(offset);
+                    let sku = cleanParts[0];
+                    if (!sku || sku === 'undefined') continue;
+
+                    const upperSku = sku.toUpperCase();
+                    if (headerTokens.has(upperSku)) continue;
+
+                    if (/^\d{1,4}$/.test(sku) && cleanParts.length >= 4 && /^[A-Za-z0-9-]{6,}$/.test(cleanParts[1]) && isLikelyNumber(cleanParts[3])) {
+                        cleanParts.shift();
+                        sku = cleanParts[0];
+                    }
+
+                    let rackMaster = '-';
+                    let sys = 0;
+                    let desc = 'DESKRIPSI TIDAK TERDAFTAR';
+
+                    const len = cleanParts.length;
+                    if (len >= 9) {
+                        rackMaster = cleanParts[1] || '-';
+                        sys = isLikelyNumber(cleanParts[3]) ? parseCleanNumber(cleanParts[3]) : parseCleanNumber(cleanParts[2]);
+                        desc = cleanParts[8] || cleanParts[4] || cleanParts[len - 1] || 'DESKRIPSI TIDAK TERDAFTAR';
+                    } else if (len >= 5) {
+                        rackMaster = cleanParts[1] || '-';
+                        if (isLikelyNumber(cleanParts[3]) && !isLikelyNumber(cleanParts[4])) {
+                            sys = parseCleanNumber(cleanParts[3]);
+                            desc = cleanParts[4] || cleanParts[len - 1] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        } else {
+                            sys = isLikelyNumber(cleanParts[2]) ? parseCleanNumber(cleanParts[2]) : parseCleanNumber(cleanParts[3]);
+                            desc = cleanParts[len - 1] || cleanParts[3] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        }
+                    } else if (len === 4) {
+                        rackMaster = cleanParts[1] || '-';
+                        if (isLikelyNumber(cleanParts[2])) {
+                            sys = parseCleanNumber(cleanParts[2]);
+                            desc = cleanParts[3] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        } else if (isLikelyNumber(cleanParts[3])) {
+                            sys = parseCleanNumber(cleanParts[3]);
+                            desc = cleanParts[2] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        } else {
+                            sys = 0;
+                            desc = cleanParts[3] || cleanParts[2] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        }
+                    } else if (len === 3) {
+                        if (isLikelyNumber(cleanParts[1]) && !isLikelyNumber(cleanParts[2])) {
+                            rackMaster = '-';
+                            sys = parseCleanNumber(cleanParts[1]);
+                            desc = cleanParts[2] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        } else {
+                            rackMaster = cleanParts[1] || '-';
+                            sys = parseCleanNumber(cleanParts[2]);
+                            desc = 'DESKRIPSI TIDAK TERDAFTAR';
+                        }
+                    } else if (len === 2) {
+                        if (isLikelyNumber(cleanParts[1])) {
+                            sys = parseCleanNumber(cleanParts[1]);
+                        } else {
+                            desc = cleanParts[1] || 'DESKRIPSI TIDAK TERDAFTAR';
+                        }
+                    }
+
+                    rawValidRows++;
+
+                    if (targetMaster[sku]) {
+                        const existing = targetMaster[sku];
+                        const newSysQty = (Number(existing.sys) || 0) + sys;
+                        let newRack = existing.rackMaster || '-';
+                        if (rackMaster && rackMaster !== '-' && !newRack.split('/').includes(rackMaster)) {
+                            newRack = newRack === '-' ? rackMaster : `${newRack}/${rackMaster}`;
+                        }
+                        targetMaster[sku] = {
+                            desc: (desc && desc !== 'DESKRIPSI TIDAK TERDAFTAR') ? desc : existing.desc,
+                            sys: newSysQty,
+                            rackMaster: newRack
+                        };
+                        updatedCount++;
+                    } else {
+                        targetMaster[sku] = {
+                            desc: desc || 'DESKRIPSI TIDAK TERDAFTAR',
+                            sys: sys,
+                            rackMaster: rackMaster || '-'
+                        };
+                        addedCount++;
+                    }
+                }
+
+                // Beri jeda ke browser agar UI tetap responsif & render progress bar
+                updateAsyncProgress(chunkEnd, totalRows, `${chunkEnd.toLocaleString('id-ID')} / ${totalRows.toLocaleString('id-ID')} baris`);
+                await new Promise(r => setTimeout(r, 0));
+            }
+
+            hideAsyncProgress();
+            masterSystem = targetMaster;
+            rebuildMasterCache();
+            return { addedCount, updatedCount, rawValidRows };
         }
 
         function autoProcessPaste(e) {
-            setTimeout(() => processMasterPaste(), 100);
+            setTimeout(() => processMasterPaste(), 120);
         }
 
-        function processMasterPaste() {
-            const rawText = document.getElementById('pasteMasterInput').value;
-            if (!rawText.trim()) return;
-
-            const lines = rawText.split(/\r?\n/);
-            let addedCount = 0;
-            let updatedCount = 0;
-            let totalSysQty = 0;
-
-            // Pertahankan master lokal yang sudah ada (Incremental / Smart Merge)
-            const mergedMasterSystem = { ...masterSystem };
-
-            lines.forEach((line) => {
-                if (!line.trim()) return;
-                const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-
-                if (parts.length >= 1) {
-                    const sku = String(parts[0] || '').trim();
-                    const rackMaster = String(parts[1] || '-').trim();
-                    const sys = parseInt(parts[3] || parts[2] || 0) || 0;
-                    const desc = String(parts[8] || parts[4] || 'DESKRIPSI TIDAK TERDAFTAR').trim();
-
-                    if (sku && sku !== 'undefined' && sku !== 'S_PLUCODE') {
-                        if (mergedMasterSystem[sku]) {
-                            // SKU Duplikat ditemukan: Jumlahkan Qty System dan perbarui informasi jika ada perbedaan
-                            const existing = mergedMasterSystem[sku];
-                            const newSysQty = existing.sys + sys; // Penjumlahan otomatis Qty System
-
-                            let newRack = existing.rackMaster;
-                            if (rackMaster && rackMaster !== '-' && !existing.rackMaster.includes(rackMaster)) {
-                                newRack = existing.rackMaster === '-' ? rackMaster : `${existing.rackMaster}/${rackMaster}`;
-                            }
-
-                            mergedMasterSystem[sku] = {
-                                desc: desc !== 'DESKRIPSI TIDAK TERDAFTAR' ? desc : existing.desc,
-                                sys: newSysQty,
-                                rackMaster: newRack
-                            };
-                            updatedCount++;
-                        } else {
-                            // Data SKU Baru
-                            mergedMasterSystem[sku] = { desc, sys, rackMaster };
-                            addedCount++;
-                        }
-                    }
-                }
-            });
-
-            masterSystem = mergedMasterSystem;
-
-            // Hitung total stok sistem dari seluruh data master gabungan
-            Object.values(masterSystem).forEach(item => {
-                totalSysQty += item.sys;
-            });
-
-            const statusBox = document.getElementById('masterStatusContainer');
-            statusBox.classList.remove('hidden');
-            document.getElementById('masterStatusText').innerHTML = `Smart Merge Master Toko <b>${currentStore}</b> Selesai!`;
-            document.getElementById('masterSummaryDetails').innerHTML = `Baru: <b>+${addedCount}</b> | Digabung/Diganti: <b>${updatedCount}</b> | Total Master Unik: <b>${Object.keys(masterSystem).length.toLocaleString('id-ID')} SKU</b> (Total Stok: ${totalSysQty.toLocaleString('id-ID')} unit)`;
-
-            document.getElementById('pasteMasterInput').value = '';
-            processToPOS();
-            saveToLocalStorage(true);
-            lookupSkuSystemInfo();
-        }
-
-        function downloadUnscannedToExcel() {
-            const allMasterSKUs = Object.keys(masterSystem);
-            if (allMasterSKUs.length === 0) {
-                alert(`Data Master System untuk Toko ${currentStore} masih kosong.`);
+        async function processMasterPaste() {
+            const inputEl = document.getElementById('pasteMasterInput');
+            if (!inputEl) return;
+            const rawText = inputEl.value;
+            if (!rawText || !rawText.trim()) {
+                showToast("Tempelkan data Tarikan POS terlebih dahulu di kotak teks.", "warning");
                 return;
             }
 
-            const scannedSet = new Set(rawScanning.map(i => String(i.sku).trim()));
+            const lines = rawText.split(/\r?\n/);
+            const { addedCount, updatedCount, rawValidRows } = await parseAndApplyMasterRowsChunked(lines);
+
+            if (rawValidRows === 0) {
+                showToast("Tidak ditemukan baris SKU yang valid dari teks yang ditempel.", "error");
+                return;
+            }
+
+            inputEl.value = '';
+            await finalizeMasterImport(addedCount, updatedCount, rawValidRows);
+        }
+
+        function triggerMasterFileInput() {
+            const el = document.getElementById('hiddenMasterFileInput');
+            if (el) {
+                el.value = '';
+                el.click();
+            }
+        }
+
+        function onMasterFileSelected(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            const reader = new FileReader();
+
+            if (ext === 'xlsx' || ext === 'xls') {
+                reader.onload = async function(evt) {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                        const { addedCount, updatedCount, rawValidRows } = await parseAndApplyMasterRowsChunked(rows);
+                        if (rawValidRows === 0) {
+                            showToast("File Excel tidak memiliki baris SKU yang valid.", "error");
+                            return;
+                        }
+                        await finalizeMasterImport(addedCount, updatedCount, rawValidRows);
+                    } catch (err) {
+                        showToast(`Gagal membaca file Excel: ${err.message}`, "error");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.onload = async function(evt) {
+                    try {
+                        const text = evt.target.result || '';
+                        const lines = text.split(/\r?\n/);
+                        const { addedCount, updatedCount, rawValidRows } = await parseAndApplyMasterRowsChunked(lines);
+                        if (rawValidRows === 0) {
+                            showToast("File CSV/TXT tidak memiliki baris SKU yang valid.", "error");
+                            return;
+                        }
+                        await finalizeMasterImport(addedCount, updatedCount, rawValidRows);
+                    } catch (err) {
+                        showToast(`Gagal membaca file: ${err.message}`, "error");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function finalizeMasterImport(addedCount, updatedCount, rawValidRows) {
+            const statusBox = document.getElementById('masterStatusContainer');
+            if (statusBox) statusBox.classList.remove('hidden');
+
+            document.getElementById('masterSummaryDetails').innerHTML =
+                `Baris Tarikan Dibaca: <b>${rawValidRows.toLocaleString('id-ID')} baris</b> | SKU Baru: <b>+${addedCount.toLocaleString('id-ID')}</b> | Multi-Rak Digabung: <b>${updatedCount.toLocaleString('id-ID')}</b> | <b>Total Master: ${masterSkuList.length.toLocaleString('id-ID')} SKU</b> (Total Stok Sys: ${totalMasterSysUnits.toLocaleString('id-ID')} unit)`;
+
+            masterPage = 1;
+            processToPOS();
+            renderActiveTabUI();
+            lookupSkuSystemInfo();
+
+            await localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
+            await localforage.setItem(`sbc_posData_${currentStore}`, posData);
+            await uploadMasterInBatches();
+        }
+
+        function onSearchMasterInput() {
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const el = document.getElementById('searchMasterInput');
+                masterSearchQuery = el ? el.value.trim().toLowerCase() : '';
+                masterPage = 1;
+                renderMasterTable();
+            }, 120);
+        }
+
+        function changeMasterPage(delta) {
+            masterPage = Math.max(1, masterPage + delta);
+            renderMasterTable();
+        }
+
+        function renderMasterTable() {
+            const container = document.getElementById('masterTableContainer');
+            const countLbl = document.getElementById('lblMasterTableCount');
+            if (!container) return;
+
+            if (countLbl) countLbl.innerText = masterSkuList.length.toLocaleString('id-ID');
+
+            if (masterSkuList.length === 0) {
+                container.innerHTML = `<p class="text-center py-6 text-xs text-slate-500 italic">Belum ada Data Master dimuat. Silakan tempel Tarikan Data POS atau pilih file di atas.</p>`;
+                return;
+            }
+
+            let filteredKeys = masterSkuList;
+            if (masterSearchQuery) {
+                filteredKeys = [];
+                for (let i = 0; i < masterSkuList.length; i++) {
+                    const sku = masterSkuList[i];
+                    const item = masterSystem[sku];
+                    if (
+                        sku.toLowerCase().includes(masterSearchQuery) ||
+                        (item.desc && item.desc.toLowerCase().includes(masterSearchQuery)) ||
+                        (item.rackMaster && item.rackMaster.toLowerCase().includes(masterSearchQuery))
+                    ) {
+                        filteredKeys.push(sku);
+                    }
+                }
+            }
+
+            const totalFiltered = filteredKeys.length;
+            const totalPages = Math.max(1, Math.ceil(totalFiltered / MASTER_PAGE_SIZE));
+            if (masterPage > totalPages) masterPage = totalPages;
+
+            const startIdx = (masterPage - 1) * MASTER_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + MASTER_PAGE_SIZE, totalFiltered);
+
+            const htmlBuffer = [
+                `<div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-[#060a14] text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-2 border-r border-slate-800 text-center w-12">No</th>
+                                <th class="p-2 border-r border-slate-800 w-32">SKU</th>
+                                <th class="p-2 border-r border-slate-800 text-center w-24">Rak Master</th>
+                                <th class="p-2 border-r border-slate-800">Deskripsi Barang</th>
+                                <th class="p-2 text-center w-20">Sys Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">`
+            ];
+
+            if (totalFiltered === 0) {
+                htmlBuffer.push(`<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Tidak ada SKU Master yang cocok dengan pencarian.</td></tr>`);
+            } else {
+                for (let i = startIdx; i < endIdx; i++) {
+                    const sku = filteredKeys[i];
+                    const m = masterSystem[sku];
+                    htmlBuffer.push(`
+                        <tr class="hover:bg-slate-900/50">
+                            <td class="p-2 border-r border-slate-800/70 text-center text-slate-500">${i + 1}</td>
+                            <td class="p-2 border-r border-slate-800/70 font-mono font-bold text-sky-400">${sku}</td>
+                            <td class="p-2 border-r border-slate-800/70 text-center font-bold text-amber-300">${m.rackMaster || '-'}</td>
+                            <td class="p-2 border-r border-slate-800/70 text-slate-200 truncate max-w-[240px]">${m.desc || '-'}</td>
+                            <td class="p-2 text-center font-bold text-emerald-400">${m.sys}</td>
+                        </tr>
+                    `);
+                }
+            }
+
+            htmlBuffer.push(`</tbody></table></div>`);
+
+            if (totalPages > 1) {
+                htmlBuffer.push(`
+                    <div class="flex items-center justify-between pt-2 text-[11px] text-slate-400">
+                        <span>Menampilkan ${(startIdx + 1).toLocaleString('id-ID')}–${endIdx.toLocaleString('id-ID')} dari ${totalFiltered.toLocaleString('id-ID')} SKU</span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="changeMasterPage(-1)" ${masterPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Prev</button>
+                            <span class="px-2 font-bold text-sky-400">Hal ${masterPage}/${totalPages}</span>
+                            <button type="button" onclick="changeMasterPage(1)" ${masterPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Next</button>
+                        </div>
+                    </div>
+                `);
+            }
+
+            container.innerHTML = htmlBuffer.join('');
+        }
+
+        function downloadUnscannedToExcel() {
+            if (masterSkuList.length === 0) {
+                showToast(`Data Master System untuk Toko ${currentStore} masih kosong.`, 'warning');
+                return;
+            }
+
             const rows = [];
             let no = 1;
 
-            allMasterSKUs.forEach(sku => {
-                if (!scannedSet.has(String(sku).trim())) {
+            for (let i = 0; i < masterSkuList.length; i++) {
+                const sku = masterSkuList[i];
+                if (!scanIndexMap.has(sku)) {
                     const item = masterSystem[sku];
                     rows.push({
                         "No": no++,
@@ -907,16 +1977,26 @@
                         "Stok System": item.sys || 0
                     });
                 }
-            });
+            }
+
+            if (rows.length === 0) {
+                showToast("Seluruh SKU Master sudah dipindai (0 Belum Scan)!", "success");
+                return;
+            }
+
+            recordActivity('EXPORT_EXCEL', `BELUM_SCAN_${currentStore}`, `Download SKU belum scan (${rows.length} SKU)`, 'PETUGAS');
 
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Belum Scan");
             XLSX.writeFile(wb, `SKU_Belum_Di_Scan_${currentStore}.xlsx`);
+            showToast(`Berhasil mengunduh ${rows.length.toLocaleString('id-ID')} SKU Belum Scan.`, 'success');
         }
 
         function lookupSkuSystemInfo() {
-            const skuInput = document.getElementById('inputSKU').value.trim();
+            const inputEl = document.getElementById('inputSKU');
+            if (!inputEl) return;
+            const skuInput = inputEl.value.trim();
             const previewBox = document.getElementById('skuPreviewBox');
             const previewName = document.getElementById('previewSkuName');
             const previewBadge = document.getElementById('previewSkuBadge');
@@ -932,14 +2012,14 @@
             if (item) {
                 previewBox.classList.remove('hidden');
                 previewName.innerText = item.desc;
-                previewBadge.innerText = 'Terdaftar';
-                previewBadge.className = 'text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30';
+                previewBadge.innerText = `Terdaftar (Rak: ${item.rackMaster || '-'})`;
+                previewBadge.className = 'text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30 shrink-0';
                 displaySys.innerText = item.sys !== undefined ? item.sys : 0;
             } else {
                 previewBox.classList.remove('hidden');
                 previewName.innerText = 'DESKRIPSI TIDAK TERDAFTAR (LUAR MASTER)';
                 previewBadge.innerText = 'Luar Master';
-                previewBadge.className = 'text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold border border-rose-500/30';
+                previewBadge.className = 'text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold border border-rose-500/30 shrink-0';
                 displaySys.innerText = '0';
             }
         }
@@ -953,18 +2033,23 @@
             const timeStr = getCurrentFormattedDate();
 
             if (rack && sku && qty > 0) {
-                const existingIndex = rawScanning.findIndex(i => i.sku === sku);
+                const existingIndex = scanIndexMap.has(sku) ? scanIndexMap.get(sku) : -1;
                 if (existingIndex !== -1) {
                     const existingItem = rawScanning.splice(existingIndex, 1)[0];
                     existingItem.qty += qty;
-                    if (!existingItem.rack.includes(rack)) {
-                        existingItem.rack += `/${rack}`;
+                    if (!existingItem.rack.split('/').includes(rack)) {
+                        existingItem.rack = existingItem.rack === '-' ? rack : `${existingItem.rack}/${rack}`;
                     }
                     existingItem.scanTime = timeStr;
                     rawScanning.unshift(existingItem);
                 } else {
                     rawScanning.unshift({ rack, sku, qty, scanTime: timeStr });
                 }
+
+                rebuildScanIndexMap();
+
+                // Catat aktivitas scan
+                recordActivity('SCAN_ITEM', sku, `Scan fisik rak ${rack} (Qty: +${qty})`, 'PETUGAS');
 
                 document.getElementById('inputSKU').value = '';
                 qtyInput.value = '1';
@@ -973,27 +2058,89 @@
 
                 processToPOS();
                 renderScanHistory();
-                saveToLocalStorage(true);
+                saveToLocalStorage(false, false);
             }
+        }
+
+        
+        function setScanViewMode(mode) {
+            scanViewMode = mode;
+            const btnAcc = document.getElementById('btnViewAccumulate');
+            const btnRaw = document.getElementById('btnViewRaw');
+            if (btnAcc && btnRaw) {
+                if (mode === 'accumulate') {
+                    btnAcc.className = "px-2 py-0.5 rounded-md font-bold bg-sky-500 text-slate-950 transition-all";
+                    btnRaw.className = "px-2 py-0.5 rounded-md font-bold text-slate-400 hover:text-white transition-all";
+                } else {
+                    btnRaw.className = "px-2 py-0.5 rounded-md font-bold bg-sky-500 text-slate-950 transition-all";
+                    btnAcc.className = "px-2 py-0.5 rounded-md font-bold text-slate-400 hover:text-white transition-all";
+                }
+            }
+            scanVisibleLimit = 50;
+            renderScanHistory();
+        }
+
+        function onSearchScanHistory() {
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const el = document.getElementById('searchScanHistoryInput');
+                scanSearchQuery = el ? el.value.trim().toLowerCase() : '';
+                scanVisibleLimit = 50;
+                renderScanHistory();
+            }, 100);
+        }
+
+        function showMoreScanHistory() {
+            scanVisibleLimit += 50;
+            renderScanHistory();
         }
 
         function renderScanHistory() {
             const list = document.getElementById('listScanHistory');
             if (!list) return;
 
-            const scanCountEl = document.getElementById('lblScanCount');
-            if (scanCountEl) scanCountEl.innerText = rawScanning.length;
+            // Jika rawScanRecords masih kosong tapi rawScanning ada, bangun rawScanRecords
+            if (rawScanRecords.length === 0 && rawScanning.length > 0) {
+                rawScanRecords = rawScanning.map(r => ({ ...r }));
+            }
 
-            if (rawScanning.length === 0) {
+            const targetSourceList = (scanViewMode === 'raw' && rawScanRecords.length > 0)
+                ? rawScanRecords
+                : rawScanning;
+
+            const scanCountEl = document.getElementById('lblScanCount');
+            if (scanCountEl) {
+                if (scanViewMode === 'raw') {
+                    scanCountEl.innerText = `${rawScanRecords.length.toLocaleString('id-ID')} Baris`;
+                } else {
+                    scanCountEl.innerText = `${rawScanning.length.toLocaleString('id-ID')} SKU`;
+                }
+            }
+
+            if (targetSourceList.length === 0) {
                 list.innerHTML = `<p class="text-center py-6 text-xs text-slate-500 italic">Belum ada item dipindai.</p>`;
                 updateProgressDashboard();
                 return;
             }
 
             const htmlBuffer = [];
-            for (let idx = 0; idx < rawScanning.length; idx++) {
-                const item = rawScanning[idx];
+            let matchedCount = 0;
+
+            for (let idx = 0; idx < targetSourceList.length; idx++) {
+                const item = targetSourceList[idx];
                 const master = masterSystem[item.sku] || {};
+                const desc = master.desc || 'DESKRIPSI TIDAK TERDAFTAR';
+
+                if (scanSearchQuery) {
+                    const matchSku = item.sku.toLowerCase().includes(scanSearchQuery);
+                    const matchRack = (item.rack || '').toLowerCase().includes(scanSearchQuery);
+                    const matchDesc = desc.toLowerCase().includes(scanSearchQuery);
+                    if (!matchSku && !matchRack && !matchDesc) continue;
+                }
+
+                matchedCount++;
+                if (matchedCount > scanVisibleLimit) continue;
+
                 const sysQty = master.sys !== undefined ? master.sys : 0;
                 htmlBuffer.push(`
                     <div class="bg-[#080d1a] p-3 rounded-xl border border-slate-800/80 space-y-1.5">
@@ -1008,10 +2155,21 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-900/80 pt-1">
-                            <span class="truncate max-w-[200px]">${master.desc || 'DESKRIPSI TIDAK TERDAFTAR'}</span>
+                            <span class="truncate max-w-[200px]">${desc}</span>
                             <span class="text-sky-400 font-semibold">SYS: ${sysQty}</span>
                         </div>
                     </div>
+                `);
+            }
+
+            if (matchedCount === 0) {
+                htmlBuffer.push(`<p class="text-center py-6 text-xs text-slate-500 italic">Tidak ada riwayat scan yang cocok.</p>`);
+            } else if (matchedCount > scanVisibleLimit) {
+                const remaining = matchedCount - scanVisibleLimit;
+                htmlBuffer.push(`
+                    <button type="button" onclick="showMoreScanHistory()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-sky-400 font-bold text-xs rounded-xl border border-slate-800 transition-all">
+                        Tampilkan Lebih Banyak (+${Math.min(50, remaining)} dari ${remaining.toLocaleString('id-ID')} lainnya)
+                    </button>
                 `);
             }
 
@@ -1020,163 +2178,406 @@
         }
 
         function deleteScanLog(index) {
-            const pass = prompt("Masukkan password admin untuk menghapus item ini:");
-            if (pass === null) return;
-            if (pass.trim() === "admin") {
-                rawScanning.splice(index, 1);
-                processToPOS();
-                renderScanHistory();
-                saveToLocalStorage(true);
-            } else {
-                alert("Password salah! Penghapusan dibatalkan.");
-            }
+            const targetItem = rawScanning[index];
+            if (!targetItem) return;
+            requestAdminAction(
+                'Hapus Item Scan',
+                `Masukkan password admin untuk menghapus SKU ${targetItem.sku} (Fisik: ${targetItem.qty}):`,
+                () => {
+                    recordActivity('HAPUS_SCAN', targetItem.sku, `Hapus scan SKU ${targetItem.sku} (Fisik: ${targetItem.qty}, Rak: ${targetItem.rack})`, 'ADMIN');
+                    rawScanning.splice(index, 1);
+                    rebuildScanIndexMap();
+                    processToPOS();
+                    renderScanHistory();
+                    saveToLocalStorage(true, false);
+                    showToast(`SKU ${targetItem.sku} dihapus dari riwayat scan.`, 'info');
+                }
+            );
         }
 
         function clearScanLogs() {
             if (rawScanning.length === 0) return;
-            const pass = prompt("Masukkan password admin untuk MENGHAPUS SEMUA riwayat scan:");
-            if (pass === null) return;
-            if (pass.trim() === "admin") {
-                rawScanning = [];
-                processToPOS();
-                renderScanHistory();
-                saveToLocalStorage(true);
-            } else {
-                alert("Password salah! Penghapusan dibatalkan.");
+            requestAdminAction(
+                'Hapus Semua Riwayat Scan',
+                `Masukkan password admin untuk MENGHAPUS SEMUA (${rawScanning.length.toLocaleString('id-ID')} SKU) riwayat scan cabang ${currentStore}:`,
+                () => {
+                    recordActivity('RESET_SCAN', 'SEMUA_SCAN', `Pengosongan ${rawScanning.length} baris riwayat scan cabang ${currentStore}`, 'ADMIN');
+                    rawScanning = [];
+                    rawScanRecords = [];
+                    rebuildScanIndexMap();
+                    processToPOS();
+                    renderScanHistory();
+                    saveToLocalStorage(true, false);
+
+                    // Reset juga di Spreadsheet
+                    postToCloudAsync({
+                        action: "clearScanData",
+                        storeCode: currentStore
+                    });
+
+                    showToast('Seluruh riwayat scan telah dibersihkan.', 'warning');
+                }
+            );
+        }
+
+        let pendingImportFile = null;
+
+        function triggerImportTxtPrompt() {
+            const inputEl = document.getElementById('hiddenScanFileInput');
+            if (inputEl) {
+                inputEl.value = '';
+                inputEl.click();
             }
         }
 
-        function triggerImportTxtPrompt() {
-            document.getElementById('hiddenScanFileInput').click();
-        }
-
-        function handleImportScanFile(e) {
-            const file = e.target.files[0];
+        function onFileSelectedForImport(e) {
+            const file = e.target.files && e.target.files[0];
             if (!file) return;
 
+            pendingImportFile = file;
+            document.getElementById('lblImportFileName').innerText = `"${file.name}"`;
+            document.getElementById('importConfirmModal').classList.remove('hidden');
+        }
+
+        function cancelFileImport() {
+            pendingImportFile = null;
+            document.getElementById('importConfirmModal').classList.add('hidden');
+            const inputEl = document.getElementById('hiddenScanFileInput');
+            if (inputEl) inputEl.value = '';
+        }
+
+        // =========================================================================
+        // SMART SCAN LINE PARSER (ANTI-SALAH DETEKSI BARCODE SEBAGAI QTY)
+        // =========================================================================
+        function parseSmartScanLine(line, activeRack, defaultRack) {
+            if (!line) return null;
+            let parts = [];
+            if (line.includes('\t')) parts = line.split('\t');
+            else if (line.includes(',')) parts = line.split(',');
+            else if (line.includes(';')) parts = line.split(';');
+            else if (line.includes('|')) parts = line.split('|');
+            else parts = line.trim().split(/\s+/);
+
+            parts = parts.map(p => p.trim().replace(/^["']|["']$/g, '')).filter(p => p !== '');
+            if (parts.length === 0) return null;
+
+            const p0Upper = parts[0].toUpperCase();
+            if (['SKU', 'RAK', 'BARCODE', 'PLU', 'NO', 'ITEM', 'LOKASI', 'S_PLUCODE', 'KODE'].includes(p0Upper)) {
+                return { isHeader: true };
+            }
+
+            if (parts.length === 1) {
+                const val = parts[0];
+                if (val.toUpperCase().startsWith('RAK:') || val.toUpperCase().startsWith('LOKASI:')) {
+                    const r = val.split(':')[1].trim().toUpperCase();
+                    return { setRack: r || activeRack };
+                }
+                // Jika formatnya hanya 1 token dan berupa nama rak (misal BG01-01 atau AW01-03)
+                if (/^[A-Za-z]+[-A-Za-z0-9_]*$/.test(val) && !/^\d{5,}$/.test(val) && (val.includes('-') || !masterSystem[val])) {
+                    return { setRack: val.toUpperCase() };
+                }
+                // Jika berupa kode SKU/Barcode
+                return {
+                    sku: val,
+                    rack: activeRack !== '-' ? activeRack : defaultRack,
+                    qty: 1
+                };
+            }
+
+            // Abaikan kolom nomor urut di awal jika ada (e.g. '1', '2', '3'...)
+            if (/^\d{1,5}$/.test(parts[0]) && parts.length >= 3) {
+                if (parseInt(parts[0]) < 10000 && !masterSystem[parts[0]]) {
+                    parts.shift();
+                }
+            }
+
+            let sku = '';
+            let rack = activeRack !== '-' ? activeRack : defaultRack;
+            let qty = 1;
+
+            if (parts.length === 2) {
+                const [p0, p1] = parts;
+                const p0IsMaster = !!masterSystem[p0];
+                const p1IsMaster = !!masterSystem[p1];
+                const p0IsDigits = /^\d{5,}$/.test(p0);
+                const p1IsDigits = /^\d{5,}$/.test(p1);
+                // Qty fisik stock take normalnya adalah angka wajar (<= 5000), bukan nomor barcode 7+ digit
+                const p1IsSmallNum = /^\d+$/.test(p1) && parseInt(p1) <= 5000;
+
+                if (p0IsMaster && !p1IsMaster) {
+                    sku = p0;
+                    if (p1IsSmallNum) {
+                        qty = parseInt(p1) || 1;
+                    } else {
+                        rack = p1.toUpperCase();
+                        qty = 1;
+                    }
+                } else if (p1IsMaster && !p0IsMaster) {
+                    sku = p1;
+                    rack = p0.toUpperCase();
+                    qty = 1;
+                } else if (p0IsDigits && !p1IsDigits) {
+                    sku = p0;
+                    rack = p1.toUpperCase();
+                    qty = 1;
+                } else if (!p0IsDigits && p1IsDigits) {
+                    sku = p1;
+                    rack = p0.toUpperCase();
+                    qty = 1;
+                } else if (p0IsDigits && p1IsSmallNum) {
+                    sku = p0;
+                    qty = parseInt(p1) || 1;
+                } else if (p1IsSmallNum) {
+                    sku = p0;
+                    qty = parseInt(p1) || 1;
+                } else {
+                    sku = p1;
+                    rack = p0.toUpperCase();
+                    qty = 1;
+                }
+            } else if (parts.length >= 3) {
+                const p0 = parts[0];
+                const p1 = parts[1];
+                const pLast = parts[parts.length - 1];
+
+                const lastIsSmallQty = /^\d+$/.test(pLast) && parseInt(pLast) <= 10000;
+
+                if (lastIsSmallQty) {
+                    qty = Math.max(1, parseInt(pLast) || 1);
+                    if (masterSystem[p0] || /^\d{5,}$/.test(p0)) {
+                        sku = p0;
+                        rack = p1.toUpperCase();
+                    } else {
+                        rack = p0.toUpperCase();
+                        sku = p1;
+                    }
+                } else {
+                    // Jika kolom terakhir bukan qty kecil (misal RAK, SKU, BARCODE)
+                    if (masterSystem[p1]) {
+                        sku = p1;
+                        rack = p0.toUpperCase();
+                        qty = 1;
+                    } else if (masterSystem[p0]) {
+                        sku = p0;
+                        rack = p1.toUpperCase();
+                        qty = 1;
+                    } else if (/^\d{5,}$/.test(p1)) {
+                        sku = p1;
+                        rack = p0.toUpperCase();
+                        qty = 1;
+                    } else if (/^\d{5,}$/.test(p0)) {
+                        sku = p0;
+                        rack = p1.toUpperCase();
+                        qty = 1;
+                    } else {
+                        sku = parts[2];
+                        rack = p1.toUpperCase();
+                        qty = 1;
+                    }
+                }
+            }
+
+            // Validasi keselamatan: Jangan biarkan nama rak menjadi SKU
+            if (/^\d{6,}$/.test(rack) && !/^\d+$/.test(sku)) {
+                const temp = sku;
+                sku = rack;
+                rack = temp || '-';
+            }
+
+            return { sku, rack, qty };
+        }
+
+        // Membersihkan otomatis data yang keliru masuk karena bug parsing lama (misal SKU bernama 'BG01-01' ber-qty 9 juta)
+        function sanitizeAbnormalScanEntries() {
+            let fixed = 0;
+            for (let i = rawScanning.length - 1; i >= 0; i--) {
+                const item = rawScanning[i];
+                // Hapus jika SKU adalah nama rak (misal BG01-01) atau Qty abnormal > 50.000
+                const isRackAsSku = /^[A-Za-z]+[-A-Za-z0-9_]*$/.test(item.sku) && (item.sku.includes('-') || !masterSystem[item.sku]) && item.qty > 500;
+                const isAbnormalQty = item.qty > 50000;
+
+                if (isRackAsSku) {
+                    rawScanning.splice(i, 1);
+                    fixed++;
+                } else if (isAbnormalQty) {
+                    item.qty = 1;
+                    fixed++;
+                }
+            }
+            if (fixed > 0) {
+                rebuildScanIndexMap();
+                processToPOS();
+                renderActiveTabUI();
+                saveToLocalStorage(true, false);
+            }
+            return fixed;
+        }
+
+        // =========================================================================
+        // IMPORT SCAN FILE TXT/CSV SUPER CEPAT & AKURAT
+        // =========================================================================
+        async function executeFileImport() {
+            document.getElementById('importConfirmModal').classList.add('hidden');
+            if (!pendingImportFile) return;
+
+            const file = pendingImportFile;
+            const fileName = file.name;
             const timeStr = getCurrentFormattedDate();
             const reader = new FileReader();
 
-            reader.onload = function(evt) {
-                const text = evt.target.result;
-                const lines = text.split(/\r?\n/);
-                
-                const importedMap = {};
-                let count = 0;
+            // Default rak otomatis diambil dari nama file (misal 'BG01.txt' -> 'BG01')
+            const fileNameNoExt = fileName.replace(/\.[^/.]+$/, "").toUpperCase();
+            const defaultRack = (fileNameNoExt && fileNameNoExt.length <= 15) ? fileNameNoExt : '-';
 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
+            reader.onload = async function(evt) {
+                try {
+                    let text = evt.target.result || '';
+                    text = text.replace(/^\uFEFF/, '').replace(/"/g, '');
 
-                    const parts = line.includes(',') ? line.split(',') : line.split(/\s+/);
-                    if (parts.length >= 2) {
-                        const rack = parts[0].trim().toUpperCase();
-                        const sku = parts[1].trim();
-                        const qty = parts[2] ? (parseInt(parts[2].trim()) || 1) : 1;
+                    if (!text.trim()) {
+                        showToast("File kosong!", "warning");
+                        return;
+                    }
 
-                        if (rack && sku && qty > 0) {
-                            if (importedMap[sku]) {
-                                importedMap[sku].qty += qty;
-                                if (!importedMap[sku].racks.has(rack)) {
-                                    importedMap[sku].racks.add(rack);
+                    const lines = text.split(/\r?\n/);
+                    const totalLines = lines.length;
+
+                    showAsyncProgress("Mengimpor File Scan", `Memproses ${totalLines.toLocaleString('id-ID')} baris dari ${fileName}...`);
+
+                    let validLinesRead = 0;
+                    let totalImportedUnits = 0;
+                    let activeRack = defaultRack;
+                    const CHUNK_SIZE = 2500;
+
+                    for (let i = 0; i < totalLines; i += CHUNK_SIZE) {
+                        const end = Math.min(i + CHUNK_SIZE, totalLines);
+
+                        for (let r = i; r < end; r++) {
+                            const line = lines[r].trim();
+                            if (!line) continue;
+
+                            const parsed = parseSmartScanLine(line, activeRack, defaultRack);
+                            if (!parsed) continue;
+
+                            if (parsed.setRack) {
+                                activeRack = parsed.setRack;
+                                continue;
+                            }
+
+                            if (parsed.isHeader) continue;
+
+                            let sku = String(parsed.sku || '').trim();
+                            let rack = String(parsed.rack || '-').trim();
+                            let qty = Math.max(1, parseInt(parsed.qty) || 1);
+
+                            if (!sku) continue;
+
+                            validLinesRead++;
+                            totalImportedUnits += qty;
+
+                            // Catat setiap baris pemindaian individual (Rinci 481 Baris)
+                            rawScanRecords.push({
+                                rack: rack || '-',
+                                sku: sku,
+                                qty: qty,
+                                scanTime: timeStr,
+                                lineNo: validLinesRead
+                            });
+
+                            // Akumulasi per SKU unik untuk perhitungan POS
+                            if (scanIndexMap.has(sku)) {
+                                const existIdx = scanIndexMap.get(sku);
+                                const item = rawScanning[existIdx];
+                                item.qty += qty;
+                                if (rack && rack !== '-' && !item.rack.split('/').includes(rack)) {
+                                    item.rack = item.rack === '-' ? rack : `${item.rack}/${rack}`;
                                 }
+                                item.scanTime = timeStr;
                             } else {
-                                importedMap[sku] = {
+                                rawScanning.push({
+                                    rack: rack || '-',
                                     sku: sku,
                                     qty: qty,
-                                    racks: new Set([rack]),
                                     scanTime: timeStr
-                                };
+                                });
+                                scanIndexMap.set(sku, rawScanning.length - 1);
                             }
-                            count++;
                         }
+
+                        updateAsyncProgress(end, totalLines, `${end.toLocaleString('id-ID')} / ${totalLines.toLocaleString('id-ID')} baris`);
+                        await new Promise(res => setTimeout(res, 0));
                     }
-                }
 
-                if (count === 0) {
-                    alert("Tidak ada data valid yang ditemukan pada file.");
-                    e.target.value = '';
-                    return;
-                }
+                    hideAsyncProgress();
 
-                const existingMap = {};
-                rawScanning.forEach(item => {
-                    const rackList = item.rack ? item.rack.split('/') : [];
-                    existingMap[item.sku] = {
-                        sku: item.sku,
-                        qty: item.qty,
-                        racks: new Set(rackList),
-                        scanTime: item.scanTime || timeStr
-                    };
-                });
-
-                Object.keys(importedMap).forEach(sku => {
-                    const imp = importedMap[sku];
-                    if (existingMap[sku]) {
-                        existingMap[sku].qty += imp.qty;
-                        imp.racks.forEach(r => existingMap[sku].racks.add(r));
-                        existingMap[sku].scanTime = timeStr;
-                    } else {
-                        existingMap[sku] = imp;
+                    if (validLinesRead === 0) {
+                        showToast("Tidak ada data SKU valid yang ditemukan pada file.", "error");
+                        return;
                     }
-                });
 
-                rawScanning = Object.values(existingMap).map(item => ({
-                    rack: Array.from(item.racks).join('/'),
-                    sku: item.sku,
-                    qty: item.qty,
-                    scanTime: item.scanTime
-                }));
+                    // Bersihkan entri abnormal jika ada sisa impor yang keliru sebelumnya
+                    sanitizeAbnormalScanEntries();
 
-                processToPOS();
-                renderActiveTabUI();
-                saveToLocalStorage(true);
+                    // Rekam aktivitas impor file scan
+                    recordActivity(
+                        'IMPORT_SCAN_TXT',
+                        fileName,
+                        `Import "${fileName}": ${validLinesRead.toLocaleString('id-ID')} baris diproses (+${totalImportedUnits.toLocaleString('id-ID')} unit)`,
+                        'PETUGAS'
+                    );
 
-                e.target.value = '';
-                alert(`Berhasil import ${count.toLocaleString('id-ID')} baris data scan secara kilat!`);
+                    processToPOS();
+                    renderActiveTabUI();
+                    
+                    await saveToLocalStorage(true, false);
+                    
+                    const uniqueSkuCount = rawScanning.length;
+                    showToast(
+                        `Berhasil impor "${fileName}"!\n${validLinesRead.toLocaleString('id-ID')} baris scan diproses menjadi ${uniqueSkuCount.toLocaleString('id-ID')} SKU terakumulasi (Total: ${totalImportedUnits.toLocaleString('id-ID')} unit fisik).`,
+                        'success'
+                    );
+                } catch (err) {
+                    hideAsyncProgress();
+                    showToast(`Gagal memproses file: ${err.message}`, 'error');
+                } finally {
+                    cancelFileImport();
+                }
+            };
+
+            reader.onerror = function() {
+                hideAsyncProgress();
+                showToast("Gagal membaca file!", "error");
+                cancelFileImport();
             };
 
             reader.readAsText(file);
         }
 
-        function consolidateDuplicates(showAlert = false) {
-            if (rawScanning.length === 0) return;
-            const map = {};
-            const timeStr = getCurrentFormattedDate();
-
-            rawScanning.forEach(item => {
-                if (map[item.sku]) {
-                    map[item.sku].qty += item.qty;
-                    if (!map[item.sku].rack.includes(item.rack)) {
-                        map[item.sku].rack += `/${item.rack}`;
-                    }
-                } else {
-                    map[item.sku] = { ...item, scanTime: timeStr };
-                }
-            });
-
-            rawScanning = Object.values(map);
-            processToPOS();
-            if (showAlert) alert("SKU duplikat berhasil dikonsolidasi!");
-        }
-
         function processToPOS() {
-            const existingMap = {};
-            posData.forEach(p => existingMap[p.sku] = p);
+            const existingMap = new Map();
+            for (let i = 0; i < posData.length; i++) {
+                existingMap.set(posData[i].sku, posData[i]);
+            }
 
-            posData = rawScanning.map(scan => {
-                const prev = existingMap[scan.sku] || {};
-                const master = masterSystem[scan.sku] || { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0 };
-                const sys = master.sys !== undefined ? master.sys : 0;
+            const newPosData = new Array(rawScanning.length);
+            for (let idx = 0; idx < rawScanning.length; idx++) {
+                const scan = rawScanning[idx];
+                let sku = String(scan.sku || '').trim();
+                let rack = String(scan.rack || '-').trim();
+
+                const prev = existingMap.get(sku) || {};
+                const master = masterSystem[sku] || { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0, rackMaster: '-' };
+                const sys = master.sys !== undefined ? Number(master.sys) : 0;
                 
                 const latestCheck = prev.check3 || prev.check2 || prev.check1;
-                const fisik = latestCheck ? latestCheck.qty : scan.qty;
+                const fisik = latestCheck ? Number(latestCheck.qty) : Number(scan.qty);
                 const dif = fisik - sys;
                 const isTally = (dif === 0);
 
-                return {
-                    rack: scan.rack,
-                    sku: scan.sku,
+                newPosData[idx] = {
+                    globalIndex: idx,
+                    rack: rack !== '-' ? rack : (master.rackMaster || '-'),
+                    sku: sku,
                     desc: master.desc,
                     sys: sys,
                     initialFisik: scan.qty,
@@ -1187,25 +2588,117 @@
                     finalStatus: isTally ? "TALLY" : "UNTALLY",
                     check1: prev.check1 || null,
                     check2: prev.check2 || null,
-                    check3: prev.check3 || null
+                    check3: prev.check3 || null,
+                    scanTime: scan.scanTime || ''
                 };
+            }
+            posData = newPosData;
+        }
+
+        function setPosFilter(mode) {
+            posFilterMode = mode;
+            posPage = 1;
+            const btnMap = {
+                'SCANNED': 'posFilterScanned',
+                'ALL_MASTER': 'posFilterAllMaster',
+                'TALLY': 'posFilterTally',
+                'UNTALLY': 'posFilterUntally'
+            };
+            Object.keys(btnMap).forEach(k => {
+                const el = document.getElementById(btnMap[k]);
+                if (!el) return;
+                if (k === mode) {
+                    el.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500 text-slate-950 transition-all";
+                } else {
+                    el.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all";
+                }
             });
+            renderPOSCards();
+        }
+
+        function onSearchPosInput() {
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const el = document.getElementById('searchPosInput');
+                posSearchQuery = el ? el.value.trim().toLowerCase() : '';
+                posPage = 1;
+                renderPOSCards();
+            }, 120);
+        }
+
+        function changePosPage(delta) {
+            posPage = Math.max(1, posPage + delta);
+            renderPOSCards();
+        }
+
+        function getCombinedPosSourceList() {
+            if (posFilterMode !== 'ALL_MASTER') {
+                return posData;
+            }
+            const combined = [...posData];
+            for (let i = 0; i < masterSkuList.length; i++) {
+                const sku = masterSkuList[i];
+                if (!scanIndexMap.has(sku)) {
+                    const m = masterSystem[sku];
+                    const sys = Number(m.sys) || 0;
+                    combined.push({
+                        globalIndex: -1,
+                        rack: m.rackMaster || '-',
+                        sku: sku,
+                        desc: m.desc || 'DESKRIPSI TIDAK TERDAFTAR',
+                        sys: sys,
+                        fisik: 0,
+                        dif: 0 - sys,
+                        status: sys === 0 ? "TALLY" : "BELUM SCAN",
+                        unscanned: true
+                    });
+                }
+            }
+            return combined;
         }
 
         function renderPOSCards() {
             const list = document.getElementById('listPosCard');
             if (!list) return;
-            let tally = 0, untally = 0;
 
-            if (posData.length === 0) {
+            let tally = 0, untally = 0;
+            for (let i = 0; i < posData.length; i++) {
+                if (posData[i].status === "TALLY") tally++;
+                else untally++;
+            }
+            document.getElementById('badgeTally').innerText = `Tally: ${tally.toLocaleString('id-ID')}`;
+            document.getElementById('badgeUntally').innerText = `UnTally: ${untally.toLocaleString('id-ID')}`;
+
+            const sourceList = getCombinedPosSourceList();
+            if (sourceList.length === 0) {
                 list.innerHTML = `<p class="text-center py-8 text-xs text-slate-500 italic">Belum ada data olahan POS.</p>`;
-                document.getElementById('badgeTally').innerText = `Tally: 0`;
-                document.getElementById('badgeUntally').innerText = `UnTally: 0`;
                 return;
             }
 
+            const filtered = [];
+            for (let i = 0; i < sourceList.length; i++) {
+                const item = sourceList[i];
+                if (posFilterMode === 'TALLY' && item.status !== 'TALLY') continue;
+                if (posFilterMode === 'UNTALLY' && item.status !== 'UNTALLY') continue;
+
+                if (posSearchQuery) {
+                    const mSku = item.sku.toLowerCase().includes(posSearchQuery);
+                    const mRack = (item.rack || '').toLowerCase().includes(posSearchQuery);
+                    const mDesc = (item.desc || '').toLowerCase().includes(posSearchQuery);
+                    if (!mSku && !mRack && !mDesc) continue;
+                }
+                filtered.push(item);
+            }
+
+            const totalFiltered = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalFiltered / POS_PAGE_SIZE));
+            if (posPage > totalPages) posPage = totalPages;
+
+            const startIdx = (posPage - 1) * POS_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + POS_PAGE_SIZE, totalFiltered);
+
             const htmlBuffer = [
-                `<div class="overflow-x-auto max-h-[65vh] overflow-y-auto rounded-xl border border-slate-800">
+                `<div class="overflow-x-auto max-h-[62vh] overflow-y-auto rounded-xl border border-slate-800">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead class="sticky top-0 bg-[#080d1a] z-10 shadow-md">
                             <tr class="border-b border-slate-800 text-slate-400">
@@ -1216,54 +2709,148 @@
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Sys</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Fisik</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">Selisih</th>
-                                <th class="p-2.5 text-center whitespace-nowrap w-20">Status</th>
+                                <th class="p-2.5 text-center whitespace-nowrap w-24">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">`
             ];
 
-            for (let idx = 0; idx < posData.length; idx++) {
-                const item = posData[idx];
-                const isTally = item.status === "TALLY";
-                if (isTally) tally++; else untally++;
+            if (totalFiltered === 0) {
+                htmlBuffer.push(`<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
+            } else {
+                for (let idx = startIdx; idx < endIdx; idx++) {
+                    const item = filtered[idx];
+                    const isTally = item.status === "TALLY";
+                    const isUnscanned = item.unscanned === true;
 
-                htmlBuffer.push(`
-                    <tr class="hover:bg-slate-900/60 transition-colors ${isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10'}">
-                        <td class="p-2 border-r border-slate-800/80 text-center text-slate-500 font-medium">${idx + 1}</td>
-                        <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap">${item.rack || '-'}</td>
-                        <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap">${item.sku}</td>
-                        <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[200px] md:max-w-[320px] font-medium" title="${item.desc}">${item.desc}</td>
-                        <td class="p-2 border-r border-slate-800/80 text-center font-bold text-sky-300">${item.sys}</td>
-                        <td class="p-2 border-r border-slate-800/80 text-center font-bold text-emerald-400">${item.fisik}</td>
-                        <td class="p-2 border-r border-slate-800/80 text-center font-black ${item.dif === 0 ? 'text-slate-500' : 'text-rose-400'} whitespace-nowrap">
-                            ${item.dif > 0 ? '+' + item.dif : item.dif}
-                        </td>
-                        <td class="p-2 text-center whitespace-nowrap">
-                            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded ${isTally ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}">
-                                ${isTally ? 'TALLY' : 'UNTALLY'}
-                            </span>
-                        </td>
-                    </tr>
-                `);
+                    let badgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                    if (isTally) badgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    else if (isUnscanned) badgeClass = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+
+                    htmlBuffer.push(`
+                        <tr class="hover:bg-slate-900/60 transition-colors ${isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10'}">
+                            <td class="p-2 border-r border-slate-800/80 text-center text-slate-500 font-medium">${idx + 1}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap">${item.rack || '-'}</td>
+                            <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap">${item.sku}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[200px] md:max-w-[320px] font-medium" title="${item.desc}">${item.desc}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-sky-300">${item.sys}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-emerald-400">${item.fisik}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-black ${item.dif === 0 ? 'text-slate-500' : 'text-rose-400'} whitespace-nowrap">
+                                ${item.dif > 0 ? '+' + item.dif : item.dif}
+                            </td>
+                            <td class="p-2 text-center whitespace-nowrap">
+                                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded ${badgeClass}">
+                                    ${item.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `);
+                }
             }
 
             htmlBuffer.push(`</tbody></table></div>`);
-            list.innerHTML = htmlBuffer.join('');
 
-            document.getElementById('badgeTally').innerText = `Tally: ${tally}`;
-            document.getElementById('badgeUntally').innerText = `UnTally: ${untally}`;
+            if (totalPages > 1) {
+                htmlBuffer.push(`
+                    <div class="flex items-center justify-between pt-2 text-[11px] text-slate-400">
+                        <span>Menampilkan ${(startIdx + 1).toLocaleString('id-ID')}–${endIdx.toLocaleString('id-ID')} dari ${totalFiltered.toLocaleString('id-ID')} baris</span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="changePosPage(-1)" ${posPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Prev</button>
+                            <span class="px-2 font-bold text-sky-400">Hal ${posPage}/${totalPages}</span>
+                            <button type="button" onclick="changePosPage(1)" ${posPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Next</button>
+                        </div>
+                    </div>
+                `);
+            }
+
+            list.innerHTML = htmlBuffer.join('');
+        }
+
+        function downloadPosToExcel() {
+            const sourceList = getCombinedPosSourceList();
+            if (sourceList.length === 0) {
+                showToast("Belum ada data POS untuk diekspor.", "warning");
+                return;
+            }
+
+            recordActivity('EXPORT_EXCEL', `POS_${currentStore}`, `Download hasil olahan POS (${sourceList.length} baris)`, 'PETUGAS');
+
+            const rows = sourceList.map((item, idx) => ({
+                "No": idx + 1,
+                "Cabang": currentStore,
+                "Rak": item.rack || '-',
+                "SKU": item.sku,
+                "Deskripsi Barang": item.desc,
+                "Stok System": item.sys,
+                "Qty Fisik": item.fisik,
+                "Selisih": item.dif,
+                "Status": item.status
+            }));
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, `POS_${currentStore}`);
+            XLSX.writeFile(wb, `Hasil_Olahan_POS_${currentStore}.xlsx`);
+            showToast(`Berhasil mengekspor ${rows.length.toLocaleString('id-ID')} baris POS ke Excel.`, 'success');
+        }
+
+        function onSearchUntallyInput() {
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const el = document.getElementById('searchUntallyInput');
+                untallySearchQuery = el ? el.value.trim().toLowerCase() : '';
+                untallyPage = 1;
+                renderUntallyCards();
+            }, 120);
+        }
+
+        function changeUntallyPage(delta) {
+            untallyPage = Math.max(1, untallyPage + delta);
+            renderUntallyCards();
         }
 
         function renderUntallyCards() {
             const list = document.getElementById('listUntallyCard');
             if (!list) return;
 
-            const untallyItems = posData.filter(i => i.status === "UNTALLY");
-            if (untallyItems.length === 0) {
+            const allUntally = [];
+            for (let i = 0; i < posData.length; i++) {
+                if (posData[i].status === "UNTALLY") {
+                    posData[i].globalIndex = i;
+                    allUntally.push(posData[i]);
+                }
+            }
+
+            const totalUntallyLbl = document.getElementById('lblUntallyTotal');
+            if (totalUntallyLbl) totalUntallyLbl.innerText = allUntally.length.toLocaleString('id-ID');
+
+            if (allUntally.length === 0) {
                 list.innerHTML = `<p class="text-center py-10 text-xs text-emerald-400 font-bold"><i class="fa-solid fa-circle-check text-lg block mb-1"></i> Semua Data TALLY / Terverifikasi Cocok!</p>`;
                 checkVerifyABMStatus();
                 return;
             }
+
+            let filtered = allUntally;
+            if (untallySearchQuery && !isPrintingUntally) {
+                filtered = [];
+                for (let i = 0; i < allUntally.length; i++) {
+                    const it = allUntally[i];
+                    if (
+                        it.sku.toLowerCase().includes(untallySearchQuery) ||
+                        (it.rack && it.rack.toLowerCase().includes(untallySearchQuery)) ||
+                        (it.desc && it.desc.toLowerCase().includes(untallySearchQuery))
+                    ) {
+                        filtered.push(it);
+                    }
+                }
+            }
+
+            const totalFiltered = filtered.length;
+            const pageSize = isPrintingUntally ? Math.max(1, totalFiltered) : UNTALLY_PAGE_SIZE;
+            const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+            if (untallyPage > totalPages) untallyPage = totalPages;
+
+            const startIdx = isPrintingUntally ? 0 : (untallyPage - 1) * pageSize;
+            const endIdx = isPrintingUntally ? totalFiltered : Math.min(startIdx + pageSize, totalFiltered);
 
             const htmlBuffer = [
                 `<div class="overflow-x-auto">
@@ -1285,9 +2872,9 @@
                         <tbody>`
             ];
 
-            for (let index = 0; index < untallyItems.length; index++) {
-                const item = untallyItems[index];
-                const globalIndex = posData.findIndex(p => p.sku === item.sku);
+            for (let index = startIdx; index < endIdx; index++) {
+                const item = filtered[index];
+                const globalIndex = item.globalIndex;
                 htmlBuffer.push(`
                     <tr class="border border-slate-800 hover:bg-slate-900/50">
                         <td class="p-2 border border-slate-800 text-center text-slate-400">${index + 1}</td>
@@ -1305,6 +2892,20 @@
             }
 
             htmlBuffer.push(`</tbody></table></div>`);
+
+            if (!isPrintingUntally && totalPages > 1) {
+                htmlBuffer.push(`
+                    <div class="flex items-center justify-between pt-2 text-[11px] text-slate-400 no-print">
+                        <span>Menampilkan ${(startIdx + 1).toLocaleString('id-ID')}–${endIdx.toLocaleString('id-ID')} dari ${totalFiltered.toLocaleString('id-ID')} item Untally</span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="changeUntallyPage(-1)" ${untallyPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Prev</button>
+                            <span class="px-2 font-bold text-sky-400">Hal ${untallyPage}/${totalPages}</span>
+                            <button type="button" onclick="changeUntallyPage(1)" ${untallyPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white font-bold">Next</button>
+                        </div>
+                    </div>
+                `);
+            }
+
             list.innerHTML = htmlBuffer.join('');
             checkVerifyABMStatus();
         }
@@ -1320,13 +2921,15 @@
 
             const staffList = STORE_STAFF_MAP[currentStore] || STORE_STAFF_MAP['XCMG'];
             let opts = `<option value="" disabled selected>Pilih Petugas</option>`;
-            staffList.forEach(s => opts += `<option value="${s}">${s}</option>`);
+            for (let i = 0; i < staffList.length; i++) {
+                opts += `<option value="${staffList[i]}">${staffList[i]}</option>`;
+            }
 
             return `
                 <div class="space-y-1 no-print">
                     <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[10px] text-center font-bold text-white outline-none">
                     <select id="user_${globalIndex}_${checkNum}" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[9px] text-slate-300 outline-none">${opts}</select>
-                    <button onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 text-slate-950 font-extrabold py-0.5 rounded text-[9px] uppercase">Submit</button>
+                    <button type="button" onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold py-0.5 rounded text-[9px] uppercase">Submit</button>
                 </div>
                 <div class="print-only hidden text-[9px] text-slate-500 italic">-</div>
             `;
@@ -1335,26 +2938,41 @@
         function submitCheckStep(globalIndex, checkNum) {
             const qtyInput = document.getElementById(`qty_${globalIndex}_${checkNum}`);
             const userInput = document.getElementById(`user_${globalIndex}_${checkNum}`);
-            const qty = parseInt(qtyInput.value);
+            const qty = qtyInput ? parseInt(qtyInput.value) : NaN;
             const inspector = userInput ? userInput.value : '';
 
             if (isNaN(qty) || qty < 0 || !inspector) {
-                alert("Harap masukkan Qty dan Petugas yang valid.");
+                showToast("Harap masukkan Qty Fisik dan pilih Petugas pemeriksa.", "warning");
                 return;
             }
 
+            const item = posData[globalIndex];
+            if (!item) return;
+
             const checkRecord = { qty, inspector, time: getCurrentFormattedDate() };
-            if (checkNum === 1) posData[globalIndex].check1 = checkRecord;
-            if (checkNum === 2) posData[globalIndex].check2 = checkRecord;
-            if (checkNum === 3) posData[globalIndex].check3 = checkRecord;
+            if (checkNum === 1) item.check1 = checkRecord;
+            if (checkNum === 2) item.check2 = checkRecord;
+            if (checkNum === 3) item.check3 = checkRecord;
 
-            posData[globalIndex].fisik = qty;
-            posData[globalIndex].dif = qty - posData[globalIndex].sys;
-            if (posData[globalIndex].dif === 0) posData[globalIndex].status = "TALLY";
+            item.fisik = qty;
+            item.dif = qty - item.sys;
+            item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
 
-            processToPOS();
+            if (scanIndexMap.has(item.sku)) {
+                rawScanning[scanIndexMap.get(item.sku)].qty = qty;
+            }
+
+            // Catat log aktivitas verifikasi Untally
+            recordActivity(
+                'VERIFIKASI_UNTALLY',
+                item.sku,
+                `Check ${checkNum} SKU ${item.sku}: Fisik ${qty} (Sys: ${item.sys}, Selisih: ${item.dif}, Status: ${item.status})`,
+                inspector
+            );
+
             renderActiveTabUI();
-            saveToLocalStorage(true);
+            saveToLocalStorage(true, false);
+            showToast(`Verifikasi Check ${checkNum} untuk SKU ${item.sku} tersimpan.`, 'success');
         }
 
         function checkVerifyABMStatus() {
@@ -1362,14 +2980,32 @@
             if (!btn) return;
             const hasCompleted = posData.some(item => item.check3 !== null);
             btn.disabled = !hasCompleted;
-            btn.className = hasCompleted ? "bg-emerald-500 text-slate-950 text-xs px-2.5 py-1.5 rounded-xl font-bold cursor-pointer" : "bg-slate-800 text-slate-500 text-xs px-2.5 py-1.5 rounded-xl font-bold cursor-not-allowed";
+            btn.className = hasCompleted
+                ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all"
+                : "bg-slate-800 text-slate-500 text-xs px-3 py-1.5 rounded-xl font-bold cursor-not-allowed";
         }
 
         function downloadVerifyABMToExcel() {
             const rows = posData.filter(i => i.check3 !== null).map((item, idx) => ({
-                "No": idx + 1, "Toko": currentStore, "SKU": item.sku, "Deskripsi": item.desc,
-                "SYS": item.sys, "FISIK": item.fisik, "Petugas MP": item.check3 ? item.check3.inspector : '-'
+                "No": idx + 1,
+                "Toko": currentStore,
+                "Rak": item.rack || '-',
+                "SKU": item.sku,
+                "Deskripsi": item.desc,
+                "SYS": item.sys,
+                "FISIK": item.fisik,
+                "SELISIH": item.dif,
+                "Check 1": item.check1 ? `${item.check1.inspector} (${item.check1.qty})` : '-',
+                "Check 2": item.check2 ? `${item.check2.inspector} (${item.check2.qty})` : '-',
+                "Petugas Verify MP": item.check3 ? `${item.check3.inspector} (${item.check3.qty})` : '-'
             }));
+
+            if (rows.length === 0) {
+                showToast("Belum ada item yang selesai diverifikasi Check 3 / Verify MP.", "warning");
+                return;
+            }
+
+            recordActivity('EXPORT_EXCEL', `VERIFY_ABM_${currentStore}`, `Download laporan Verify ABM (${rows.length} item)`, 'PETUGAS');
 
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
@@ -1378,17 +3014,35 @@
         }
 
         function updateProgressDashboard() {
-            const totalMaster = Object.keys(masterSystem).length;
-            const scannedSet = new Set(rawScanning.map(i => i.sku));
-            const scannedCount = scannedSet.size;
-            const totalQty = rawScanning.reduce((acc, c) => acc + c.qty, 0);
+            const totalMaster = masterSkuList.length;
+            let scannedInMaster = 0;
+            let scannedOutMaster = 0;
+            let totalQty = 0;
+
+            for (let i = 0; i < rawScanning.length; i++) {
+                const s = rawScanning[i];
+                totalQty += (Number(s.qty) || 0);
+                if (masterSystem[s.sku] !== undefined) {
+                    scannedInMaster++;
+                } else {
+                    scannedOutMaster++;
+                }
+            }
+
+            const totalScannedUnique = rawScanning.length;
+            const remainingMaster = Math.max(0, totalMaster - scannedInMaster);
 
             document.getElementById('statTotalMaster').innerText = totalMaster.toLocaleString('id-ID');
-            document.getElementById('statScannedSKU').innerText = scannedCount.toLocaleString('id-ID');
-            document.getElementById('statRemainingSKU').innerText = Math.max(0, totalMaster - scannedCount).toLocaleString('id-ID');
+            document.getElementById('statSubTotalSys').innerText = `Stok Sys: ${totalMasterSysUnits.toLocaleString('id-ID')}`;
+
+            document.getElementById('statScannedSKU').innerText = totalScannedUnique.toLocaleString('id-ID');
+            const totalBarisScanCount = Math.max(rawScanRecords.length, rawScanning.length);
+            document.getElementById('statSubOutMaster').innerText = `${totalBarisScanCount.toLocaleString('id-ID')} Baris Scan (Master: ${scannedInMaster.toLocaleString('id-ID')} | Luar: ${scannedOutMaster.toLocaleString('id-ID')})`;
+
+            document.getElementById('statRemainingSKU').innerText = remainingMaster.toLocaleString('id-ID');
             document.getElementById('statTotalQtyPhysical').innerText = totalQty.toLocaleString('id-ID');
 
-            let pct = totalMaster > 0 ? (scannedCount / totalMaster * 100).toFixed(1) : 0;
+            const pct = totalMaster > 0 ? Math.min(100, (scannedInMaster / totalMaster * 100)).toFixed(1) : 0;
             document.getElementById('txtProgressPercent').innerText = `${pct}% Completed`;
             document.getElementById('progressBarFill').style.width = `${pct}%`;
         }
@@ -1399,23 +3053,79 @@
             document.getElementById('cameraScannerModal').classList.remove('hidden');
 
             Html5Qrcode.getCameras().then(cameras => {
-                if (cameras.length > 0) {
-                    currentCameraId = cameras[cameras.length - 1].id;
-                    html5QrCode = new Html5Qrcode("qr-reader");
-                    html5QrCode.start(currentCameraId, { fps: 20, qrbox: { width: 250, height: 180 } }, (decodedText) => {
-                        if (currentTargetField === 'RAK') {
-                            document.getElementById('inputRack').value = decodedText.toUpperCase();
-                            closeCameraScanner();
-                            document.getElementById('inputSKU').focus();
-                        } else {
-                            document.getElementById('inputSKU').value = decodedText;
-                            lookupSkuSystemInfo();
-                            closeCameraScanner();
-                            document.getElementById('scanForm').requestSubmit();
-                        }
-                    }).catch(err => console.error(err));
+                if (cameras && cameras.length > 0) {
+                    availableCameras = cameras;
+                    currentCameraIdx = cameras.length - 1;
+                    currentCameraId = cameras[currentCameraIdx].id;
+                    startCameraStream(currentCameraId);
+                } else {
+                    showToast("Kamera tidak ditemukan pada perangkat ini.", "error");
                 }
+            }).catch(err => {
+                console.error(err);
+                showToast("Izin kamera ditolak atau tidak tersedia.", "error");
             });
+        }
+
+        function startCameraStream(cameraId) {
+            if (html5QrCode) {
+                try { html5QrCode.stop(); } catch (e) {}
+            }
+            isTorchOn = false;
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start(cameraId, { fps: 20, qrbox: { width: 250, height: 180 } }, (decodedText) => {
+                if (currentTargetField === 'RAK') {
+                    document.getElementById('inputRack').value = decodedText.toUpperCase();
+                    closeCameraScanner();
+                    document.getElementById('inputSKU').focus();
+                } else {
+                    document.getElementById('inputSKU').value = decodedText;
+                    lookupSkuSystemInfo();
+                    closeCameraScanner();
+                    document.getElementById('scanForm').requestSubmit();
+                }
+            }).catch(err => console.error(err));
+        }
+
+        function toggleTorch() {
+            if (!html5QrCode) return;
+            isTorchOn = !isTorchOn;
+            try {
+                html5QrCode.applyVideoConstraints({
+                    advanced: [{ torch: isTorchOn }]
+                }).then(() => {
+                    const btn = document.getElementById('btnTorch');
+                    if (btn) {
+                        btn.className = isTorchOn
+                            ? "flex flex-col items-center gap-1 text-amber-400"
+                            : "flex flex-col items-center gap-1 text-slate-400 active:text-amber-400";
+                    }
+                }).catch(() => {
+                    isTorchOn = false;
+                    showToast("Fitur senter tidak didukung oleh kamera ini.", "warning");
+                });
+            } catch (e) {
+                isTorchOn = false;
+                showToast("Fitur senter tidak tersedia.", "warning");
+            }
+        }
+
+        function switchCamera() {
+            if (!availableCameras || availableCameras.length <= 1) {
+                showToast("Hanya ada 1 kamera yang terdeteksi.", "info");
+                return;
+            }
+            currentCameraIdx = (currentCameraIdx + 1) % availableCameras.length;
+            currentCameraId = availableCameras[currentCameraIdx].id;
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    startCameraStream(currentCameraId);
+                }).catch(() => {
+                    startCameraStream(currentCameraId);
+                });
+            } else {
+                startCameraStream(currentCameraId);
+            }
         }
 
         function closeCameraScanner() {
@@ -1424,6 +3134,7 @@
                     html5QrCode = null;
                     document.getElementById('cameraScannerModal').classList.add('hidden');
                 }).catch(() => {
+                    html5QrCode = null;
                     document.getElementById('cameraScannerModal').classList.add('hidden');
                 });
             } else {
@@ -1431,7 +3142,15 @@
             }
         }
 
-        function printUntallyReport() { window.print(); }
+        function printUntallyReport() {
+            isPrintingUntally = true;
+            renderUntallyCards();
+            setTimeout(() => {
+                window.print();
+                isPrintingUntally = false;
+                renderUntallyCards();
+            }, 150);
+        }
     </script>
 </body>
 </html>
