@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP PASSWORD TOKO (DENGAN TOGGLE MATA & CASE-INSENSITIVE) -->
+    <!-- MODAL POPUP PASSWORD TOKO -->
     <div id="passwordModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 text-center space-y-4">
             <div class="mx-auto w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl border border-sky-500/30">
@@ -101,8 +101,8 @@
             <form onsubmit="verifyStorePassword(event)" class="space-y-4 pt-1">
                 <div class="relative">
                     <input type="password" id="inputStorePassword" placeholder="Masukkan PIN/Password" required autocomplete="off" class="w-full pl-4 pr-10 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:border-sky-500 text-center text-sm font-bold text-white outline-none tracking-widest">
-                    <button type="button" onclick="toggleStorePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors" title="Lihat password">
-                        <i id="iconToggleStorePass" class="fa-solid fa-eye text-xs"></i>
+                    <button type="button" onclick="toggleStorePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                        <i id="btnEyeStorePass" class="fa-solid fa-eye text-xs"></i>
                     </button>
                 </div>
                 <p id="txtPasswordError" class="text-xs text-rose-400 font-bold hidden"></p>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="relative flex-1 sm:max-w-xs">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="searchLogInput" oninput="renderActivityLogTable()" placeholder="Cari aktivitas, SKU, petugas..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-indigo-500 text-xs text-slate-200 outline-none">
+                    <input type="text" id="searchLogInput" oninput="renderActivityLogTable()" placeholder="Cari aktivitas, SKU, keterangan..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-indigo-500 text-xs text-slate-200 outline-none">
                 </div>
             </div>
 
@@ -214,7 +214,7 @@
 
             <!-- FOOTER MODAL LOG -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-[11px]">
-                <span class="text-slate-400">Total: <b id="lblLogCount" class="text-indigo-400">0</b> aktivitas tersimpan lokal</span>
+                <span class="text-slate-400">Total: <b id="lblLogCount" class="text-indigo-400">0</b> aktivitas tersimpan</span>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <button type="button" onclick="forceSyncLogsToCloud()" class="flex-1 sm:flex-none bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-slate-950 font-bold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Sinkronkan Log ke Spreadsheet
@@ -262,7 +262,7 @@
                         <p class="text-[11px] text-slate-400">Cabang: <span id="headerStoreBadge" class="text-amber-400 font-bold">XCMG</span></p>
                     </div>
                 </div>
-                <!-- DESKTOP TOP TABS (HIDDEN ON MOBILE) -->
+                <!-- DESKTOP TOP TABS -->
                 <nav class="hidden md:flex items-center gap-1 bg-slate-950/60 p-1 rounded-2xl border border-slate-800">
                     <button onclick="switchTab('step1Container')" id="deskNavStep1" class="desk-nav-btn text-xs font-bold px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-database"></i> Master
@@ -313,7 +313,7 @@
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-emerald-400 font-semibold block mb-1">Sudah Scan</span>
                     <span id="statScannedSKU" class="text-base font-bold text-emerald-400">0</span>
-                    <span id="statSubOutMaster" class="text-[9px] text-slate-500 block mt-0.5">Master: 0 | Luar: 0</span>
+                    <span id="statSubOutMaster" class="text-[9px] text-slate-500 block mt-0.5">0 Baris Scan (Master: 0 | Luar: 0)</span>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-rose-400 font-semibold block mb-1">Belum Scan</span>
@@ -321,23 +321,23 @@
                     <span class="text-[9px] text-slate-500 block mt-0.5">Dari Total Master</span>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
-                    <span class="text-[10px] text-sky-400 font-semibold block mb-1">Qty Fisik</span>
+                    <span class="text-[10px] text-sky-400 font-semibold block mb-1">Total Fisik</span>
                     <span id="statTotalQtyPhysical" class="text-base font-bold text-sky-400">0</span>
-                    <span id="statSubDiffTotal" class="text-[9px] text-slate-500 block mt-0.5">Total Unit Fisik</span>
+                    <span id="statSubDiffTotal" class="text-[9px] text-slate-500 block mt-0.5">Scan: 0 | Keep: +0</span>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW SECTION 1: MASTER SYSTEM (TARIKAN DATA POS) -->
+        <!-- VIEW SECTION 1: MASTER SYSTEM & KEEPSTOCK -->
         <section id="step1Container" class="tab-content hidden space-y-4 no-print">
             <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master POS
+                        <i class="fa-solid fa-database text-sky-400"></i> Step 1: Tarikan Data Master POS & Keepstock
                     </h3>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] bg-sky-950 text-sky-400 px-2.5 py-1 rounded-lg font-bold border border-sky-800/50">
-                            Target Sheet: <b id="lblSheetTarget">MASTER_XCMG</b>
+                            Sheet: <b id="lblSheetTarget">MASTER_XCMG</b> & <b id="lblKSTarget">KS_XCMG</b>
                         </span>
                     </div>
                 </div>
@@ -347,19 +347,19 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
                             <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-cloud text-emerald-400"></i> Sinkronisasi Dua Arah Google Spreadsheet
+                                <i class="fa-solid fa-cloud text-emerald-400"></i> Sinkronisasi Cloud Dua Arah (Master & Keepstock)
                             </span>
                             <p class="text-[11px] text-emerald-200/80 mt-0.5">
-                                Tarikan Data Master otomatis diunggah ke sheet <code>MASTER_XKLR</code>, <code>MASTER_XCMG</code>, atau <code>MASTER_XCIH</code> dan menampilkan seluruh SKU di Total Master.
+                                Data Master otomatis masuk ke sheet <code>MASTER_[TOKO]</code>, dan data Keepstock gudang otomatis tersimpan ke sheet <code>KS_[TOKO]</code>.
                             </p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <button type="button" onclick="restoreFromCloud(true)" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN MASTER DARI SPREADSHEET
+                            <i class="fa-solid fa-cloud-arrow-down"></i> PULIHKAN DARI SPREADSHEET
                         </button>
                         <button type="button" onclick="uploadMasterInBatches()" class="bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-extrabold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> KIRIM MASTER LOKAL KE SPREADSHEET
+                            <i class="fa-solid fa-cloud-arrow-up"></i> KIRIM MASTER & KEEPSTOCK KE CLOUD
                         </button>
                     </div>
                 </div>
@@ -379,18 +379,23 @@
                     <div id="masterSummaryDetails" class="text-[10px] text-emerald-400/80"></div>
                 </div>
 
-                <!-- INPUT TARIKAN DATA BARU (FILE EXCEL/CSV/TXT ATAU PASTE) -->
-                <div class="bg-[#0b1120] p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <h4 class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-file-import"></i> Input / Upload Tarikan Data POS Baru
-                            </h4>
-                            <p class="text-[11px] text-slate-400 mt-0.5">
-                                Mendukung format 4 kolom (<code>SKU, RAK, SYS_QTY, DESKRIPSI</code>) maupun format Tarikan POS lengkap 9+ kolom (Tab, Koma, Titik Koma, atau Excel).
-                            </p>
+                <!-- ========================================================================= -->
+                <!-- [1] POSISI PERTAMA (ATAS): INPUT TARIKAN DATA MASTER POS BARU             -->
+                <!-- ========================================================================= -->
+                <div class="bg-[#0b1120] p-4 rounded-2xl border-2 border-sky-500/50 shadow-lg shadow-sky-950/40 space-y-3 relative overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-sky-500/20 pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 bg-sky-500 text-slate-950 rounded-lg flex items-center justify-center font-black text-xs shadow-md">1</span>
+                            <div>
+                                <h4 class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-import text-sky-400"></i> TARIKAN DATA MASTER POS (SYSTEM)
+                                </h4>
+                                <p class="text-[10px] text-sky-200/70 mt-0.5">
+                                    Tarikan stok komputer/POS. Format 4 kolom (<code>SKU, RAK, SYS_QTY, DESKRIPSI</code>) atau 9+ kolom tarikan POS.
+                                </p>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px]">
+                        <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-sky-500/30 text-[10px]">
                             <button type="button" id="btnModeReplace" onclick="setMasterImportMode('replace')" class="px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-slate-950 transition-all">
                                 Ganti Master Baru
                             </button>
@@ -400,34 +405,77 @@
                         </div>
                     </div>
 
-                    <!-- TOMBOL IMPORT FILE EXCEL / CSV / TXT MASTER -->
                     <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="triggerMasterFileInput()" class="flex-1 min-w-[200px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-excel text-indigo-400"></i> Pilih File Tarikan (.XLSX / .CSV / .TXT)
+                        <button type="button" onclick="triggerMasterFileInput()" class="flex-1 min-w-[200px] bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-excel text-sky-400"></i> Pilih File Tarikan Master (.XLSX / .CSV / .TXT)
                         </button>
                         <button type="button" onclick="clearMasterDataPrompt()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-trash-can"></i> Reset Master
                         </button>
                     </div>
 
-                    <!-- TEXTAREA TEMPEL TARIKAN POS -->
-                    <div class="space-y-2">
-                        <label for="pasteMasterInput" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Atau Tempel (Paste) Data Tarikan POS di Bawah Ini:
-                        </label>
-                        <textarea id="pasteMasterInput" rows="4" onpaste="autoProcessPaste(event)" placeholder="Tempel (Paste) baris Tarikan Data POS di sini...&#10;Contoh:&#10;10012345&#9;AW01-01&#9;24&#9;MINYAK GORENG 2L&#10;10012346&#9;AW01-02&#9;12&#9;GULA PASIR 1KG" class="w-full p-3 bg-[#060a14] border border-slate-800 rounded-xl focus:border-sky-500 text-xs font-mono text-slate-200 outline-none resize-y"></textarea>
-                        <div class="flex items-center justify-end gap-2">
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-[10px] font-bold text-sky-300">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-arrow-down-long"></i> TEMPEL (PASTE) DATA MASTER POS DI SINI:</span>
+                            <span class="bg-sky-950/80 text-sky-400 px-2 py-0.5 rounded border border-sky-800/60 font-mono text-[9px]">TARGET: SHEET MASTER</span>
+                        </div>
+                        <textarea id="pasteMasterInput" rows="3" onpaste="autoProcessPaste(event)" placeholder="Tempel (Paste) baris Tarikan Data POS di sini...&#10;Contoh:&#10;10012345&#9;AW01-01&#9;24&#9;MINYAK GORENG 2L&#10;10012346&#9;AW01-02&#9;12&#9;GULA PASIR 1KG" class="w-full p-3 bg-[#060a14] border-2 border-sky-500/30 rounded-xl focus:border-sky-400 text-xs font-mono text-slate-200 outline-none resize-y"></textarea>
+                        <div class="flex items-center justify-end gap-2 pt-1">
                             <button type="button" onclick="document.getElementById('pasteMasterInput').value=''" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all">
                                 Bersihkan Teks
                             </button>
-                            <button type="button" onclick="processMasterPaste()" class="bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-extrabold py-2 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg">
-                                <i class="fa-solid fa-bolt"></i> PROSES & UPLOAD KE SPREADSHEET
+                            <button type="button" onclick="processMasterPaste()" class="bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black py-2 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-sky-500/20">
+                                <i class="fa-solid fa-bolt"></i> PROSES MASTER & UPLOAD KE SPREADSHEET
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- DAFTAR PREVIEW SKU MASTER (TERPAGINASI AGAR RINGAN) -->
+                <!-- ========================================================================= -->
+                <!-- [2] POSISI KEDUA (BAWAH): INPUT DATA KEEPSTOCK (STOK GUDANG BERFISIK)     -->
+                <!-- ========================================================================= -->
+                <div class="bg-[#0b1120] p-4 rounded-2xl border-2 border-amber-500/50 shadow-lg shadow-amber-950/40 space-y-3 relative overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 bg-amber-400 text-slate-950 rounded-lg flex items-center justify-center font-black text-xs shadow-md">2</span>
+                            <div>
+                                <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i> KEEPSTOCK (STOK GUDANG BERFISIK — SHEET: <span id="lblKsSheetName" class="text-amber-200 font-mono">KS_XCMG</span>)
+                                </h4>
+                                <p class="text-[10px] text-amber-200/70 mt-0.5">
+                                    Khusus stok gudang berfisik kartonan. Format 3 kolom: <code>NO CTN, SKU, QTY</code> atau 2 kolom <code>SKU, QTY</code>.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="badgeKeepstockSummary" class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg font-bold border border-amber-500/40">0 SKU (0 Unit)</span>
+                            <button type="button" onclick="clearKeepstockPrompt()" class="text-[10px] text-rose-400 hover:text-rose-300 font-bold border border-rose-500/30 px-2 py-1 rounded-lg hover:bg-rose-500/10 transition-all">Reset KS</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-[10px] font-bold text-amber-300">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-arrow-down-long"></i> TEMPEL (PASTE) DATA KEEPSTOCK DI SINI:</span>
+                            <span class="bg-amber-950/80 text-amber-400 px-2 py-0.5 rounded border border-amber-800/60 font-mono text-[9px]">TARGET: SHEET KS</span>
+                        </div>
+                        <textarea id="pasteKeepstockInput" rows="3" placeholder="Tempel (Paste) data Keepstock dari Excel/Sheets di sini...&#10;Contoh:&#10;A002A&#9;3101409&#9;12&#10;A002B&#9;3101409&#9;12&#10;B007&#9;8973969&#9;15" class="w-full p-3 bg-[#060a14] border-2 border-amber-500/40 rounded-xl focus:border-amber-400 text-xs font-mono text-slate-200 outline-none resize-y"></textarea>
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                            <button type="button" onclick="triggerKeepstockFileInput()" class="bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-excel"></i> Pilih File Keepstock (.XLSX/.CSV/.TXT)
+                            </button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="document.getElementById('pasteKeepstockInput').value=''" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all">
+                                    Bersihkan
+                                </button>
+                                <button type="button" onclick="processKeepstockPaste()" class="bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-black py-2 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> SIMPAN & SINKRONKAN KE KS_<span id="lblBtnKsStore">XCMG</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREVIEW SKU MASTER (PAGINASI RINGAN) -->
                 <div class="bg-[#0b1120] p-4 rounded-2xl border border-slate-800 space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
@@ -508,14 +556,14 @@
                     </div>
                 </div>
 
-                <!-- SCAN HISTORY LIST (DENGAN TOMBOL TOGGLE VIEW: AKUMULASI vs RINCI PER BARIS) -->
+                <!-- SCAN HISTORY LIST -->
                 <div class="md:col-span-6 bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-3">
-                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
                                 RIWAYAT SCAN (<span id="lblScanCount">0</span>)
                             </h4>
-                            <div class="inline-flex rounded-lg bg-slate-900 border border-slate-800 p-0.5 text-[10px]">
+                            <div class="flex items-center gap-1 bg-[#080d1a] p-0.5 rounded-lg border border-slate-800 text-[10px]">
                                 <button type="button" id="btnViewAccumulate" onclick="setScanViewMode('accumulate')" class="px-2 py-0.5 rounded-md font-bold bg-sky-500 text-slate-950 transition-all">Akumulasi</button>
                                 <button type="button" id="btnViewRaw" onclick="setScanViewMode('raw')" class="px-2 py-0.5 rounded-md font-bold text-slate-400 hover:text-white transition-all">Rinci Baris</button>
                             </div>
@@ -600,7 +648,7 @@
         </section>
     </main>
 
-    <!-- BOTTOM MOBILE NAVIGATION BAR (DESKTOP HIDDEN) -->
+    <!-- BOTTOM MOBILE NAVIGATION BAR -->
     <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#0f172a]/95 border-t border-slate-800/80 backdrop-blur-md z-50 px-2 py-2 no-print">
         <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
             <button onclick="switchTab('step1Container')" id="navStep1" class="nav-btn flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-white rounded-xl transition-all">
@@ -642,9 +690,10 @@
         </div>
     </div>
 
-    <!-- HIDDEN FILE INPUTS FOR SCAN & MASTER IMPORT -->
+    <!-- HIDDEN FILE INPUTS FOR SCAN, MASTER, & KEEPSTOCK IMPORT -->
     <input type="file" id="hiddenScanFileInput" accept=".txt,.csv" class="hidden" onchange="onFileSelectedForImport(event)">
     <input type="file" id="hiddenMasterFileInput" accept=".xlsx,.xls,.csv,.txt" class="hidden" onchange="onMasterFileSelected(event)">
+    <input type="file" id="hiddenKeepstockFileInput" accept=".xlsx,.xls,.csv,.txt" class="hidden" onchange="onKeepstockFileSelected(event)">
     <iframe id="hidden_sync_iframe" name="hidden_sync_iframe" class="hidden"></iframe>
 
     <script>
@@ -675,18 +724,20 @@
         let currentStore = safeGetStorage('sbc_selectedStore', 'XCMG');
         let pendingStore = '';
         let rawScanning = [];
-        let rawScanRecords = []; // Menyimpan setiap baris pemindaian individual (misal seluruh 481 baris)
+        let rawScanRecords = [];
         let masterSystem = {};
-        let masterSkuList = []; // Cached array of masterSystem keys for O(1) count & fast pagination
+        let masterSkuList = [];
         let totalMasterSysUnits = 0;
+        let keepstockMap = {}; // Penyimpanan keepstock per SKU: { [sku]: { qty: number, ctns: string[] } }
+        let keepstockRowsList = []; // Daftar baris keepstock mentah untuk disimpan ke sheet KS_[CABANG]
         let posData = [];
         let activityLogs = [];
-        let pendingLogQueue = []; // Antrean log yang akan dikirim ke Spreadsheet saat sinkronisasi
+        let pendingLogQueue = [];
 
         // Fast Lookup Maps & Pagination States
         let scanIndexMap = new Map();
-        let scanViewMode = 'accumulate'; // 'accumulate' (per SKU) atau 'raw' (rinci per baris scan)
-        let masterImportMode = 'replace'; // 'replace' ensures exact SKU count from latest Tarikan Data, 'merge' combines
+        let scanViewMode = 'accumulate'; // 'accumulate' atau 'raw'
+        let masterImportMode = 'replace';
         let lastMasterUploadFinishedAt = 0;
 
         let masterPage = 1;
@@ -696,7 +747,7 @@
         let scanVisibleLimit = 50;
         let scanSearchQuery = '';
 
-        let posFilterMode = 'SCANNED'; // 'SCANNED', 'ALL_MASTER', 'TALLY', 'UNTALLY'
+        let posFilterMode = 'SCANNED';
         let posPage = 1;
         const POS_PAGE_SIZE = 80;
         let posSearchQuery = '';
@@ -757,7 +808,7 @@
         }
 
         // =========================================================================
-        // SISTEM PEREKAMAN LOG AKTIVITAS (SHEET LOG_[CABANG])
+        // PEREKAMAN LOG AKTIVITAS (SHEET LOG_[CABANG])
         // =========================================================================
         function recordActivity(action, target, details, staff = '') {
             const logItem = {
@@ -778,7 +829,6 @@
 
             try {
                 localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs);
-                localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords);
             } catch (e) {}
 
             const logModal = document.getElementById('activityLogModal');
@@ -836,7 +886,7 @@
             }
 
             const filtered = activityLogs.filter(item => {
-                if (logFilterMode === 'MASTER' && !item.action.includes('MASTER')) return false;
+                if (logFilterMode === 'MASTER' && !item.action.includes('MASTER') && !item.action.includes('KEEPSTOCK')) return false;
                 if (logFilterMode === 'SCAN' && !item.action.includes('SCAN')) return false;
                 if (logFilterMode === 'UNTALLY' && !item.action.includes('UNTALLY')) return false;
 
@@ -857,6 +907,7 @@
 
             const badgeStyles = {
                 'IMPORT_MASTER': 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                'KEEPSTOCK_UPDATE': 'bg-amber-500/20 text-amber-300 border-amber-500/40',
                 'RESET_MASTER': 'bg-rose-500/20 text-rose-300 border-rose-500/40',
                 'SCAN_ITEM': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
                 'IMPORT_SCAN_TXT': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
@@ -867,7 +918,7 @@
                 'LOGIN_STORE': 'bg-slate-700/50 text-slate-300 border-slate-600'
             };
 
-            const html = filtered.slice(0, 100).map(l => {
+            const html = filtered.slice(0, 100).map((l, idx) => {
                 const bStyle = badgeStyles[l.action] || 'bg-slate-800 text-slate-300 border-slate-700';
                 return `
                     <tr class="hover:bg-slate-900/60 transition-colors">
@@ -909,7 +960,7 @@
         }
 
         // =========================================================================
-        // PROGRESS DIALOG ANTI-FREEZE UNTUK DATA BESAR
+        // PROGRESS DIALOG ASYNC CHUNK
         // =========================================================================
         function showAsyncProgress(title, desc) {
             const modal = document.getElementById('asyncProcessingModal');
@@ -1006,7 +1057,7 @@
             autoPollingInterval = setInterval(() => {
                 if (document.hidden || isSyncing) return;
                 const activeEl = document.activeElement;
-                if (activeEl && (activeEl.id === 'pasteMasterInput' || (activeEl.id && (activeEl.id.startsWith('qty_') || activeEl.id.startsWith('user_'))))) {
+                if (activeEl && (activeEl.id === 'pasteMasterInput' || activeEl.id === 'pasteKeepstockInput' || (activeEl.id && (activeEl.id.startsWith('qty_') || activeEl.id.startsWith('user_'))))) {
                     return;
                 }
                 restoreFromCloud(false);
@@ -1066,6 +1117,7 @@
             if (activeTabId === 'step3Container') renderPOSCards();
             if (activeTabId === 'step4Container') renderUntallyCards();
             updateProgressDashboard();
+            updateKeepstockSummaryBadge();
         }
 
         async function saveToLocalStorage(immediatePush = false, includeMaster = false) {
@@ -1075,7 +1127,9 @@
                     localforage.setItem(`sbc_rawScanning_${currentStore}`, rawScanning),
                     localforage.setItem(`sbc_posData_${currentStore}`, posData),
                     localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs),
-                    localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords)
+                    localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords),
+                    localforage.setItem(`sbc_keepstockMap_${currentStore}`, keepstockMap),
+                    localforage.setItem(`sbc_keepstockRows_${currentStore}`, keepstockRowsList)
                 ];
                 if (includeMaster) {
                     tasks.push(localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem));
@@ -1085,13 +1139,13 @@
                 console.error("Gagal simpan ke localforage:", err);
             }
 
-            triggerAutoSyncToCloud(immediatePush ? 400 : 1200);
+            triggerAutoSyncToCloud(immediatePush ? 350 : 1000);
         }
 
-        function triggerAutoSyncToCloud(delayMs = 1200) {
+        function triggerAutoSyncToCloud(delayMs = 1000) {
             const icon = document.getElementById('syncStatusIcon');
             const label = document.getElementById('syncTextLabel');
-            if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-amber-400";
+            if (icon) icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
             if (label) label.innerText = "Syncing...";
 
             if (syncTimeout) clearTimeout(syncTimeout);
@@ -1187,6 +1241,7 @@
                     storeCode: currentStore,
                     rawScanning: rawScanning,
                     posData: posData,
+                    keepstockData: keepstockRowsList,
                     activityLogs: logsToSend,
                     updatedAt: new Date().toISOString()
                 };
@@ -1200,11 +1255,248 @@
                 if (label) label.innerText = "Live Sync";
             } catch (err) {
                 console.error("Cloud push error:", err);
+                if (icon) icon.className = "fa-solid fa-triangle-exclamation text-rose-400";
+                if (label) label.innerText = "Retry...";
             } finally {
                 setTimeout(() => { isSyncing = false; }, 1200);
             }
         }
 
+        // =========================================================================
+        // PENGELOLAAN DATA KEEPSTOCK GUDANG (SHEET KS_[CABANG])
+        // =========================================================================
+        function triggerKeepstockFileInput() {
+            const el = document.getElementById('hiddenKeepstockFileInput');
+            if (el) {
+                el.value = '';
+                el.click();
+            }
+        }
+
+        function onKeepstockFileSelected(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            const reader = new FileReader();
+
+            if (ext === 'xlsx' || ext === 'xls') {
+                reader.onload = async function(evt) {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                        await applyKeepstockRows(rows);
+                    } catch (err) {
+                        showToast(`Gagal membaca Excel Keepstock: ${err.message}`, "error");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.onload = async function(evt) {
+                    try {
+                        const text = evt.target.result || '';
+                        const lines = text.split(/\r?\n/);
+                        await applyKeepstockRows(lines);
+                    } catch (err) {
+                        showToast(`Gagal membaca file Keepstock: ${err.message}`, "error");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function processKeepstockPaste() {
+            const textarea = document.getElementById('pasteKeepstockInput');
+            if (!textarea) return;
+            const text = textarea.value.trim();
+            if (!text) {
+                showToast("Silakan tempel (paste) data Keepstock terlebih dahulu.", "warning");
+                return;
+            }
+
+            const lines = text.split(/\r?\n/);
+            await applyKeepstockRows(lines);
+            textarea.value = '';
+        }
+
+        async function applyKeepstockRows(rowsArray) {
+            if (!rowsArray || rowsArray.length === 0) {
+                showToast("Tidak ada data Keepstock yang ditemukan.", "warning");
+                return;
+            }
+
+            showAsyncProgress("Memproses Keepstock", `Membaca ${rowsArray.length.toLocaleString('id-ID')} baris data keepstock...`);
+
+            const newKeepstockMap = {};
+            const newKeepstockRows = [];
+            let validRows = 0;
+            let totalUnits = 0;
+
+            const headerKeywords = new Set(['NO', 'NO CTN', 'NO_CTN', 'CTN', 'KARTON', 'SKU', 'QTY', 'JUMLAH', 'DESKRIPSI']);
+
+            for (let i = 0; i < rowsArray.length; i++) {
+                const r = rowsArray[i];
+                if (!r) continue;
+
+                let parts = [];
+                if (Array.isArray(r)) {
+                    parts = r.map(c => String(c !== undefined && c !== null ? c : '').trim());
+                } else {
+                    const line = String(r).replace(/^\uFEFF/, '').trim();
+                    if (!line) continue;
+                    if (line.includes('\t')) parts = line.split('\t');
+                    else if (line.includes(';')) parts = line.split(';');
+                    else if (line.includes(',')) parts = line.split(',');
+                    else parts = line.split(/\s+/);
+                    parts = parts.map(p => p.trim().replace(/^["']|["']$/g, ''));
+                }
+
+                if (parts.length === 0) continue;
+                if (headerKeywords.has(parts[0].toUpperCase()) || (parts[1] && headerKeywords.has(parts[1].toUpperCase()))) {
+                    continue;
+                }
+
+                let ctn = '-';
+                let sku = '';
+                let qty = 0;
+
+                // Format 3 Kolom: NO CTN | SKU | QTY (Sesuai Gambar User)
+                if (parts.length >= 3) {
+                    ctn = parts[0] || '-';
+                    sku = parts[1] || '';
+                    qty = parseCleanNumber(parts[2]);
+                    if (!sku || isNaN(qty) || qty <= 0) {
+                        // Coba jika SKU di kolom 0 dan Qty di kolom terakhir
+                        if (/^\d{5,}$/.test(parts[0])) {
+                            sku = parts[0];
+                            ctn = parts[1];
+                            qty = parseCleanNumber(parts[2]);
+                        }
+                    }
+                } else if (parts.length === 2) {
+                    // Format 2 Kolom: SKU | QTY atau CTN | SKU
+                    if (isLikelyNumber(parts[1]) && parseInt(parts[1]) <= 5000) {
+                        sku = parts[0];
+                        qty = parseCleanNumber(parts[1]);
+                        ctn = '-';
+                    } else {
+                        ctn = parts[0];
+                        sku = parts[1];
+                        qty = 1;
+                    }
+                }
+
+                sku = String(sku).trim();
+                if (!sku || qty <= 0) continue;
+
+                validRows++;
+                totalUnits += qty;
+
+                // Akumulasi ke keepstockMap
+                if (newKeepstockMap[sku]) {
+                    newKeepstockMap[sku].qty += qty;
+                    if (ctn && ctn !== '-' && !newKeepstockMap[sku].ctns.includes(ctn)) {
+                        newKeepstockMap[sku].ctns.push(ctn);
+                    }
+                } else {
+                    newKeepstockMap[sku] = {
+                        qty: qty,
+                        ctns: (ctn && ctn !== '-') ? [ctn] : ['-']
+                    };
+                }
+
+                const m = masterSystem[sku] || {};
+                newKeepstockRows.push({
+                    ctn: ctn || '-',
+                    sku: sku,
+                    qty: qty,
+                    desc: m.desc || 'DESKRIPSI TIDAK TERDAFTAR'
+                });
+            }
+
+            hideAsyncProgress();
+
+            if (validRows === 0) {
+                showToast("Tidak ada baris Keepstock yang valid.", "error");
+                return;
+            }
+
+            keepstockMap = newKeepstockMap;
+            keepstockRowsList = newKeepstockRows;
+
+            const skuCount = Object.keys(keepstockMap).length;
+
+            recordActivity(
+                'KEEPSTOCK_UPDATE',
+                `${skuCount} SKU`,
+                `Memuat Keepstock gudang: ${validRows} baris (${skuCount} SKU, Total ${totalUnits} unit) ke sheet KS_${currentStore}`,
+                'PETUGAS'
+            );
+
+            processToPOS();
+            renderActiveTabUI();
+
+            await saveToLocalStorage(true, false);
+
+            // Simpan langsung ke sheet KS_[STORE] di Spreadsheet
+            showToast(`Menyimpan Keepstock ke sheet KS_${currentStore}...`, 'info');
+            const savedCloud = await postToCloudAsync({
+                action: "saveKeepstockData",
+                storeCode: currentStore,
+                keepstockRows: keepstockRowsList,
+                updatedAt: new Date().toISOString()
+            });
+
+            if (savedCloud) {
+                showToast(`Keepstock berhasil disimpan ke Sheet KS_${currentStore} (${skuCount} SKU, ${totalUnits} unit)!`, "success");
+            } else {
+                showToast(`Keepstock tersimpan di lokal HP. Akan diunggah otomatis saat koneksi stabil.`, "warning");
+            }
+        }
+
+        function clearKeepstockPrompt() {
+            const count = Object.keys(keepstockMap).length;
+            if (count === 0) {
+                showToast("Data Keepstock sudah kosong.", "info");
+                return;
+            }
+            requestAdminAction(
+                `Reset Keepstock ${currentStore}`,
+                `Yakin ingin mengosongkan seluruh data Keepstock (${count} SKU) di cabang ${currentStore}?`,
+                async () => {
+                    keepstockMap = {};
+                    keepstockRowsList = [];
+                    recordActivity('KEEPSTOCK_UPDATE', 'RESET_KS', `Reset Keepstock cabang ${currentStore}`, 'ADMIN');
+                    processToPOS();
+                    renderActiveTabUI();
+                    await saveToLocalStorage(true, false);
+
+                    postToCloudAsync({
+                        action: "clearKeepstockData",
+                        storeCode: currentStore
+                    });
+
+                    showToast(`Data Keepstock cabang ${currentStore} telah dikosongkan.`, 'info');
+                }
+            );
+        }
+
+        function updateKeepstockSummaryBadge() {
+            const badge = document.getElementById('badgeKeepstockSummary');
+            if (!badge) return;
+            const skus = Object.keys(keepstockMap);
+            let units = 0;
+            for (let i = 0; i < skus.length; i++) {
+                units += keepstockMap[skus[i]].qty;
+            }
+            badge.innerText = `${skus.length.toLocaleString('id-ID')} SKU (${units.toLocaleString('id-ID')} Unit)`;
+        }
+
+        // =========================================================================
+        // UPLOAD DATA MASTER BERTAHAP
+        // =========================================================================
         async function uploadMasterInBatches() {
             const icon = document.getElementById('syncStatusIcon');
             const label = document.getElementById('syncTextLabel');
@@ -1275,6 +1567,16 @@
                     await postToCloudAsync(payloadData);
                 }
 
+                // Simpan juga Keepstock ke Sheet KS_[STORE]
+                if (keepstockRowsList.length > 0) {
+                    await postToCloudAsync({
+                        action: "saveKeepstockData",
+                        storeCode: currentStore,
+                        keepstockRows: keepstockRowsList,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+
                 recordActivity(
                     'IMPORT_MASTER',
                     `${totalSkuCount.toLocaleString('id-ID')} SKU`,
@@ -1287,6 +1589,7 @@
                     storeCode: currentStore,
                     rawScanning: rawScanning,
                     posData: posData,
+                    keepstockData: keepstockRowsList,
                     activityLogs: pendingLogQueue,
                     updatedAt: new Date().toISOString()
                 });
@@ -1301,7 +1604,7 @@
                     document.getElementById('masterStatusText').innerHTML = `Data Master Sheet <b>MASTER_${currentStore}</b> Tersimpan Penuh (${totalSkuCount.toLocaleString('id-ID')} SKU)`;
                 }
 
-                showToast(`Tarikan Data (${totalSkuCount.toLocaleString('id-ID')} SKU) berhasil disimpan ke Sheet MASTER_${currentStore}!`, 'success');
+                showToast(`Tarikan Data Master & Keepstock berhasil disimpan ke Spreadsheet!`, 'success');
             } catch (err) {
                 console.error("Master upload error:", err);
                 showToast("Kendala jaringan saat mengunggah ke Cloud. Data tetap aman di perangkat ini.", "error");
@@ -1314,25 +1617,28 @@
         async function loadFromLocalStorage() {
             if (!currentStore) return;
             try {
-                const [savedRaw, savedMaster, savedPos, savedLogs, savedScanRecords] = await Promise.all([
+                const [savedRaw, savedMaster, savedPos, savedLogs, savedScanRecords, savedKeepstockMap, savedKeepstockRows] = await Promise.all([
                     localforage.getItem(`sbc_rawScanning_${currentStore}`),
                     localforage.getItem(`sbc_masterSystem_${currentStore}`),
                     localforage.getItem(`sbc_posData_${currentStore}`),
                     localforage.getItem(`sbc_activityLogs_${currentStore}`),
-                    localforage.getItem(`sbc_rawScanRecords_${currentStore}`)
+                    localforage.getItem(`sbc_rawScanRecords_${currentStore}`),
+                    localforage.getItem(`sbc_keepstockMap_${currentStore}`),
+                    localforage.getItem(`sbc_keepstockRows_${currentStore}`)
                 ]);
                 rawScanning = savedRaw || [];
                 masterSystem = savedMaster || {};
                 posData = savedPos || [];
                 activityLogs = savedLogs || [];
                 rawScanRecords = savedScanRecords || [];
+                keepstockMap = savedKeepstockMap || {};
+                keepstockRowsList = savedKeepstockRows || [];
             } catch (err) {
                 console.error("Gagal muat dari localforage:", err);
             }
 
             rebuildMasterCache();
             rebuildScanIndexMap();
-            sanitizeAbnormalScanEntries();
             processToPOS();
             updateMasterStatusBanner();
             renderActiveTabUI();
@@ -1415,7 +1721,7 @@
                         isSyncing = false;
                         if (icon) icon.className = "fa-solid fa-cloud-arrow-down text-sky-400";
                         if (label) label.innerText = "Live Sync";
-                        if (showNotice) showToast("Gagal terhubung ke Cloud Google Spreadsheet. Pastikan koneksi internet stabil.", "error");
+                        if (showNotice) showToast("Gagal terhubung ke Cloud Google Spreadsheet.", "error");
                     }
                 }
             }
@@ -1426,19 +1732,7 @@
             const icon = document.getElementById('syncStatusIcon');
             const label = document.getElementById('syncTextLabel');
             
-            if (data && (data.status === "success" || data.posData || data.masterSystem || data.rawScanning)) {
-                const cloudMasterCount = data.totalMasterSkus !== undefined
-                    ? Number(data.totalMasterSkus)
-                    : (data.masterSystem ? Object.keys(data.masterSystem).length : masterSkuList.length);
-
-                const newHash = `${currentStore}_${rawScanning.length}_${data.rawScanning ? data.rawScanning.length : 0}_${data.posData ? data.posData.length : 0}_${cloudMasterCount}`;
-                if (!showNotice && newHash === lastSyncHash && newHash !== '') {
-                    if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
-                    if (label) label.innerText = "Live Sync";
-                    return;
-                }
-                lastSyncHash = newHash;
-
+            if (data && (data.status === "success" || data.posData || data.masterSystem || data.rawScanning || data.keepstockData)) {
                 let masterUpdated = false;
                 if (!data.masterUnchanged && data.masterSystem && typeof data.masterSystem === 'object') {
                     const incomingKeys = Object.keys(data.masterSystem);
@@ -1458,6 +1752,27 @@
                     rawScanning = data.rawScanning;
                 }
 
+                // Pulihkan data Keepstock dari sheet KS_[CABANG] jika ada
+                if (Array.isArray(data.keepstockData) && data.keepstockData.length > 0) {
+                    const kMap = {};
+                    for (let i = 0; i < data.keepstockData.length; i++) {
+                        const row = data.keepstockData[i];
+                        const sku = String(row.sku || '').trim();
+                        const qty = Number(row.qty) || 0;
+                        const ctn = String(row.ctn || '-').trim();
+                        if (sku && qty > 0) {
+                            if (kMap[sku]) {
+                                kMap[sku].qty += qty;
+                                if (ctn && ctn !== '-' && !kMap[sku].ctns.includes(ctn)) kMap[sku].ctns.push(ctn);
+                            } else {
+                                kMap[sku] = { qty: qty, ctns: ctn && ctn !== '-' ? [ctn] : ['-'] };
+                            }
+                        }
+                    }
+                    keepstockMap = kMap;
+                    keepstockRowsList = data.keepstockData;
+                }
+
                 if (Array.isArray(data.recentLogs) && activityLogs.length === 0) {
                     activityLogs = data.recentLogs;
                 }
@@ -1466,6 +1781,8 @@
                 
                 localforage.setItem(`sbc_rawScanning_${currentStore}`, rawScanning);
                 localforage.setItem(`sbc_posData_${currentStore}`, posData);
+                localforage.setItem(`sbc_keepstockMap_${currentStore}`, keepstockMap);
+                localforage.setItem(`sbc_keepstockRows_${currentStore}`, keepstockRowsList);
                 if (masterUpdated) {
                     localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
                 }
@@ -1480,44 +1797,24 @@
                 if (label) label.innerText = "Live Sync";
 
                 if (showNotice) {
-                    showToast(`Sinkronisasi berhasil! Total Master ${currentStore}: ${masterSkuList.length.toLocaleString('id-ID')} SKU.`, 'success');
+                    showToast(`Sinkronisasi berhasil! Master: ${masterSkuList.length.toLocaleString('id-ID')} SKU, Keepstock: ${Object.keys(keepstockMap).length} SKU.`, 'success');
                 }
             } else {
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
                 if (showNotice) {
-                    showToast(`Belum ada data tersimpan di Sheet MASTER_${currentStore}.`, 'warning');
+                    showToast(`Belum ada data tersimpan di Cloud.`, 'warning');
                 }
             }
         }
 
-        // =========================================================================
-        // LOGIN CABANG DENGAN TOGGLE MATA & VALIDASI CASE-INSENSITIVE
-        // =========================================================================
         function openPasswordModal(storeCode) {
-            pendingStore = String(storeCode || 'XCMG').toUpperCase();
-            document.getElementById('lblTargetStore').innerText = pendingStore;
-            const passInput = document.getElementById('inputStorePassword');
-            passInput.value = '';
-            passInput.type = 'password';
-            const eyeIcon = document.getElementById('iconToggleStorePass');
-            if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye text-xs';
+            pendingStore = storeCode;
+            document.getElementById('lblTargetStore').innerText = storeCode;
+            document.getElementById('inputStorePassword').value = '';
             document.getElementById('txtPasswordError').classList.add('hidden');
             document.getElementById('passwordModal').classList.remove('hidden');
-            setTimeout(() => passInput.focus(), 80);
-        }
-
-        function toggleStorePasswordVisibility() {
-            const input = document.getElementById('inputStorePassword');
-            const icon = document.getElementById('iconToggleStorePass');
-            if (!input || !icon) return;
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash text-xs text-sky-400';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye text-xs text-slate-500';
-            }
+            setTimeout(() => document.getElementById('inputStorePassword').focus(), 80);
         }
 
         function closePasswordModal() {
@@ -1525,21 +1822,26 @@
             pendingStore = '';
         }
 
+        function toggleStorePasswordVisibility() {
+            const input = document.getElementById('inputStorePassword');
+            const icon = document.getElementById('btnEyeStorePass');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-xs text-sky-400';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-xs text-slate-400';
+            }
+        }
+
         function verifyStorePassword(e) {
             e.preventDefault();
-            const storePasswords = { 
-                'XKLR': 'JW5003', 
-                'XCMG': 'JW1023', 
-                'XCIH': 'JW1032' 
-            };
-            
-            const targetStore = (pendingStore || document.getElementById('lblTargetStore').innerText || currentStore).toUpperCase().trim();
-            const pass = document.getElementById('inputStorePassword').value.trim();
-            const validStorePass = (storePasswords[targetStore] || '').toUpperCase();
-            const passUpper = pass.toUpperCase();
+            const storePasswords = { 'XKLR': 'JW5003', 'XCMG': 'JW1023', 'XCIH': 'JW1032' };
+            const inputPass = document.getElementById('inputStorePassword').value.trim().toUpperCase();
+            const targetStore = pendingStore || document.getElementById('lblTargetStore').innerText.trim().toUpperCase();
+            const expectedPass = storePasswords[targetStore];
 
-            // Mendukung baik huruf besar maupun huruf kecil (e.g. jw1023 atau JW1023)
-            if (passUpper === validStorePass || passUpper === 'ADMIN' || pass === validStorePass) {
+            if (inputPass === expectedPass || inputPass === 'ADMIN') {
                 currentStore = targetStore;
                 safeSetStorage('sbc_selectedStore', currentStore);
                 lastSyncHash = '';
@@ -1552,12 +1854,11 @@
                 loadFromLocalStorage().then(() => {
                     restoreFromCloud(false);
                 });
-                showToast(`Berhasil masuk ke Cabang ${currentStore}`, 'success');
+                showToast(`Berpindah ke Cabang ${currentStore}`, 'info');
             } else {
                 const errText = document.getElementById('txtPasswordError');
-                errText.innerText = `Password salah untuk cabang ${targetStore}!`;
+                errText.innerText = 'Password Otorisasi Salah!';
                 errText.classList.remove('hidden');
-                document.getElementById('inputStorePassword').select();
             }
         }
 
@@ -1569,6 +1870,13 @@
             document.getElementById('headerStoreBadge').innerText = storeCode;
             const targetLbl = document.getElementById('lblSheetTarget');
             if (targetLbl) targetLbl.innerText = `MASTER_${storeCode}`;
+            const ksLbl = document.getElementById('lblKSTarget');
+            if (ksLbl) ksLbl.innerText = `KS_${storeCode}`;
+            const ksSheetName = document.getElementById('lblKsSheetName');
+            if (ksSheetName) ksSheetName.innerText = `KS_${storeCode}`;
+            const btnKsStore = document.getElementById('lblBtnKsStore');
+            if (btnKsStore) btnKsStore.innerText = storeCode;
+
             masterPage = 1;
             posPage = 1;
             untallyPage = 1;
@@ -1632,7 +1940,7 @@
         }
 
         // =========================================================================
-        // PARSER TARIKAN DATA POS SUPER CEPAT (ASYNC CHUNKED & LIGHTWEIGHT)
+        // PARSER TARIKAN DATA POS SUPER CEPAT (ASYNC CHUNKED)
         // =========================================================================
         async function parseAndApplyMasterRowsChunked(rowsArray) {
             if (!rowsArray || rowsArray.length === 0) return { addedCount: 0, updatedCount: 0, rawValidRows: 0 };
@@ -1672,15 +1980,10 @@
                         const line = String(rawRow).replace(/^\uFEFF/, '').replace(/\r$/, '');
                         if (!line.trim()) continue;
 
-                        if (line.includes(sampleDelimiter)) {
-                            parts = line.split(sampleDelimiter);
-                        } else if (line.includes('\t')) {
-                            parts = line.split('\t');
-                        } else if (line.includes(';')) {
-                            parts = line.split(';');
-                        } else {
-                            parts = line.trim().split(/\s+/);
-                        }
+                        if (line.includes(sampleDelimiter)) parts = line.split(sampleDelimiter);
+                        else if (line.includes('\t')) parts = line.split('\t');
+                        else if (line.includes(';')) parts = line.split(';');
+                        else parts = line.trim().split(/\s+/);
                         parts = parts.map(c => c.replace(/^["']|["']$/g, '').trim());
                     }
 
@@ -1794,7 +2097,7 @@
             if (!inputEl) return;
             const rawText = inputEl.value;
             if (!rawText || !rawText.trim()) {
-                showToast("Tempelkan data Tarikan POS terlebih dahulu di kotak teks.", "warning");
+                showToast("Tempelkan data Tarikan POS terlebih dahulu.", "warning");
                 return;
             }
 
@@ -1802,7 +2105,7 @@
             const { addedCount, updatedCount, rawValidRows } = await parseAndApplyMasterRowsChunked(lines);
 
             if (rawValidRows === 0) {
-                showToast("Tidak ditemukan baris SKU yang valid dari teks yang ditempel.", "error");
+                showToast("Tidak ditemukan baris SKU yang valid.", "error");
                 return;
             }
 
@@ -1993,12 +2296,14 @@
                 const sku = masterSkuList[i];
                 if (!scanIndexMap.has(sku)) {
                     const item = masterSystem[sku];
+                    const keep = keepstockMap[sku] || { qty: 0 };
                     rows.push({
                         "No": no++,
                         "SKU": sku,
                         "Rak Master": item.rackMaster || '-',
                         "Deskripsi Barang": item.desc || 'DESKRIPSI TIDAK TERDAFTAR',
-                        "Stok System": item.sys || 0
+                        "Stok System": item.sys || 0,
+                        "Keepstock": keep.qty || 0
                     });
                 }
             }
@@ -2036,7 +2341,9 @@
             if (item) {
                 previewBox.classList.remove('hidden');
                 previewName.innerText = item.desc;
-                previewBadge.innerText = `Terdaftar (Rak: ${item.rackMaster || '-'})`;
+                const ks = keepstockMap[skuInput];
+                const ksText = ks ? ` | KS: ${ks.qty}` : '';
+                previewBadge.innerText = `Terdaftar (Rak: ${item.rackMaster || '-'}${ksText})`;
                 previewBadge.className = 'text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30 shrink-0';
                 displaySys.innerText = item.sys !== undefined ? item.sys : 0;
             } else {
@@ -2070,6 +2377,14 @@
                     rawScanning.unshift({ rack, sku, qty, scanTime: timeStr });
                 }
 
+                rawScanRecords.unshift({
+                    rack,
+                    sku,
+                    qty,
+                    scanTime: timeStr,
+                    lineNo: rawScanRecords.length + 1
+                });
+
                 rebuildScanIndexMap();
 
                 recordActivity('SCAN_ITEM', sku, `Scan fisik rak ${rack} (Qty: +${qty})`, 'PETUGAS');
@@ -2081,7 +2396,7 @@
 
                 processToPOS();
                 renderScanHistory();
-                saveToLocalStorage(false, false);
+                saveToLocalStorage(true, false);
             }
         }
 
@@ -2121,8 +2436,8 @@
             const list = document.getElementById('listScanHistory');
             if (!list) return;
 
-            if (rawScanRecords.length === 0 && rawScanning.length > 0) {
-                rawScanRecords = rawScanning.map(r => ({ ...r }));
+            if (rawScanning.length === 0) {
+                rawScanRecords = [];
             }
 
             const targetSourceList = (scanViewMode === 'raw' && rawScanRecords.length > 0)
@@ -2139,7 +2454,7 @@
             }
 
             if (targetSourceList.length === 0) {
-                list.innerHTML = `<p class="text-center py-6 text-xs text-slate-500 italic">Belum ada item dipindai.</p>`;
+                list.innerHTML = `<p class="text-center py-8 text-xs text-slate-500 italic">Belum ada item dipindai.</p>`;
                 updateProgressDashboard();
                 return;
             }
@@ -2163,16 +2478,22 @@
                 if (matchedCount > scanVisibleLimit) continue;
 
                 const sysQty = master.sys !== undefined ? master.sys : 0;
+                const ks = keepstockMap[item.sku];
+                const ksBadge = ks ? `<span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold border border-amber-500/30">KS: +${ks.qty}</span>` : '';
+
                 htmlBuffer.push(`
                     <div class="bg-[#080d1a] p-3 rounded-xl border border-slate-800/80 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-sky-400 font-mono text-xs">${item.sku}</span>
                                 <span class="text-[10px] bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded font-bold">${item.rack}</span>
+                                ${ksBadge}
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Fisik: ${item.qty}</span>
-                                <button type="button" onclick="deleteScanLog(${idx})" class="text-rose-400 hover:text-rose-300 p-1.5 cursor-pointer z-10 active:scale-90 transition-transform"><i class="fa-solid fa-trash-can text-xs pointer-events-none"></i></button>
+                                <button type="button" onclick="deleteScanLog(${idx})" class="text-rose-400 hover:text-rose-300 p-1.5 cursor-pointer z-10 active:scale-90 transition-transform" title="Hapus scan ini">
+                                    <i class="fa-solid fa-trash-can text-xs pointer-events-none"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-900/80 pt-1">
@@ -2184,7 +2505,7 @@
             }
 
             if (matchedCount === 0) {
-                htmlBuffer.push(`<p class="text-center py-6 text-xs text-slate-500 italic">Tidak ada riwayat scan yang cocok.</p>`);
+                htmlBuffer.push(`<p class="text-center py-8 text-xs text-slate-500 italic">Tidak ada riwayat scan yang cocok.</p>`);
             } else if (matchedCount > scanVisibleLimit) {
                 const remaining = matchedCount - scanVisibleLimit;
                 htmlBuffer.push(`
@@ -2199,30 +2520,64 @@
         }
 
         function deleteScanLog(index) {
-            const targetItem = rawScanning[index];
-            if (!targetItem) return;
-            requestAdminAction(
-                'Hapus Item Scan',
-                `Masukkan password admin untuk menghapus SKU ${targetItem.sku} (Fisik: ${targetItem.qty}):`,
-                () => {
-                    recordActivity('HAPUS_SCAN', targetItem.sku, `Hapus scan SKU ${targetItem.sku} (Fisik: ${targetItem.qty}, Rak: ${targetItem.rack})`, 'ADMIN');
-                    rawScanning.splice(index, 1);
-                    rebuildScanIndexMap();
-                    processToPOS();
-                    renderScanHistory();
-                    saveToLocalStorage(true, false);
-                    showToast(`SKU ${targetItem.sku} dihapus dari riwayat scan.`, 'info');
-                }
-            );
+            if (scanViewMode === 'raw') {
+                const targetRecord = rawScanRecords[index];
+                if (!targetRecord) return;
+                requestAdminAction(
+                    'Hapus Baris Scan',
+                    `Hapus baris scan SKU ${targetRecord.sku} (Fisik: ${targetRecord.qty}, Rak: ${targetRecord.rack})?`,
+                    () => {
+                        rawScanRecords.splice(index, 1);
+                        const map = new Map();
+                        for (let i = 0; i < rawScanRecords.length; i++) {
+                            const r = rawScanRecords[i];
+                            if (map.has(r.sku)) {
+                                const exist = map.get(r.sku);
+                                exist.qty += r.qty;
+                                if (r.rack && r.rack !== '-' && !exist.rack.split('/').includes(r.rack)) {
+                                    exist.rack = exist.rack === '-' ? r.rack : `${exist.rack}/${r.rack}`;
+                                }
+                            } else {
+                                map.set(r.sku, { ...r });
+                            }
+                        }
+                        rawScanning = Array.from(map.values());
+                        rebuildScanIndexMap();
+                        processToPOS();
+                        renderScanHistory();
+                        saveToLocalStorage(true, false);
+                        showToast(`Baris scan SKU ${targetRecord.sku} dihapus.`, 'info');
+                    }
+                );
+            } else {
+                const targetItem = rawScanning[index];
+                if (!targetItem) return;
+                requestAdminAction(
+                    'Hapus Item Scan',
+                    `Masukkan password admin untuk menghapus SKU ${targetItem.sku} (Fisik: ${targetItem.qty}):`,
+                    () => {
+                        recordActivity('HAPUS_SCAN', targetItem.sku, `Hapus scan SKU ${targetItem.sku} (Fisik: ${targetItem.qty}, Rak: ${targetItem.rack})`, 'ADMIN');
+                        const removedSku = targetItem.sku;
+                        rawScanning.splice(index, 1);
+                        rawScanRecords = rawScanRecords.filter(r => r.sku !== removedSku);
+
+                        rebuildScanIndexMap();
+                        processToPOS();
+                        renderScanHistory();
+                        saveToLocalStorage(true, false);
+                        showToast(`SKU ${removedSku} dihapus dari riwayat scan.`, 'info');
+                    }
+                );
+            }
         }
 
         function clearScanLogs() {
-            if (rawScanning.length === 0) return;
+            if (rawScanning.length === 0 && rawScanRecords.length === 0) return;
             requestAdminAction(
                 'Hapus Semua Riwayat Scan',
-                `Masukkan password admin untuk MENGHAPUS SEMUA (${rawScanning.length.toLocaleString('id-ID')} SKU) riwayat scan cabang ${currentStore}:`,
+                `Masukkan password admin untuk MENGHAPUS SEMUA riwayat scan cabang ${currentStore}:`,
                 () => {
-                    recordActivity('RESET_SCAN', 'SEMUA_SCAN', `Pengosongan ${rawScanning.length} baris riwayat scan cabang ${currentStore}`, 'ADMIN');
+                    recordActivity('RESET_SCAN', 'SEMUA_SCAN', `Pengosongan riwayat scan cabang ${currentStore}`, 'ADMIN');
                     rawScanning = [];
                     rawScanRecords = [];
                     rebuildScanIndexMap();
@@ -2266,9 +2621,6 @@
             if (inputEl) inputEl.value = '';
         }
 
-        // =========================================================================
-        // SMART SCAN LINE PARSER (ANTI-SALAH DETEKSI BARCODE SEBAGAI QTY)
-        // =========================================================================
         function parseSmartScanLine(line, activeRack, defaultRack) {
             if (!line) return null;
             let parts = [];
@@ -2401,33 +2753,6 @@
             return { sku, rack, qty };
         }
 
-        function sanitizeAbnormalScanEntries() {
-            let fixed = 0;
-            for (let i = rawScanning.length - 1; i >= 0; i--) {
-                const item = rawScanning[i];
-                const isRackAsSku = /^[A-Za-z]+[-A-Za-z0-9_]*$/.test(item.sku) && (item.sku.includes('-') || !masterSystem[item.sku]) && item.qty > 500;
-                const isAbnormalQty = item.qty > 50000;
-
-                if (isRackAsSku) {
-                    rawScanning.splice(i, 1);
-                    fixed++;
-                } else if (isAbnormalQty) {
-                    item.qty = 1;
-                    fixed++;
-                }
-            }
-            if (fixed > 0) {
-                rebuildScanIndexMap();
-                processToPOS();
-                renderActiveTabUI();
-                saveToLocalStorage(true, false);
-            }
-            return fixed;
-        }
-
-        // =========================================================================
-        // IMPORT SCAN FILE TXT/CSV SUPER CEPAT & AKURAT
-        // =========================================================================
         async function executeFileImport() {
             document.getElementById('importConfirmModal').classList.add('hidden');
             if (!pendingImportFile) return;
@@ -2524,8 +2849,6 @@
                         return;
                     }
 
-                    sanitizeAbnormalScanEntries();
-
                     recordActivity(
                         'IMPORT_SCAN_TXT',
                         fileName,
@@ -2560,6 +2883,9 @@
             reader.readAsText(file);
         }
 
+        // =========================================================================
+        // PROSES KALKULASI HASIL POS & UNTALLY
+        // =========================================================================
         function processToPOS() {
             const existingMap = new Map();
             for (let i = 0; i < posData.length; i++) {
@@ -2576,9 +2902,18 @@
                 const master = masterSystem[sku] || { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0, rackMaster: '-' };
                 const sys = master.sys !== undefined ? Number(master.sys) : 0;
                 
+                // Keepstock Gudang Terpisah
+                const ksObj = keepstockMap[sku] || { qty: 0, ctns: ['-'] };
+                const keepQty = Number(ksObj.qty) || 0;
+                const keepCtns = (ksObj.ctns && ksObj.ctns.length > 0) ? ksObj.ctns.join(', ') : '-';
+
+                // Nilai fisik murni hasil scan toko (atau verifikasi Check)
                 const latestCheck = prev.check3 || prev.check2 || prev.check1;
-                const fisik = latestCheck ? Number(latestCheck.qty) : Number(scan.qty);
-                const dif = fisik - sys;
+                const fisikScan = latestCheck ? Number(latestCheck.qty) : Number(scan.qty);
+                
+                // Total Fisik Gabungan = Fisik Scan Toko + Keepstock Gudang
+                const totalFisik = fisikScan + keepQty;
+                const dif = totalFisik - sys;
                 const isTally = (dif === 0);
 
                 newPosData[idx] = {
@@ -2588,8 +2923,10 @@
                     desc: master.desc,
                     sys: sys,
                     initialFisik: scan.qty,
-                    initialDif: scan.qty - sys,
-                    fisik: fisik,
+                    fisikScan: fisikScan, // Scan fisik toko
+                    keepQty: keepQty,     // Keepstock gudang
+                    keepCtns: keepCtns,   // No karton
+                    fisik: totalFisik,    // Total fisik gabungan
                     dif: dif,
                     status: isTally ? "TALLY" : "UNTALLY",
                     finalStatus: isTally ? "TALLY" : "UNTALLY",
@@ -2648,15 +2985,24 @@
                 if (!scanIndexMap.has(sku)) {
                     const m = masterSystem[sku];
                     const sys = Number(m.sys) || 0;
+                    const ksObj = keepstockMap[sku] || { qty: 0, ctns: ['-'] };
+                    const keepQty = Number(ksObj.qty) || 0;
+                    const keepCtns = (ksObj.ctns && ksObj.ctns.length > 0) ? ksObj.ctns.join(', ') : '-';
+                    const totalFisik = 0 + keepQty;
+                    const dif = totalFisik - sys;
+
                     combined.push({
                         globalIndex: -1,
                         rack: m.rackMaster || '-',
                         sku: sku,
                         desc: m.desc || 'DESKRIPSI TIDAK TERDAFTAR',
                         sys: sys,
-                        fisik: 0,
-                        dif: 0 - sys,
-                        status: sys === 0 ? "TALLY" : "BELUM SCAN",
+                        fisikScan: 0,
+                        keepQty: keepQty,
+                        keepCtns: keepCtns,
+                        fisik: totalFisik,
+                        dif: dif,
+                        status: dif === 0 ? "TALLY" : (keepQty > 0 ? "UNTALLY" : "BELUM SCAN"),
                         unscanned: true
                     });
                 }
@@ -2712,18 +3058,20 @@
                                 <th class="p-2.5 border-r border-slate-800 text-center w-10">No</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap min-w-[70px]">Rak</th>
                                 <th class="p-2.5 border-r border-slate-800 whitespace-nowrap min-w-[90px]">SKU</th>
-                                <th class="p-2.5 border-r border-slate-800 whitespace-nowrap min-w-[160px]">Deskripsi Barang</th>
-                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Sys</th>
-                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Fisik</th>
-                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">Selisih</th>
-                                <th class="p-2.5 text-center whitespace-nowrap w-24">Status</th>
+                                <th class="p-2.5 border-r border-slate-800 whitespace-nowrap min-w-[150px]">Deskripsi Barang</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-12">Sys</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Fisik Scan</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">+ Keepstock</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">= Total Fisik</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Selisih</th>
+                                <th class="p-2.5 text-center whitespace-nowrap w-20">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">`
             ];
 
             if (totalFiltered === 0) {
-                htmlBuffer.push(`<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
+                htmlBuffer.push(`<tr><td colspan="10" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
             } else {
                 for (let idx = startIdx; idx < endIdx; idx++) {
                     const item = filtered[idx];
@@ -2734,14 +3082,20 @@
                     if (isTally) badgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
                     else if (isUnscanned) badgeClass = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
 
+                    const keepBadge = (item.keepQty > 0)
+                        ? `<span class="text-amber-400 font-bold" title="Ctn: ${item.keepCtns}">+${item.keepQty}</span>`
+                        : `<span class="text-slate-600">-</span>`;
+
                     htmlBuffer.push(`
                         <tr class="hover:bg-slate-900/60 transition-colors ${isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10'}">
                             <td class="p-2 border-r border-slate-800/80 text-center text-slate-500 font-medium">${idx + 1}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap">${item.rack || '-'}</td>
                             <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap">${item.sku}</td>
-                            <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[200px] md:max-w-[320px] font-medium" title="${item.desc}">${item.desc}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[180px] md:max-w-[260px] font-medium" title="${item.desc}">${item.desc}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-bold text-sky-300">${item.sys}</td>
-                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-emerald-400">${item.fisik}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-slate-200">${item.fisikScan}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">${keepBadge}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-black text-emerald-400 whitespace-nowrap">${item.fisik}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-black ${item.dif === 0 ? 'text-slate-500' : 'text-rose-400'} whitespace-nowrap">
                                 ${item.dif > 0 ? '+' + item.dif : item.dif}
                             </td>
@@ -2789,7 +3143,10 @@
                 "SKU": item.sku,
                 "Deskripsi Barang": item.desc,
                 "Stok System": item.sys,
-                "Qty Fisik": item.fisik,
+                "Fisik Scan Toko": item.fisikScan,
+                "Keepstock Gudang": item.keepQty,
+                "No Karton": item.keepCtns,
+                "TOTAL FISIK": item.fisik,
                 "Selisih": item.dif,
                 "Status": item.status
             }));
@@ -2865,12 +3222,14 @@
                         <thead>
                             <tr class="bg-slate-900 text-slate-300 border border-slate-800">
                                 <th class="p-2 border border-slate-800 text-center w-10">No</th>
-                                <th class="p-2 border border-slate-800 text-center w-20">Rak</th>
-                                <th class="p-2 border border-slate-800 w-32">SKU</th>
+                                <th class="p-2 border border-slate-800 text-center w-16">Rak</th>
+                                <th class="p-2 border border-slate-800 w-28">SKU</th>
                                 <th class="p-2 border border-slate-800">Deskripsi Barang</th>
-                                <th class="p-2 border border-slate-800 text-center w-14">Sys</th>
-                                <th class="p-2 border border-slate-800 text-center w-14">Fisik</th>
-                                <th class="p-2 border border-slate-800 text-center w-16">Selisih</th>
+                                <th class="p-2 border border-slate-800 text-center w-12">Sys</th>
+                                <th class="p-2 border border-slate-800 text-center w-14">Fisik Scan</th>
+                                <th class="p-2 border border-slate-800 text-center w-16">Keepstock</th>
+                                <th class="p-2 border border-slate-800 text-center w-14">= Total</th>
+                                <th class="p-2 border border-slate-800 text-center w-14">Selisih</th>
                                 <th class="p-2 border border-slate-800 text-center w-28">Check 1</th>
                                 <th class="p-2 border border-slate-800 text-center w-28">Check 2</th>
                                 <th class="p-2 border border-slate-800 text-center w-28">Verify MP</th>
@@ -2882,13 +3241,19 @@
             for (let index = startIdx; index < endIdx; index++) {
                 const item = filtered[index];
                 const globalIndex = item.globalIndex;
+                const ksText = (item.keepQty > 0)
+                    ? `<span class="text-amber-400 font-bold" title="Ctn: ${item.keepCtns}">+${item.keepQty}</span><div class="text-[8px] text-slate-400 truncate max-w-[60px]">${item.keepCtns}</div>`
+                    : `<span class="text-slate-600">-</span>`;
+
                 htmlBuffer.push(`
                     <tr class="border border-slate-800 hover:bg-slate-900/50">
                         <td class="p-2 border border-slate-800 text-center text-slate-400">${index + 1}</td>
                         <td class="p-2 border border-slate-800 text-center font-bold text-amber-300">${item.rack}</td>
                         <td class="p-2 border border-slate-800 font-mono text-sky-400 font-bold">${item.sku}</td>
-                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[220px]">${item.desc}</td>
+                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[180px]">${item.desc}</td>
                         <td class="p-2 border border-slate-800 text-center text-sky-300">${item.sys}</td>
+                        <td class="p-2 border border-slate-800 text-center text-slate-300 font-bold">${item.fisikScan}</td>
+                        <td class="p-2 border border-slate-800 text-center">${ksText}</td>
                         <td class="p-2 border border-slate-800 text-center text-emerald-400 font-bold">${item.fisik}</td>
                         <td class="p-2 border border-slate-800 text-center text-rose-400 font-bold">${item.dif > 0 ? '+' + item.dif : item.dif}</td>
                         <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 1, item.check1, true)}</td>
@@ -2934,7 +3299,7 @@
 
             return `
                 <div class="space-y-1 no-print">
-                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[10px] text-center font-bold text-white outline-none">
+                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty Scan" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[10px] text-center font-bold text-white outline-none">
                     <select id="user_${globalIndex}_${checkNum}" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[9px] text-slate-300 outline-none">${opts}</select>
                     <button type="button" onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold py-0.5 rounded text-[9px] uppercase">Submit</button>
                 </div>
@@ -2945,34 +3310,35 @@
         function submitCheckStep(globalIndex, checkNum) {
             const qtyInput = document.getElementById(`qty_${globalIndex}_${checkNum}`);
             const userInput = document.getElementById(`user_${globalIndex}_${checkNum}`);
-            const qty = qtyInput ? parseInt(qtyInput.value) : NaN;
+            const inputScanQty = qtyInput ? parseInt(qtyInput.value) : NaN;
             const inspector = userInput ? userInput.value : '';
 
-            if (isNaN(qty) || qty < 0 || !inspector) {
-                showToast("Harap masukkan Qty Fisik dan pilih Petugas pemeriksa.", "warning");
+            if (isNaN(inputScanQty) || inputScanQty < 0 || !inspector) {
+                showToast("Harap masukkan Qty Fisik Scan dan pilih Petugas pemeriksa.", "warning");
                 return;
             }
 
             const item = posData[globalIndex];
             if (!item) return;
 
-            const checkRecord = { qty, inspector, time: getCurrentFormattedDate() };
+            const checkRecord = { qty: inputScanQty, inspector, time: getCurrentFormattedDate() };
             if (checkNum === 1) item.check1 = checkRecord;
             if (checkNum === 2) item.check2 = checkRecord;
             if (checkNum === 3) item.check3 = checkRecord;
 
-            item.fisik = qty;
-            item.dif = qty - item.sys;
+            item.fisikScan = inputScanQty;
+            item.fisik = inputScanQty + item.keepQty;
+            item.dif = item.fisik - item.sys;
             item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
 
             if (scanIndexMap.has(item.sku)) {
-                rawScanning[scanIndexMap.get(item.sku)].qty = qty;
+                rawScanning[scanIndexMap.get(item.sku)].qty = inputScanQty;
             }
 
             recordActivity(
                 'VERIFIKASI_UNTALLY',
                 item.sku,
-                `Check ${checkNum} SKU ${item.sku}: Fisik ${qty} (Sys: ${item.sys}, Selisih: ${item.dif}, Status: ${item.status})`,
+                `Check ${checkNum} SKU ${item.sku}: Fisik Scan ${inputScanQty} + KS ${item.keepQty} = ${item.fisik} (Sys: ${item.sys}, Selisih: ${item.dif})`,
                 inspector
             );
 
@@ -2999,7 +3365,10 @@
                 "SKU": item.sku,
                 "Deskripsi": item.desc,
                 "SYS": item.sys,
-                "FISIK": item.fisik,
+                "Fisik Scan Toko": item.fisikScan,
+                "Keepstock Gudang": item.keepQty,
+                "No Karton": item.keepCtns,
+                "TOTAL FISIK": item.fisik,
                 "SELISIH": item.dif,
                 "Check 1": item.check1 ? `${item.check1.inspector} (${item.check1.qty})` : '-',
                 "Check 2": item.check2 ? `${item.check2.inspector} (${item.check2.qty})` : '-',
@@ -3017,17 +3386,18 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Verify ABM");
             XLSX.writeFile(wb, `Laporan_Verify_ABM_${currentStore}.xlsx`);
+            showToast(`Laporan Verify ABM (${rows.length} SKU) berhasil diunduh!`, 'success');
         }
 
         function updateProgressDashboard() {
             const totalMaster = masterSkuList.length;
             let scannedInMaster = 0;
             let scannedOutMaster = 0;
-            let totalQty = 0;
+            let totalScanQty = 0;
 
             for (let i = 0; i < rawScanning.length; i++) {
                 const s = rawScanning[i];
-                totalQty += (Number(s.qty) || 0);
+                totalScanQty += (Number(s.qty) || 0);
                 if (masterSystem[s.sku] !== undefined) {
                     scannedInMaster++;
                 } else {
@@ -3035,8 +3405,15 @@
                 }
             }
 
+            let totalKeepUnits = 0;
+            const ksKeys = Object.keys(keepstockMap);
+            for (let k = 0; k < ksKeys.length; k++) {
+                totalKeepUnits += (Number(keepstockMap[ksKeys[k]].qty) || 0);
+            }
+
             const totalScannedUnique = rawScanning.length;
             const remainingMaster = Math.max(0, totalMaster - scannedInMaster);
+            const totalCombinedPhysical = totalScanQty + totalKeepUnits;
 
             document.getElementById('statTotalMaster').innerText = totalMaster.toLocaleString('id-ID');
             document.getElementById('statSubTotalSys').innerText = `Stok Sys: ${totalMasterSysUnits.toLocaleString('id-ID')}`;
@@ -3046,7 +3423,8 @@
             document.getElementById('statSubOutMaster').innerText = `${totalBarisScanCount.toLocaleString('id-ID')} Baris Scan (Master: ${scannedInMaster.toLocaleString('id-ID')} | Luar: ${scannedOutMaster.toLocaleString('id-ID')})`;
 
             document.getElementById('statRemainingSKU').innerText = remainingMaster.toLocaleString('id-ID');
-            document.getElementById('statTotalQtyPhysical').innerText = totalQty.toLocaleString('id-ID');
+            document.getElementById('statTotalQtyPhysical').innerText = totalCombinedPhysical.toLocaleString('id-ID');
+            document.getElementById('statSubDiffTotal').innerText = `Scan: ${totalScanQty.toLocaleString('id-ID')} | Keep: +${totalKeepUnits.toLocaleString('id-ID')}`;
 
             const pct = totalMaster > 0 ? Math.min(100, (scannedInMaster / totalMaster * 100)).toFixed(1) : 0;
             document.getElementById('txtProgressPercent').innerText = `${pct}% Completed`;
