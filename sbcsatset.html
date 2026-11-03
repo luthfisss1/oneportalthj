@@ -762,7 +762,7 @@
         const UNTALLY_PAGE_SIZE = 50;
         let untallySearchQuery = '';
         let isPrintingUntally = false;
-        let printRackPrefix = '';
+        let activeRackFilter = '';
 
         let logFilterMode = 'ALL';
 
@@ -3142,6 +3142,8 @@
                 newPosData[idx] = {
                     globalIndex: idx,
                     rack: rack !== '-' ? rack : (master.rackMaster || '-'),
+                    rackMaster: master.rackMaster || '-',
+                    rackScan: rack !== '-' ? rack : '-',
                     sku: sku,
                     desc: master.desc,
                     sys: sys,
@@ -3217,6 +3219,8 @@
                     combined.push({
                         globalIndex: -1,
                         rack: m.rackMaster || '-',
+                        rackMaster: m.rackMaster || '-',
+                        rackScan: '-',
                         sku: sku,
                         desc: m.desc || 'DESKRIPSI TIDAK TERDAFTAR',
                         sys: sys,
@@ -3434,8 +3438,31 @@
             }, 120);
         }
 
+        function setUntallyRackFilter(prefix) {
+            activeRackFilter = prefix;
+            untallyPage = 1;
+            renderUntallyCards();
+        }
+
+        function clearUntallyRackFilter() {
+            activeRackFilter = '';
+            untallyPage = 1;
+            renderUntallyCards();
+        }
+
         function changeUntallyPage(delta) {
             untallyPage = Math.max(1, untallyPage + delta);
+            renderUntallyCards();
+        }
+
+        function filterUntallyByRack(prefix) {
+            // Jika tombol rak yang sama di-klik lagi, matikan filternya
+            if (selectedUntallyRack === prefix) {
+                selectedUntallyRack = '';
+            } else {
+                selectedUntallyRack = prefix;
+            }
+            untallyPage = 1;
             renderUntallyCards();
         }
 
@@ -3461,26 +3488,34 @@
             }
 
             let filtered = allUntally;
-            if (isPrintingUntally && printRackPrefix) {
+            
+            // Filter per rak yang aktif (baik saat print maupun tampilan biasa)
+            if (activeRackFilter) {
                 filtered = [];
                 for (let i = 0; i < allUntally.length; i++) {
                     const it = allUntally[i];
-                    if ((it.rack || '').toUpperCase().startsWith(printRackPrefix)) {
+                    // Cek di rackScan atau rackMaster
+                    if ((it.rackScan || '').toUpperCase().startsWith(activeRackFilter) || 
+                        (it.rackMaster || '').toUpperCase().startsWith(activeRackFilter)) {
                         filtered.push(it);
                     }
                 }
-            } else if (untallySearchQuery && !isPrintingUntally) {
-                filtered = [];
-                for (let i = 0; i < allUntally.length; i++) {
-                    const it = allUntally[i];
+            } 
+            
+            if (untallySearchQuery && !isPrintingUntally) {
+                const searchFiltered = [];
+                for (let i = 0; i < filtered.length; i++) {
+                    const it = filtered[i];
                     if (
                         it.sku.toLowerCase().includes(untallySearchQuery) ||
-                        (it.rack && it.rack.toLowerCase().includes(untallySearchQuery)) ||
+                        (it.rackScan && it.rackScan.toLowerCase().includes(untallySearchQuery)) ||
+                        (it.rackMaster && it.rackMaster.toLowerCase().includes(untallySearchQuery)) ||
                         (it.desc && it.desc.toLowerCase().includes(untallySearchQuery))
                     ) {
-                        filtered.push(it);
+                        searchFiltered.push(it);
                     }
                 }
+                filtered = searchFiltered;
             }
 
             const totalFiltered = filtered.length;
@@ -3493,19 +3528,29 @@
 
             const rackPrefixes = new Set();
             for (let i = 0; i < allUntally.length; i++) {
-                const rack = allUntally[i].rack || '-';
-                if (rack !== '-' && rack.length >= 4) {
-                    const prefix = rack.substring(0, 4).toUpperCase();
-                    rackPrefixes.add(prefix);
-                }
+                const rScan = allUntally[i].rackScan || '-';
+                if (rScan !== '-' && rScan.length >= 4) rackPrefixes.add(rScan.substring(0, 4).toUpperCase());
+                
+                const rMaster = allUntally[i].rackMaster || '-';
+                if (rMaster !== '-' && rMaster.length >= 4) rackPrefixes.add(rMaster.substring(0, 4).toUpperCase());
             }
             const rackPrefixArray = Array.from(rackPrefixes).sort();
             
             let buttonsHtml = '';
             if (rackPrefixArray.length > 0 && !isPrintingUntally) {
+                const btnList = rackPrefixArray.map(prefix => {
+                    if (prefix === activeRackFilter) {
+                        return `<button type="button" onclick="clearUntallyRackFilter()" class="bg-amber-400 text-slate-950 text-[10px] px-2.5 py-1 rounded-lg border border-amber-400 transition-all font-bold shadow-md">${prefix}</button>`;
+                    }
+                    return `<button type="button" onclick="setUntallyRackFilter('${prefix}')" class="bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 text-[10px] px-2.5 py-1 rounded-lg border border-amber-500/30 transition-all font-bold">${prefix}</button>`;
+                }).join('');
+
+                const clearBtn = activeRackFilter ? `<button type="button" onclick="clearUntallyRackFilter()" class="bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-300 text-[10px] px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold ml-2 flex items-center gap-1"><i class="fa-solid fa-xmark"></i> Clear</button>` : '';
+
                 buttonsHtml = `<div class="flex flex-wrap items-center gap-2 mb-3 no-print">
-                    <span class="text-[11px] font-bold text-slate-400"><i class="fa-solid fa-print"></i> Print per Rak:</span>
-                    ${rackPrefixArray.map(prefix => `<button type="button" onclick="printUntallyReport('${prefix}')" class="bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 text-[10px] px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-bold">${prefix}</button>`).join('')}
+                    <span class="text-[11px] font-bold text-slate-400"><i class="fa-solid fa-filter"></i> Filter per Rak:</span>
+                    ${btnList}
+                    ${clearBtn}
                 </div>`;
             }
 
@@ -3515,18 +3560,19 @@
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-900 text-slate-300 border border-slate-800">
-                                <th class="p-2 border border-slate-800 text-center w-10">No</th>
-                                <th class="p-2 border border-slate-800 text-center w-16">Rak</th>
-                                <th class="p-2 border border-slate-800 w-28">SKU</th>
+                                <th class="p-2 border border-slate-800 text-center w-8">No</th>
+                                <th class="p-2 border border-slate-800 text-center w-16">Rak Tarikan Data</th>
+                                <th class="p-2 border border-slate-800 text-center w-16">Rak Scanning</th>
+                                <th class="p-2 border border-slate-800 w-24">SKU</th>
                                 <th class="p-2 border border-slate-800">Deskripsi Barang</th>
-                                <th class="p-2 border border-slate-800 text-center w-12">Sys</th>
-                                <th class="p-2 border border-slate-800 text-center w-14">Fisik Scan</th>
-                                <th class="p-2 border border-slate-800 text-center w-16">Keepstock</th>
-                                <th class="p-2 border border-slate-800 text-center w-14">= Total</th>
-                                <th class="p-2 border border-slate-800 text-center w-14">Selisih</th>
-                                <th class="p-2 border border-slate-800 text-center w-28">Check 1</th>
-                                <th class="p-2 border border-slate-800 text-center w-28">Check 2</th>
-                                <th class="p-2 border border-slate-800 text-center w-28">Verify MP</th>
+                                <th class="p-2 border border-slate-800 text-center w-10">Sys</th>
+                                <th class="p-2 border border-slate-800 text-center w-12">Fisik Scan</th>
+                                <th class="p-2 border border-slate-800 text-center w-14">Keepstock</th>
+                                <th class="p-2 border border-slate-800 text-center w-10">= Total</th>
+                                <th class="p-2 border border-slate-800 text-center w-12">Selisih</th>
+                                <th class="p-2 border border-slate-800 text-center w-24">Check 1</th>
+                                <th class="p-2 border border-slate-800 text-center w-24">Check 2</th>
+                                <th class="p-2 border border-slate-800 text-center w-24">Verify MP</th>
                             </tr>
                         </thead>
                         <tbody>`
@@ -3542,9 +3588,10 @@
                 htmlBuffer.push(`
                     <tr class="border border-slate-800 hover:bg-slate-900/50">
                         <td class="p-2 border border-slate-800 text-center text-slate-400">${index + 1}</td>
-                        <td class="p-2 border border-slate-800 text-center font-bold text-amber-300">${item.rack}</td>
+                        <td class="p-2 border border-slate-800 text-center font-bold text-slate-300">${item.rackMaster || '-'}</td>
+                        <td class="p-2 border border-slate-800 text-center font-bold text-amber-300">${item.rackScan || '-'}</td>
                         <td class="p-2 border border-slate-800 font-mono text-sky-400 font-bold">${item.sku}</td>
-                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[180px]">${item.desc}</td>
+                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[150px] md:max-w-[200px]">${item.desc}</td>
                         <td class="p-2 border border-slate-800 text-center text-sky-300">${item.sys}</td>
                         <td class="p-2 border border-slate-800 text-center text-slate-300 font-bold">${item.fisikScan}</td>
                         <td class="p-2 border border-slate-800 text-center">${ksText}</td>
@@ -3823,14 +3870,12 @@
             }
         }
 
-        function printUntallyReport(prefix) {
+        function printUntallyReport() {
             isPrintingUntally = true;
-            printRackPrefix = typeof prefix === 'string' ? prefix : '';
             renderUntallyCards();
             setTimeout(() => {
                 window.print();
                 isPrintingUntally = false;
-                printRackPrefix = '';
                 renderUntallyCards();
             }, 150);
         }
