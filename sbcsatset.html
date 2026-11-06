@@ -628,21 +628,30 @@
         <!-- VIEW SECTION 3: HASIL OLAHAN POS -->
         <section id="step3Container" class="tab-content hidden space-y-4 no-print">
             <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800/80 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2 shrink-0 mt-1">
                         <i class="fa-solid fa-calculator text-sky-400"></i> Step 3: Hasil Olahan POS
                     </h3>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-[10px] bg-sky-500/15 text-sky-300 px-2.5 py-1 rounded-full font-bold border border-sky-500/30">
+                    <div class="flex flex-wrap items-center lg:justify-end gap-2">
+                        <span class="text-[9px] bg-sky-500/15 text-sky-300 px-2.5 py-1.5 rounded-full font-bold border border-sky-500/30 uppercase tracking-wider">
                             <i class="fa-solid fa-equals text-[9px]"></i> Total Fisik = Input Scan + Keepstock
                         </span>
-                        <span id="badgeTally" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold border border-emerald-500/30">Tally: 0</span>
-                        <span id="badgeUntally" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold border border-rose-500/30">UnTally: 0</span>
-                        <button type="button" onclick="normalizeExtraKeepstockNow()" class="bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 text-xs px-3 py-1 rounded-full font-bold border border-amber-500/30 transition-all flex items-center gap-1" title="Pastikan Total Fisik = Input Scan + Keepstock tanpa ekstra ganda">
+                        <span id="badgeTally" class="text-[9px] bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-full font-bold border border-emerald-500/30 uppercase tracking-wider">Tally: 0</span>
+                        <span id="badgeUntally" class="text-[9px] bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-full font-bold border border-rose-500/30 uppercase tracking-wider">UnTally: 0</span>
+                        <button type="button" onclick="normalizeExtraKeepstockNow()" class="bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 text-[9px] px-3 py-1.5 rounded-full font-bold border border-amber-500/30 transition-all flex items-center gap-1.5 uppercase tracking-wider shadow-sm" title="Pastikan Total Fisik = Input Scan + Keepstock tanpa ekstra ganda">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> Normalisasi Fisik
                         </button>
-                        <button type="button" onclick="downloadPosToExcel()" class="bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 text-xs px-3 py-1 rounded-full font-bold border border-sky-500/30 transition-all flex items-center gap-1">
+                        <button type="button" onclick="downloadPosToExcel()" class="bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 text-[9px] px-3 py-1.5 rounded-full font-bold border border-sky-500/30 transition-all flex items-center gap-1.5 uppercase tracking-wider shadow-sm">
                             <i class="fa-solid fa-file-excel"></i> Export POS
+                        </button>
+                        <button type="button" onclick="downloadDoubleRakToExcel()" class="bg-purple-500/20 hover:bg-purple-500 hover:text-slate-950 text-purple-300 text-[9px] px-3 py-1.5 rounded-full font-bold border border-purple-500/30 transition-all flex items-center gap-1.5 uppercase tracking-wider shadow-sm" title="Download Daftar SKU dengan Lebih dari 1 Rak">
+                            <i class="fa-solid fa-layer-group"></i> Double Rak
+                        </button>
+                        <button type="button" onclick="downloadBarcodePanjangToExcel()" class="bg-fuchsia-500/20 hover:bg-fuchsia-500 hover:text-slate-950 text-fuchsia-300 text-[9px] px-3 py-1.5 rounded-full font-bold border border-fuchsia-500/30 transition-all flex items-center gap-1.5 uppercase tracking-wider shadow-sm" title="Download SKU Barcode Panjang (> 7 Karakter)">
+                            <i class="fa-solid fa-barcode"></i> Barcode Panjang
+                        </button>
+                        <button type="button" onclick="downloadUnscannedToExcel()" class="bg-rose-500/20 hover:bg-rose-500 hover:text-slate-950 text-rose-300 text-[9px] px-3 py-1.5 rounded-full font-bold border border-rose-500/30 transition-all flex items-center gap-1.5 uppercase tracking-wider shadow-sm" title="Download Daftar SKU Belum Scan">
+                            <i class="fa-solid fa-file-excel"></i> Belum Scan
                         </button>
                     </div>
                 </div>
@@ -681,6 +690,12 @@
                         <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Step 4: Tabel UNTALLY (<span id="lblUntallyTotal">0</span>)
                     </h3>
                     <div class="flex flex-wrap items-center gap-2">
+                        <select id="globalInspector" class="bg-[#080d1a] border border-slate-700 text-emerald-400 text-[11px] font-bold px-3 py-1.5 rounded-xl outline-none focus:border-emerald-500 shadow-md">
+                            <option value="" disabled selected>Pilih Petugas Verifikasi...</option>
+                        </select>
+                        <button onclick="submitAllChecks()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs px-3 py-1.5 rounded-xl border border-sky-500/80 font-black transition-all shadow-md">
+                            <i class="fa-solid fa-check-double"></i> Simpan
+                        </button>
                         <div class="relative w-48 sm:w-56">
                             <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
                             <input type="text" id="searchUntallyInput" oninput="onSearchUntallyInput()" placeholder="Cari SKU / Rak Untally..." class="w-full pl-7 pr-2.5 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
@@ -1088,24 +1103,29 @@
         function secureEditData(oldSku, field) {
             let titleField = field === 'sku' ? 'SKU' : (field === 'rackMaster' ? 'RAK TARIKAN DATA' : 'RAK SCANNING');
             
-            requestAdminAction('Otorisasi Edit Teks', `Masukkan password admin untuk mengubah ${titleField}.`, () => {
-                setTimeout(() => {
-                    let currentVal = '';
-                    if (field === 'sku') currentVal = oldSku;
-                    else if (field === 'rackMaster') currentVal = masterSystem[oldSku] ? masterSystem[oldSku].rackMaster : '';
-                    else if (field === 'rackScan') {
-                        const scanIdx = scanIndexMap.get(oldSku);
-                        currentVal = scanIdx !== undefined ? rawScanning[scanIdx].rack : '';
-                    }
+            // 1. Dapatkan nilai saat ini sebelum diedit
+            let currentVal = '';
+            if (field === 'sku') {
+                currentVal = oldSku;
+            } else if (field === 'rackMaster') {
+                currentVal = masterSystem[oldSku] ? masterSystem[oldSku].rackMaster : '';
+            } else if (field === 'rackScan') {
+                const scanIdx = scanIndexMap.get(oldSku);
+                currentVal = scanIdx !== undefined ? rawScanning[scanIdx].rack : '';
+            }
 
-                    let newVal = prompt(`Masukkan nilai baru untuk ${titleField} (Saat ini: ${currentVal}):`, currentVal);
+            // 2. Munculkan prompt untuk mengetik nilai baru TERLEBIH DAHULU
+            let newVal = prompt(`Masukkan nilai baru untuk ${titleField} (Saat ini: ${currentVal}):`, currentVal);
 
-                    if (newVal !== null && newVal.trim() !== '' && newVal.trim() !== currentVal) {
-                        applyDataEdit(oldSku, field, newVal.trim());
-                    } else {
-                        renderActiveTabUI(); // Revert highlight
-                    }
-                }, 300);
+            // 3. Jika pengguna membatalkan (klik cancel) atau teks kosong/sama persis, hentikan proses
+            if (newVal === null || newVal.trim() === '' || newVal.trim() === currentVal) {
+                renderActiveTabUI(); // Refresh UI untuk menghilangkan efek klik (jika ada)
+                return; 
+            }
+
+            // 4. Jika teks valid dan berbeda, BARULAH munculkan otorisasi password Admin
+            requestAdminAction('Otorisasi Edit Teks', `Masukkan password admin untuk menyetujui perubahan ${titleField} menjadi "${newVal.trim()}".`, () => {
+                applyDataEdit(oldSku, field, newVal.trim());
             });
         }
 
@@ -1532,13 +1552,19 @@
             try {
                 const logsToSend = pendingLogQueue.length > 0 ? [...pendingLogQueue] : [];
 
-                const cloudPosData = posData.map(item => ({
-                    ...item,
-                    fisikScan: Number(item.fisikScan) || 0,
-                    keepQty: Number(item.keepQty) || 0,
-                    fisik: calculateTotalFisik(item.fisikScan, item.keepQty),
-                    scanTime: `${stripScanMetaTag(item.scanTime || getCurrentFormattedDate())} [SCAN:${Number(item.fisikScan) || 0}|KS:${Number(item.keepQty) || 0}]`
-                }));
+                const cloudPosData = posData.map(item => {
+                    const formatCheck = (chk) => chk ? `${chk.qty}|${chk.inspector}|${chk.time}` : '';
+                    return {
+                        ...item,
+                        fisikScan: Number(item.fisikScan) || 0,
+                        keepQty: Number(item.keepQty) || 0,
+                        fisik: calculateTotalFisik(item.fisikScan, item.keepQty),
+                        scanTime: `${stripScanMetaTag(item.scanTime || getCurrentFormattedDate())} [SCAN:${Number(item.fisikScan) || 0}|KS:${Number(item.keepQty) || 0}]`,
+                        check1: formatCheck(item.check1),
+                        check2: formatCheck(item.check2),
+                        check3: formatCheck(item.check3)
+                    };
+                });
 
                 const cloudRawScanning = rawScanning.map(item => ({
                     ...item,
@@ -2085,16 +2111,26 @@
                 }
 
                 if (Array.isArray(data.posData) && (showNotice || data.posData.length >= posData.length || rawScanning.length === 0)) {
-                    posData = data.posData;
+                    const parseCheckStr = (str) => {
+                        if (!str || typeof str !== 'string') return (str && typeof str === 'object') ? str : null;
+                        const p = str.split('|');
+                        if (p.length >= 2) return { qty: parseInt(p[0]) || 0, inspector: p[1], time: p[2] || '' };
+                        return null;
+                    };
+                    
+                    posData = data.posData.map(item => ({
+                        ...item,
+                        check1: parseCheckStr(item.check1),
+                        check2: parseCheckStr(item.check2),
+                        check3: parseCheckStr(item.check3)
+                    }));
                 }
 
                 if (Array.isArray(data.rawScanning) && (showNotice || data.rawScanning.length >= rawScanning.length || rawScanning.length === 0)) {
                     const posLookup = new Map();
-                    if (Array.isArray(data.posData)) {
-                        for (let i = 0; i < data.posData.length; i++) {
-                            if (data.posData[i] && data.posData[i].sku) {
-                                posLookup.set(String(data.posData[i].sku).trim(), data.posData[i]);
-                            }
+                    for (let i = 0; i < posData.length; i++) {
+                        if (posData[i] && posData[i].sku) {
+                            posLookup.set(String(posData[i].sku).trim(), posData[i]);
                         }
                     }
 
@@ -2238,11 +2274,24 @@
             const btnKsStore = document.getElementById('lblBtnKsStore');
             if (btnKsStore) btnKsStore.innerText = storeCode;
 
+            populateGlobalInspector();
+
             masterPage = 1;
             posPage = 1;
             untallyPage = 1;
             scanVisibleLimit = 50;
             renderActiveTabUI();
+        }
+
+        function populateGlobalInspector() {
+            const select = document.getElementById('globalInspector');
+            if (!select) return;
+            const staffList = STORE_STAFF_MAP[currentStore] || STORE_STAFF_MAP['XCMG'];
+            let opts = `<option value="" disabled selected>Pilih Petugas Verifikasi...</option>`;
+            for (let i = 0; i < staffList.length; i++) {
+                opts += `<option value="${staffList[i]}">${staffList[i]}</option>`;
+            }
+            select.innerHTML = opts;
         }
 
         function setMasterImportMode(mode) {
@@ -3611,6 +3660,76 @@
             showToast(`Berhasil mengekspor ${rows.length.toLocaleString('id-ID')} baris POS ke Excel.`, 'success');
         }
 
+        function downloadDoubleRakToExcel() {
+            const sourceList = getCombinedPosSourceList();
+            const doubleRakList = sourceList.filter(item => {
+                const r = String(item.rack || '');
+                return r.includes('/');
+            });
+
+            if (doubleRakList.length === 0) {
+                showToast("Tidak ada SKU dengan Double Rak (lebih dari 1 rak) yang ditemukan.", "warning");
+                return;
+            }
+
+            recordActivity('EXPORT_EXCEL', `DOUBLE_RAK_${currentStore}`, `Download daftar Double Rak (${doubleRakList.length} SKU)`, 'PETUGAS');
+
+            const rows = doubleRakList.map((item, idx) => ({
+                "No": idx + 1,
+                "Cabang": currentStore,
+                "Rak (Multi)": item.rack || '-',
+                "SKU": item.sku,
+                "Deskripsi Barang": item.desc,
+                "Stok System": item.sys,
+                "Fisik Scan Toko": item.fisikScan,
+                "Keepstock Gudang": item.keepQty,
+                "No Karton": item.keepCtns,
+                "TOTAL FISIK": item.fisik,
+                "Selisih": item.dif,
+                "Status": item.status
+            }));
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, `DOUBLE_RAK_${currentStore}`);
+            XLSX.writeFile(wb, `SKU_Double_Rak_${currentStore}.xlsx`);
+            showToast(`Berhasil mengekspor ${rows.length.toLocaleString('id-ID')} SKU Double Rak ke Excel.`, 'success');
+        }
+
+        function downloadBarcodePanjangToExcel() {
+            const sourceList = getCombinedPosSourceList();
+            const longBarcodeList = sourceList.filter(item => {
+                const sku = String(item.sku || '').trim();
+                return sku.length > 7;
+            });
+
+            if (longBarcodeList.length === 0) {
+                showToast("Tidak ada SKU dengan Barcode Panjang (> 7 karakter) yang ditemukan.", "warning");
+                return;
+            }
+
+            recordActivity('EXPORT_EXCEL', `BARCODE_PANJANG_${currentStore}`, `Download daftar Barcode Panjang (${longBarcodeList.length} SKU)`, 'PETUGAS');
+
+            const rows = longBarcodeList.map((item, idx) => ({
+                "No": idx + 1,
+                "Cabang": currentStore,
+                "Rak": item.rack || '-',
+                "SKU": item.sku,
+                "Deskripsi Barang": item.desc,
+                "Stok System": item.sys,
+                "Fisik Scan Toko": item.fisikScan,
+                "Keepstock Gudang": item.keepQty,
+                "No Karton": item.keepCtns,
+                "TOTAL FISIK": item.fisik,
+                "Selisih": item.dif,
+                "Status": item.status
+            }));
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, `BARCODE_PANJANG_${currentStore}`);
+            XLSX.writeFile(wb, `SKU_Barcode_Panjang_${currentStore}.xlsx`);
+            showToast(`Berhasil mengekspor ${rows.length.toLocaleString('id-ID')} SKU Barcode Panjang ke Excel.`, 'success');
+        }
+
         function onSearchUntallyInput() {
             if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
             searchDebounceTimer = setTimeout(() => {
@@ -3675,8 +3794,7 @@
                 filtered = [];
                 for (let i = 0; i < allUntally.length; i++) {
                     const it = allUntally[i];
-                    if ((it.rackScan || '').toUpperCase().startsWith(activeRackFilter) || 
-                        (it.rackMaster || '').toUpperCase().startsWith(activeRackFilter)) {
+                    if ((it.rackScan || '').toUpperCase().startsWith(activeRackFilter)) {
                         filtered.push(it);
                     }
                 }
@@ -3710,9 +3828,6 @@
             for (let i = 0; i < allUntally.length; i++) {
                 const rScan = allUntally[i].rackScan || '-';
                 if (rScan !== '-' && rScan.length >= 4) rackPrefixes.add(rScan.substring(0, 4).toUpperCase());
-                
-                const rMaster = allUntally[i].rackMaster || '-';
-                if (rMaster !== '-' && rMaster.length >= 4) rackPrefixes.add(rMaster.substring(0, 4).toUpperCase());
             }
             const rackPrefixArray = Array.from(rackPrefixes).sort();
             
@@ -3835,63 +3950,80 @@
                 return `<span class="text-slate-600 text-[10px]">-</span>`;
             }
 
-            const staffList = STORE_STAFF_MAP[currentStore] || STORE_STAFF_MAP['XCMG'];
-            let opts = `<option value="" disabled selected>Pilih Petugas</option>`;
-            for (let i = 0; i < staffList.length; i++) {
-                opts += `<option value="${staffList[i]}">${staffList[i]}</option>`;
-            }
-
             return `
-                <div class="space-y-1 no-print">
-                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty Scan" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[10px] text-center font-bold text-white outline-none">
-                    <select id="user_${globalIndex}_${checkNum}" class="w-full px-1 py-0.5 bg-[#050914] border border-slate-700 rounded text-[9px] text-slate-300 outline-none">${opts}</select>
-                    <button type="button" onclick="submitCheckStep(${globalIndex}, ${checkNum})" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold py-0.5 rounded text-[9px] uppercase">Submit</button>
+                <div class="flex flex-col gap-1.5 no-print max-w-[70px] mx-auto">
+                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty..." onkeydown="if(event.key==='Enter') submitAllChecks()" class="w-full px-1.5 py-1.5 bg-[#050914] border border-slate-700 rounded-lg text-xs text-center font-bold text-sky-300 outline-none focus:border-sky-500 transition-all">
                 </div>
                 <div class="print-only hidden text-[9px] text-slate-500 italic">-</div>
             `;
         }
 
-        function submitCheckStep(globalIndex, checkNum) {
-            const qtyInput = document.getElementById(`qty_${globalIndex}_${checkNum}`);
-            const userInput = document.getElementById(`user_${globalIndex}_${checkNum}`);
-            const inputScanQty = qtyInput ? parseInt(qtyInput.value) : NaN;
-            const inspector = userInput ? userInput.value : '';
+        function submitAllChecks() {
+            const globalUser = document.getElementById('globalInspector');
+            const inspector = globalUser ? globalUser.value : '';
 
-            if (isNaN(inputScanQty) || inputScanQty < 0 || !inspector) {
-                showToast("Harap masukkan Qty Fisik Scan dan pilih Petugas pemeriksa.", "warning");
+            if (!inspector) {
+                showToast("Harap pilih 'Petugas Verifikasi' di bagian atas tabel Untally terlebih dahulu.", "warning");
+                if (globalUser) globalUser.focus();
                 return;
             }
 
-            const item = posData[globalIndex];
-            if (!item) return;
+            let hasChanges = false;
+            let successCount = 0;
 
-            const checkRecord = { qty: inputScanQty, inspector, time: getCurrentFormattedDate() };
-            if (checkNum === 1) item.check1 = checkRecord;
-            if (checkNum === 2) item.check2 = checkRecord;
-            if (checkNum === 3) item.check3 = checkRecord;
+            for (let i = 0; i < posData.length; i++) {
+                const item = posData[i];
+                if (item.status !== "UNTALLY") continue;
 
-            item.fisikScan = inputScanQty;
-            item.fisik = calculateTotalFisik(item.fisikScan, item.keepQty);
-            item.dif = item.fisik - item.sys;
-            item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
+                const globalIndex = item.globalIndex;
+                let itemChanged = false;
 
-            if (scanIndexMap.has(item.sku)) {
-                const targetScan = rawScanning[scanIndexMap.get(item.sku)];
-                targetScan.qty = inputScanQty;
-                targetScan.inputScanQty = inputScanQty;
-                targetScan.isPureScan = true;
+                for (let checkNum = 1; checkNum <= 3; checkNum++) {
+                    const qtyInput = document.getElementById(`qty_${globalIndex}_${checkNum}`);
+                    if (qtyInput && qtyInput.value !== '') {
+                        const inputScanQty = parseInt(qtyInput.value);
+                        if (!isNaN(inputScanQty) && inputScanQty >= 0) {
+                            const checkRecord = { qty: inputScanQty, inspector, time: getCurrentFormattedDate() };
+                            if (checkNum === 1) item.check1 = checkRecord;
+                            if (checkNum === 2) item.check2 = checkRecord;
+                            if (checkNum === 3) item.check3 = checkRecord;
+
+                            item.fisikScan = inputScanQty;
+                            item.fisik = calculateTotalFisik(item.fisikScan, item.keepQty);
+                            item.dif = item.fisik - item.sys;
+                            item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
+
+                            if (scanIndexMap.has(item.sku)) {
+                                const targetScan = rawScanning[scanIndexMap.get(item.sku)];
+                                targetScan.qty = inputScanQty;
+                                targetScan.inputScanQty = inputScanQty;
+                                targetScan.isPureScan = true;
+                            }
+
+                            itemChanged = true;
+                        }
+                    }
+                }
+
+                if (itemChanged) {
+                    recordActivity(
+                        'VERIFIKASI_UNTALLY',
+                        item.sku,
+                        `Verifikasi Massal SKU ${item.sku}: Fisik Scan ${item.fisikScan} + KS ${item.keepQty} = ${item.fisik} (Sys: ${item.sys}, Selisih: ${item.dif})`,
+                        inspector
+                    );
+                    hasChanges = true;
+                    successCount++;
+                }
             }
 
-            recordActivity(
-                'VERIFIKASI_UNTALLY',
-                item.sku,
-                `Check ${checkNum} SKU ${item.sku}: Fisik Scan ${inputScanQty} + KS ${item.keepQty} = ${item.fisik} (Sys: ${item.sys}, Selisih: ${item.dif})`,
-                inspector
-            );
-
-            renderActiveTabUI();
-            saveToLocalStorage(true, false);
-            showToast(`Verifikasi Check ${checkNum} untuk SKU ${item.sku} tersimpan.`, 'success');
+            if (hasChanges) {
+                renderActiveTabUI();
+                saveToLocalStorage(true, false);
+                showToast(`Berhasil menyimpan verifikasi untuk ${successCount} SKU.`, 'success');
+            } else {
+                showToast('Tidak ada Qty verifikasi baru yang diisi.', 'info');
+            }
         }
 
         function checkVerifyABMStatus() {
