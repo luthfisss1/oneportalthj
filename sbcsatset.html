@@ -6,6 +6,50 @@
     <title>SBC SATSET v2.6 Mobile — Fast Stock Take</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function updateFisikKeepstock(sku, type, newValue) {
+            let val = parseInt(newValue) || 0;
+            if (val < 0) val = 0;
+            
+            if (type === 'scan') {
+                if (scanIndexMap.has(sku)) {
+                    let idx = scanIndexMap.get(sku);
+                    rawScanning[idx].qty = val;
+                    rawScanning[idx].inputScanQty = val;
+                    rawScanning[idx].isPureScan = true;
+                    rawScanning[idx].scanTime = getCurrentFormattedDate();
+                } else if (val > 0) {
+                    let rack = masterSystem[sku] ? masterSystem[sku].rackMaster : '-';
+                    rawScanning.unshift({ rack: rack, sku: sku, qty: val, inputScanQty: val, isPureScan: true, scanTime: getCurrentFormattedDate() });
+                    rebuildScanIndexMap();
+                }
+            } else if (type === 'keep') {
+                if (keepstockMap[sku]) {
+                    keepstockMap[sku].qty = val;
+                } else if (val > 0) {
+                    keepstockMap[sku] = { qty: val, ctns: ['-'] };
+                }
+                
+                let foundRow = false;
+                for (let i = 0; i < keepstockRowsList.length; i++) {
+                    if (keepstockRowsList[i].sku === sku) {
+                        keepstockRowsList[i].qty = val;
+                        foundRow = true;
+                        break;
+                    }
+                }
+                if (!foundRow && val > 0) {
+                    let desc = masterSystem[sku] ? masterSystem[sku].desc : 'DESKRIPSI TIDAK TERDAFTAR';
+                    keepstockRowsList.push({ ctn: '-', sku: sku, qty: val, desc: desc });
+                }
+            }
+            
+            processToPOS();
+            renderActiveTabUI();
+            saveToLocalStorage(true, false);
+            showToast(`Berhasil update ${type === 'scan' ? 'Fisik Scan' : 'Keepstock'} untuk SKU ${sku}`, 'success');
+        }
+    </script>
     <!-- SheetJS for Excel Import & Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
@@ -734,8 +778,8 @@
         let masterSystem = {};
         let masterSkuList = [];
         let totalMasterSysUnits = 0;
-        let keepstockMap = {}; // Penyimpanan keepstock per SKU: { [sku]: { qty: number, ctns: string[] } }
-        let keepstockRowsList = []; // Daftar baris keepstock mentah untuk disimpan ke sheet KS_[CABANG]
+        let keepstockMap = {}; 
+        let keepstockRowsList = []; 
         let posData = [];
         let activityLogs = [];
         let pendingLogQueue = [];
@@ -995,6 +1039,9 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        // =========================================================================
+        // FUNGSI ADMIN & KEAMANAN
+        // =========================================================================
         function requestAdminAction(title, desc, onConfirm) {
             pendingAdminCallback = onConfirm;
             document.getElementById('adminModalTitle').innerText = title || 'Otorisasi Admin';
@@ -1008,6 +1055,10 @@
         function closeAdminPrompt() {
             document.getElementById('adminPromptModal').classList.add('hidden');
             pendingAdminCallback = null;
+            // Kembalikan tampilan UI jika otorisasi dibatalkan
+            if (activeTabId === 'step3Container' || activeTabId === 'step4Container') {
+                renderActiveTabUI();
+            }
         }
 
         function submitAdminPrompt(e) {
@@ -1015,13 +1066,128 @@
             const pass = document.getElementById('inputAdminPassword').value.trim();
             if (pass === 'admin') {
                 const cb = pendingAdminCallback;
-                closeAdminPrompt();
+                pendingAdminCallback = null;
+                document.getElementById('adminPromptModal').classList.add('hidden');
                 if (typeof cb === 'function') cb();
             } else {
                 const err = document.getElementById('txtAdminPromptError');
                 err.innerText = 'Password Admin salah!';
                 err.classList.remove('hidden');
             }
+        }
+
+        // Membungkus perubahan input angka (Fisik/Keep) dengan prompt password
+        function secureUpdateFisikKeepstock(inputEl, sku, type) {
+            let newVal = inputEl.value;
+            requestAdminAction('Otorisasi Edit Stok', `Masukkan password admin untuk mengubah ${type === 'scan' ? 'Fisik Scan' : 'Keepstock'} SKU ${sku}.`, () => {
+                updateFisikKeepstock(sku, type, newVal);
+            });
+        }
+
+        // Menangani klik pada kolom teks (SKU / Rak) untuk diedit
+        function secureEditData(oldSku, field) {
+            let titleField = field === 'sku' ? 'SKU' : (field === 'rackMaster' ? 'RAK TARIKAN DATA' : 'RAK SCANNING');
+            
+            requestAdminAction('Otorisasi Edit Teks', `Masukkan password admin untuk mengubah ${titleField}.`, () => {
+                setTimeout(() => {
+                    let currentVal = '';
+                    if (field === 'sku') currentVal = oldSku;
+                    else if (field === 'rackMaster') currentVal = masterSystem[oldSku] ? masterSystem[oldSku].rackMaster : '';
+                    else if (field === 'rackScan') {
+                        const scanIdx = scanIndexMap.get(oldSku);
+                        currentVal = scanIdx !== undefined ? rawScanning[scanIdx].rack : '';
+                    }
+
+                    let newVal = prompt(`Masukkan nilai baru untuk ${titleField} (Saat ini: ${currentVal}):`, currentVal);
+
+                    if (newVal !== null && newVal.trim() !== '' && newVal.trim() !== currentVal) {
+                        applyDataEdit(oldSku, field, newVal.trim());
+                    } else {
+                        renderActiveTabUI(); // Revert highlight
+                    }
+                }, 300);
+            });
+        }
+
+        // Menerapkan perubahan data Teks setelah diotorisasi
+        function applyDataEdit(oldSku, field, newVal) {
+            if (field === 'sku') {
+                if (masterSystem[newVal] || scanIndexMap.has(newVal)) {
+                    showToast("Gagal: SKU baru sudah terdaftar di sistem.", "error");
+                    return;
+                }
+                // Pindahkan data SKU lama ke SKU Baru
+                if (masterSystem[oldSku]) { masterSystem[newVal] = masterSystem[oldSku]; delete masterSystem[oldSku]; }
+                if (scanIndexMap.has(oldSku)) rawScanning[scanIndexMap.get(oldSku)].sku = newVal;
+                for (let i = 0; i < rawScanRecords.length; i++) { if (rawScanRecords[i].sku === oldSku) rawScanRecords[i].sku = newVal; }
+                if (keepstockMap[oldSku]) { keepstockMap[newVal] = keepstockMap[oldSku]; delete keepstockMap[oldSku]; }
+                for (let i = 0; i < keepstockRowsList.length; i++) { if (keepstockRowsList[i].sku === oldSku) keepstockRowsList[i].sku = newVal; }
+
+                rebuildMasterCache();
+                rebuildScanIndexMap();
+                rebuildScanRecordsMap();
+                showToast(`SKU ${oldSku} berhasil diubah menjadi ${newVal}`, "success");
+                recordActivity('EDIT_DATA', oldSku, `Ubah SKU menjadi ${newVal}`, 'ADMIN');
+                
+            } else if (field === 'rackMaster') {
+                if (!masterSystem[oldSku]) masterSystem[oldSku] = { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0 };
+                masterSystem[oldSku].rackMaster = newVal.toUpperCase();
+                showToast(`Rak Tarikan Data SKU ${oldSku} diubah.`, "success");
+                recordActivity('EDIT_DATA', oldSku, `Ubah Rak Tarikan Data ke ${newVal.toUpperCase()}`, 'ADMIN');
+                
+            } else if (field === 'rackScan') {
+                let updated = false;
+                if (scanIndexMap.has(oldSku)) { rawScanning[scanIndexMap.get(oldSku)].rack = newVal.toUpperCase(); updated = true; }
+                for (let i = 0; i < rawScanRecords.length; i++) { if (rawScanRecords[i].sku === oldSku) { rawScanRecords[i].rack = newVal.toUpperCase(); updated = true; } }
+                
+                if (updated) {
+                    rebuildScanRecordsMap();
+                    showToast(`Rak Scan SKU ${oldSku} diubah.`, "success");
+                    recordActivity('EDIT_DATA', oldSku, `Ubah Rak Scan ke ${newVal.toUpperCase()}`, 'ADMIN');
+                } else {
+                    showToast("Gagal: SKU ini belum pernah di-scan fisik.", "error");
+                    return;
+                }
+            }
+
+            processToPOS();
+            renderActiveTabUI();
+            saveToLocalStorage(true, true);
+        }
+
+        // Fungsi Otorisasi Hapus Seluruh Data SKU dari POS
+        function secureDeletePosItem(sku) {
+            requestAdminAction('Hapus SKU Permanen', `Masukkan password admin untuk menghapus SKU ${sku} beserta seluruh data Master, Scan, dan Keepstock secara permanen dari sesi ini.`, () => {
+                // 1. Hapus dari Master
+                if (masterSystem[sku]) {
+                    delete masterSystem[sku];
+                }
+                
+                // 2. Hapus dari Raw Scanning
+                if (scanIndexMap.has(sku)) {
+                    const idx = scanIndexMap.get(sku);
+                    rawScanning.splice(idx, 1);
+                }
+                rawScanRecords = rawScanRecords.filter(r => r.sku !== sku);
+                
+                // 3. Hapus dari Keepstock
+                if (keepstockMap[sku]) {
+                    delete keepstockMap[sku];
+                }
+                keepstockRowsList = keepstockRowsList.filter(r => r.sku !== sku);
+
+                rebuildMasterCache();
+                rebuildScanIndexMap();
+                rebuildScanRecordsMap();
+                
+                recordActivity('HAPUS_SKU', sku, `Menghapus seluruh rekaman SKU ${sku} dari sistem POS`, 'ADMIN');
+                
+                processToPOS();
+                updateMasterStatusBanner();
+                renderActiveTabUI();
+                saveToLocalStorage(true, true);
+                showToast(`SKU ${sku} berhasil dihapus dari sistem.`, 'success');
+            });
         }
 
         function getCurrentFormattedDate() {
@@ -1508,13 +1674,11 @@
                 let sku = '';
                 let qty = 0;
 
-                // Format 3 Kolom: NO CTN | SKU | QTY (Sesuai Gambar User)
                 if (parts.length >= 3) {
                     ctn = parts[0] || '-';
                     sku = parts[1] || '';
                     qty = parseCleanNumber(parts[2]);
                     if (!sku || isNaN(qty) || qty <= 0) {
-                        // Coba jika SKU di kolom 0 dan Qty di kolom terakhir
                         if (/^\d{5,}$/.test(parts[0])) {
                             sku = parts[0];
                             ctn = parts[1];
@@ -1522,7 +1686,6 @@
                         }
                     }
                 } else if (parts.length === 2) {
-                    // Format 2 Kolom: SKU | QTY atau CTN | SKU
                     if (isLikelyNumber(parts[1]) && parseInt(parts[1]) <= 5000) {
                         sku = parts[0];
                         qty = parseCleanNumber(parts[1]);
@@ -1540,7 +1703,6 @@
                 validRows++;
                 totalUnits += qty;
 
-                // Akumulasi ke keepstockMap
                 if (newKeepstockMap[sku]) {
                     newKeepstockMap[sku].qty += qty;
                     if (ctn && ctn !== '-' && !newKeepstockMap[sku].ctns.includes(ctn)) {
@@ -1586,7 +1748,6 @@
 
             await saveToLocalStorage(true, false);
 
-            // Simpan langsung ke sheet KS_[STORE] di Spreadsheet
             showToast(`Menyimpan Keepstock ke sheet KS_${currentStore}...`, 'info');
             const savedCloud = await postToCloudAsync({
                 action: "saveKeepstockData",
@@ -1713,7 +1874,6 @@
                     await postToCloudAsync(payloadData);
                 }
 
-                // Simpan juga Keepstock ke Sheet KS_[STORE]
                 if (keepstockRowsList.length > 0) {
                     await postToCloudAsync({
                         action: "saveKeepstockData",
@@ -1894,7 +2054,6 @@
                     }
                 }
 
-                // 1. Pulihkan data Keepstock dari sheet KS_[CABANG] terlebih dahulu agar perhitungan Input Scan murni akurat
                 if (Array.isArray(data.keepstockData) && data.keepstockData.length > 0) {
                     const kMap = {};
                     for (let i = 0; i < data.keepstockData.length; i++) {
@@ -1917,7 +2076,6 @@
 
                 rebuildScanRecordsMap();
 
-                // Simpan map scan murni lokal sebelum ditimpa data Cloud
                 const localPureScanMap = new Map();
                 for (let i = 0; i < rawScanning.length; i++) {
                     const loc = rawScanning[i];
@@ -3291,14 +3449,15 @@
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">+ Keepstock</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">= Total Fisik</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Selisih</th>
-                                <th class="p-2.5 text-center whitespace-nowrap w-20">Status</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-20">Status</th>
+                                <th class="p-2.5 text-center whitespace-nowrap w-10">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">`
             ];
 
             if (totalFiltered === 0) {
-                htmlBuffer.push(`<tr><td colspan="10" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
+                htmlBuffer.push(`<tr><td colspan="11" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
             } else {
                 for (let idx = startIdx; idx < endIdx; idx++) {
                     const item = filtered[idx];
@@ -3316,20 +3475,45 @@
                     htmlBuffer.push(`
                         <tr class="hover:bg-slate-900/60 transition-colors ${isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10'}">
                             <td class="p-2 border-r border-slate-800/80 text-center text-slate-500 font-medium">${idx + 1}</td>
-                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap">${item.rack || '-'}</td>
-                            <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap">${item.sku}</td>
+                            
+                            <!-- BISA DIKLIK: EDIT RAK -->
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap cursor-pointer hover:bg-slate-800 transition-colors" onclick="secureEditData('${item.sku}', 'rackScan')" title="Klik untuk Edit Rak">
+                                ${item.rack || '-'} <i class="fa-solid fa-pencil text-[9px] text-amber-500/50 ml-1"></i>
+                            </td>
+                            
+                            <!-- BISA DIKLIK: EDIT SKU -->
+                            <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap cursor-pointer hover:bg-slate-800 transition-colors" onclick="secureEditData('${item.sku}', 'sku')" title="Klik untuk Edit SKU">
+                                ${item.sku} <i class="fa-solid fa-pencil text-[9px] text-sky-500/50 ml-1"></i>
+                            </td>
+                            
                             <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[180px] md:max-w-[260px] font-medium" title="${item.desc}">${item.desc}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-bold text-sky-300">${item.sys}</td>
-                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-slate-200">${item.fisikScan}</td>
-                            <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">${keepBadge}</td>
+                            
+                            <!-- BISA DIEDIT: FISIK SCAN (Dengan Validasi Admin) -->
+                            <td class="p-2 border-r border-slate-800/80 text-center">
+                                <input type="number" min="0" onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'scan')" value="${item.fisikScan}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-sky-500 rounded text-center text-xs font-bold text-slate-200 outline-none transition-colors">
+                            </td>
+                            
+                            <!-- BISA DIEDIT: KEEPSTOCK (Dengan Validasi Admin) -->
+                            <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
+                                <input type="number" min="0" onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'keep')" value="${item.keepQty}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-amber-500 rounded text-center text-xs font-bold text-amber-400 outline-none transition-colors mb-0.5">
+                                <div class="text-[8px] text-slate-400 truncate max-w-[60px] mx-auto" title="${item.keepCtns}">${item.keepQty > 0 && item.keepCtns !== '-' ? item.keepCtns : ''}</div>
+                            </td>
+                            
                             <td class="p-2 border-r border-slate-800/80 text-center font-black text-emerald-400 whitespace-nowrap">${item.fisik}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-black ${item.dif === 0 ? 'text-slate-500' : 'text-rose-400'} whitespace-nowrap">
                                 ${item.dif > 0 ? '+' + item.dif : item.dif}
                             </td>
-                            <td class="p-2 text-center whitespace-nowrap">
+                            <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
                                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded ${badgeClass}">
                                     ${item.status}
                                 </span>
+                            </td>
+                            <!-- BISA DIKLIK: HAPUS SKU (Dengan Otorisasi) -->
+                            <td class="p-2 text-center whitespace-nowrap">
+                                <button type="button" onclick="secureDeletePosItem('${item.sku}')" class="text-rose-500 hover:text-rose-400 p-1 cursor-pointer active:scale-90 transition-transform" title="Hapus Permanen SKU ${item.sku}">
+                                    <i class="fa-solid fa-trash-can text-sm pointer-events-none"></i>
+                                </button>
                             </td>
                         </tr>
                     `);
@@ -3375,7 +3559,6 @@
                         correctedCount++;
                     }
                 } else if (kQty > 0 && scan.qty >= kQty) {
-                    // Jika tidak ada di rawScanRecords namun nilai scan.qty sudah terlanjur ketambahan Keepstock (ekstra)
                     const currentTotal = calculateTotalFisik(scan.qty, kQty);
                     const currentDif = currentTotal - sQty;
                     if (currentDif >= kQty && (scan.qty - kQty) >= 0) {
@@ -3456,7 +3639,6 @@
         }
 
         function filterUntallyByRack(prefix) {
-            // Jika tombol rak yang sama di-klik lagi, matikan filternya
             if (selectedUntallyRack === prefix) {
                 selectedUntallyRack = '';
             } else {
@@ -3489,12 +3671,10 @@
 
             let filtered = allUntally;
             
-            // Filter per rak yang aktif (baik saat print maupun tampilan biasa)
             if (activeRackFilter) {
                 filtered = [];
                 for (let i = 0; i < allUntally.length; i++) {
                     const it = allUntally[i];
-                    // Cek di rackScan atau rackMaster
                     if ((it.rackScan || '').toUpperCase().startsWith(activeRackFilter) || 
                         (it.rackMaster || '').toUpperCase().startsWith(activeRackFilter)) {
                         filtered.push(it);
@@ -3588,13 +3768,36 @@
                 htmlBuffer.push(`
                     <tr class="border border-slate-800 hover:bg-slate-900/50">
                         <td class="p-2 border border-slate-800 text-center text-slate-400">${index + 1}</td>
-                        <td class="p-2 border border-slate-800 text-center font-bold text-slate-300">${item.rackMaster || '-'}</td>
-                        <td class="p-2 border border-slate-800 text-center font-bold text-amber-300">${item.rackScan || '-'}</td>
-                        <td class="p-2 border border-slate-800 font-mono text-sky-400 font-bold">${item.sku}</td>
+                        
+                        <!-- BISA DIKLIK: RAK TARIKAN -->
+                        <td class="p-2 border border-slate-800 text-center font-bold text-slate-300 cursor-pointer hover:bg-slate-700 transition-colors" onclick="secureEditData('${item.sku}', 'rackMaster')" title="Edit Rak Tarikan">
+                            ${item.rackMaster || '-'} <i class="fa-solid fa-pencil text-[9px] text-slate-500 ml-1"></i>
+                        </td>
+                        
+                        <!-- BISA DIKLIK: RAK SCANNING -->
+                        <td class="p-2 border border-slate-800 text-center font-bold text-amber-300 cursor-pointer hover:bg-slate-700 transition-colors" onclick="secureEditData('${item.sku}', 'rackScan')" title="Edit Rak Scanning">
+                            ${item.rackScan || '-'} <i class="fa-solid fa-pencil text-[9px] text-amber-500/50 ml-1"></i>
+                        </td>
+                        
+                        <!-- BISA DIKLIK: SKU -->
+                        <td class="p-2 border border-slate-800 font-mono text-sky-400 font-bold cursor-pointer hover:bg-slate-700 transition-colors" onclick="secureEditData('${item.sku}', 'sku')" title="Edit SKU">
+                            ${item.sku} <i class="fa-solid fa-pencil text-[9px] text-sky-500/50 ml-1"></i>
+                        </td>
+                        
                         <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[150px] md:max-w-[200px]">${item.desc}</td>
                         <td class="p-2 border border-slate-800 text-center text-sky-300">${item.sys}</td>
-                        <td class="p-2 border border-slate-800 text-center text-slate-300 font-bold">${item.fisikScan}</td>
-                        <td class="p-2 border border-slate-800 text-center">${ksText}</td>
+                        
+                        <!-- BISA DIEDIT: FISIK SCAN (Otorisasi) -->
+                        <td class="p-2 border border-slate-800 text-center">
+                            <input type="number" min="0" onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'scan')" value="${item.fisikScan}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-sky-500 rounded text-center text-xs font-bold text-slate-300 outline-none transition-colors">
+                        </td>
+                        
+                        <!-- BISA DIEDIT: KEEPSTOCK (Otorisasi) -->
+                        <td class="p-2 border border-slate-800 text-center">
+                            <input type="number" min="0" onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'keep')" value="${item.keepQty}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-amber-500 rounded text-center text-xs font-bold text-amber-400 outline-none transition-colors mb-0.5">
+                            <div class="text-[8px] text-slate-400 truncate max-w-[60px] mx-auto" title="${item.keepCtns}">${item.keepQty > 0 && item.keepCtns !== '-' ? item.keepCtns : ''}</div>
+                        </td>
+                        
                         <td class="p-2 border border-slate-800 text-center text-emerald-400 font-bold">${item.fisik}</td>
                         <td class="p-2 border border-slate-800 text-center text-rose-400 font-bold">${item.dif > 0 ? '+' + item.dif : item.dif}</td>
                         <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 1, item.check1, true)}</td>
