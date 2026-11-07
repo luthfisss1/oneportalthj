@@ -798,6 +798,7 @@
         let posData = [];
         let activityLogs = [];
         let pendingLogQueue = [];
+        let tempCheckInputs = {}; // Memori sementara untuk menyimpan angka ketikan Check 1,2,3
 
         // Fast Lookup Maps & Pagination States
         let scanIndexMap = new Map();
@@ -1210,6 +1211,58 @@
             });
         }
 
+        // Memunculkan prompt edit untuk Check 1, Check 2, atau Verify MP
+        function secureEditCheckData(sku, checkNum) {
+            const item = posData.find(i => i.sku === sku);
+            if (!item) return;
+
+            let checkData;
+            if (checkNum === 1) checkData = item.check1;
+            else if (checkNum === 2) checkData = item.check2;
+            else if (checkNum === 3) checkData = item.check3;
+
+            if (!checkData) return;
+
+            let currentQty = checkData.qty;
+            let titleField = `Check ${checkNum} (SKU: ${sku})`;
+
+            let newQty = prompt(`Masukkan Qty baru untuk ${titleField} (Saat ini: ${currentQty}):\nKosongkan kolom ini jika Anda ingin menghapus/mereset hasil verifikasi ini.`, currentQty);
+
+            if (newQty === null || newQty.trim() === currentQty.toString()) {
+                renderActiveTabUI(); 
+                return;
+            }
+
+            requestAdminAction('Otorisasi Edit Verifikasi', `Masukkan password admin untuk menyetujui perubahan ${titleField}.`, () => {
+                applyCheckEdit(sku, checkNum, newQty.trim());
+            });
+        }
+
+        // Menerapkan perubahan data Edit Check 
+        function applyCheckEdit(sku, checkNum, newQtyStr) {
+            const item = posData.find(i => i.sku === sku);
+            if (!item) return;
+
+            let parsedQty = parseInt(newQtyStr);
+            
+            if (newQtyStr === '' || isNaN(parsedQty) || parsedQty < 0) {
+                if (checkNum === 1) item.check1 = null;
+                if (checkNum === 2) item.check2 = null;
+                if (checkNum === 3) item.check3 = null;
+                recordActivity('EDIT_DATA', sku, `Menghapus verifikasi Check ${checkNum}`, 'ADMIN');
+            } else {
+                if (checkNum === 1 && item.check1) item.check1.qty = parsedQty;
+                if (checkNum === 2 && item.check2) item.check2.qty = parsedQty;
+                if (checkNum === 3 && item.check3) item.check3.qty = parsedQty;
+                recordActivity('EDIT_DATA', sku, `Mengubah Qty Check ${checkNum} menjadi ${parsedQty}`, 'ADMIN');
+            }
+
+            processToPOS();
+            renderActiveTabUI();
+            saveToLocalStorage(true, false);
+            showToast(`Verifikasi Check ${checkNum} untuk SKU ${sku} berhasil diperbarui.`, 'success');
+        }
+
         function getCurrentFormattedDate() {
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
@@ -1234,7 +1287,7 @@
 
         function stripScanMetaTag(timeStr) {
             if (!timeStr) return '';
-            return String(timeStr).replace(/\s*\[SCAN:\d+\|KS:\d+\]/g, '').trim();
+            return String(timeStr).replace(/\s*\[SCAN:\d+\|KS:\d+\]/g, '').replace(/\s*\[CHK\d:.*?\]/g, '').trim();
         }
 
         function extractScanMetaTag(timeStr) {
@@ -1244,6 +1297,21 @@
             return {
                 scanQty: parseInt(m[1], 10) || 0,
                 keepQty: parseInt(m[2], 10) || 0
+            };
+        }
+
+        function extractCheckTags(timeStr) {
+            if (!timeStr) return { check1: null, check2: null, check3: null };
+            const parseMatch = (match) => {
+                if (!match) return null;
+                const p = match[1].split('|');
+                if (p.length >= 2) return { qty: parseInt(p[0]) || 0, inspector: p[1], time: p[2] || '' };
+                return null;
+            };
+            return {
+                check1: parseMatch(timeStr.match(/\[CHK1:(.*?)\]/)),
+                check2: parseMatch(timeStr.match(/\[CHK2:(.*?)\]/)),
+                check3: parseMatch(timeStr.match(/\[CHK3:(.*?)\]/))
             };
         }
 
@@ -1554,15 +1622,29 @@
 
                 const cloudPosData = posData.map(item => {
                     const formatCheck = (chk) => chk ? `${chk.qty}|${chk.inspector}|${chk.time}` : '';
+                    const chk1Str = formatCheck(item.check1);
+                    const chk2Str = formatCheck(item.check2);
+                    const chk3Str = formatCheck(item.check3);
+                    
+                    const chk1Tag = chk1Str ? ` [CHK1:${chk1Str}]` : '';
+                    const chk2Tag = chk2Str ? ` [CHK2:${chk2Str}]` : '';
+                    const chk3Tag = chk3Str ? ` [CHK3:${chk3Str}]` : '';
+                    
+                    const baseTime = stripScanMetaTag(item.scanTime || getCurrentFormattedDate());
+                    const scanMeta = `[SCAN:${Number(item.fisikScan) || 0}|KS:${Number(item.keepQty) || 0}]`;
+                    
+                    // Tempelkan Check 1,2,3 di string waktu agar AppsScript tidak butuh update kolom
+                    const fullScanTime = `${baseTime} ${scanMeta}${chk1Tag}${chk2Tag}${chk3Tag}`.trim();
+
                     return {
                         ...item,
                         fisikScan: Number(item.fisikScan) || 0,
                         keepQty: Number(item.keepQty) || 0,
                         fisik: calculateTotalFisik(item.fisikScan, item.keepQty),
-                        scanTime: `${stripScanMetaTag(item.scanTime || getCurrentFormattedDate())} [SCAN:${Number(item.fisikScan) || 0}|KS:${Number(item.keepQty) || 0}]`,
-                        check1: formatCheck(item.check1),
-                        check2: formatCheck(item.check2),
-                        check3: formatCheck(item.check3)
+                        scanTime: fullScanTime,
+                        check1: chk1Str,
+                        check2: chk2Str,
+                        check3: chk3Str
                     };
                 });
 
@@ -2118,12 +2200,16 @@
                         return null;
                     };
                     
-                    posData = data.posData.map(item => ({
-                        ...item,
-                        check1: parseCheckStr(item.check1),
-                        check2: parseCheckStr(item.check2),
-                        check3: parseCheckStr(item.check3)
-                    }));
+                    posData = data.posData.map(item => {
+                        // Tarik info verifikasi dari waktu untuk menghindari error pemetaan di Cloud
+                        const extracted = extractCheckTags(item.scanTime);
+                        return {
+                            ...item,
+                            check1: extracted.check1 || parseCheckStr(item.check1),
+                            check2: extracted.check2 || parseCheckStr(item.check2),
+                            check3: extracted.check3 || parseCheckStr(item.check3) || parseCheckStr(item.verify_mp)
+                        };
+                    });
                 }
 
                 if (Array.isArray(data.rawScanning) && (showNotice || data.rawScanning.length >= rawScanning.length || rawScanning.length === 0)) {
@@ -3943,16 +4029,23 @@
 
         function renderCheckCellTable(globalIndex, checkNum, checkData, isEnabled) {
             if (checkData) {
-                return `<div class="font-bold text-[11px] text-emerald-400">Qty: ${checkData.qty}</div><div class="text-[9px] text-slate-400">${checkData.inspector}</div>`;
+                const item = posData[globalIndex];
+                return `<div class="font-bold text-emerald-400 cursor-pointer hover:bg-emerald-900/50 transition-all bg-emerald-900/20 p-2 rounded-xl border border-emerald-800/50 flex flex-col items-center justify-center min-w-[60px] mx-auto shadow-sm" onclick="secureEditCheckData('${item ? item.sku : ''}', ${checkNum})" title="Edit Check ${checkNum}">
+                    <div class="flex items-center gap-1.5"><span class="text-sm">${checkData.qty}</span> <i class="fa-solid fa-pencil text-[10px] text-emerald-500/60"></i></div>
+                    <div class="text-[9px] text-emerald-500/80 mt-1 uppercase tracking-tighter truncate w-full max-w-[70px] text-center">${checkData.inspector}</div>
+                </div>`;
             }
             
             if (!isEnabled) {
-                return `<span class="text-slate-600 text-[10px]">-</span>`;
+                return `<span class="text-slate-700 font-bold text-lg opacity-50">-</span>`;
             }
 
+            const inputId = `qty_${globalIndex}_${checkNum}`;
+            const tempVal = tempCheckInputs[inputId] !== undefined ? tempCheckInputs[inputId] : '';
+
             return `
-                <div class="flex flex-col gap-1.5 no-print max-w-[70px] mx-auto">
-                    <input type="number" id="qty_${globalIndex}_${checkNum}" placeholder="Qty..." onkeydown="if(event.key==='Enter') submitAllChecks()" class="w-full px-1.5 py-1.5 bg-[#050914] border border-slate-700 rounded-lg text-xs text-center font-bold text-sky-300 outline-none focus:border-sky-500 transition-all">
+                <div class="flex flex-col gap-1.5 no-print w-full max-w-[80px] mx-auto">
+                    <input type="number" id="${inputId}" placeholder="Qty" value="${tempVal}" oninput="tempCheckInputs['${inputId}'] = this.value" onkeydown="if(event.key==='Enter') submitAllChecks()" class="w-full px-2 py-2.5 bg-[#050914] border-2 border-slate-700 rounded-xl text-sm text-center font-black text-sky-300 outline-none focus:border-sky-400 focus:bg-[#0b1120] focus:shadow-lg focus:shadow-sky-500/20 transition-all placeholder:text-slate-600 placeholder:font-normal placeholder:text-xs">
                 </div>
                 <div class="print-only hidden text-[9px] text-slate-500 italic">-</div>
             `;
@@ -4018,6 +4111,7 @@
             }
 
             if (hasChanges) {
+                tempCheckInputs = {}; // Kosongkan memori sementara setelah berhasil disimpan
                 renderActiveTabUI();
                 saveToLocalStorage(true, false);
                 showToast(`Berhasil menyimpan verifikasi untuk ${successCount} SKU.`, 'success');
