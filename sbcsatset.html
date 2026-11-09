@@ -135,6 +135,34 @@
         </div>
     </div>
 
+    <!-- MODAL DAILY PROGRESS (RIWAYAT HARIAN) -->
+    <div id="dailyProgressModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[160] hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 max-w-sm w-full p-6 space-y-4 flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-emerald-400"></i> Progres Scan Harian
+                </h3>
+                <button onclick="closeDailyProgressModal()" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto flex-1 pr-1">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="sticky top-0 bg-[#0f172a] z-10 text-slate-400 text-[10px] uppercase">
+                        <tr>
+                            <th class="py-2 px-2 border-b border-slate-800 font-bold">Tanggal</th>
+                            <th class="py-2 px-2 border-b border-slate-800 text-center font-bold">SKU Unik</th>
+                            <th class="py-2 px-2 border-b border-slate-800 text-right font-bold">Total Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyProgressTableBody" class="divide-y divide-slate-800/60 text-[11px]">
+                        <!-- Injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL LIVE CAMERA BARCODE SCANNER -->
     <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-[120] hidden flex flex-col items-center justify-between p-4 no-print">
         <div class="w-full max-w-md flex items-center justify-between pt-2">
@@ -310,10 +338,13 @@
                     <span id="statTotalMaster" class="text-base font-bold text-white">0</span>
                     <span id="statSubTotalSys" class="text-[9px] text-slate-500 block mt-0.5">Stok Sys: 0</span>
                 </div>
-                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
+                <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80 relative group">
                     <span class="text-[10px] text-emerald-400 font-semibold block mb-1">Sudah Scan</span>
                     <span id="statScannedSKU" class="text-base font-bold text-emerald-400">0</span>
                     <span id="statSubOutMaster" class="text-[9px] text-slate-500 block mt-0.5">0 Baris Scan (Master: 0 | Luar: 0)</span>
+                    <button onclick="openDailyProgressModal()" class="absolute top-2 right-2 text-emerald-500/60 hover:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 p-1.5 rounded-lg transition-all" title="Lihat Progres Harian">
+                        <i class="fa-solid fa-calendar-day text-xs"></i>
+                    </button>
                 </div>
                 <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800/80">
                     <span class="text-[10px] text-rose-400 font-semibold block mb-1">Belum Scan</span>
@@ -2387,6 +2418,54 @@
         function closeActivityLogModal() { document.getElementById('activityLogModal').classList.add('hidden'); }
         function setLogFilter(mode) { logFilterMode = mode; const btnMap = { 'ALL': 'btnLogFilterAll', 'MASTER': 'btnLogFilterMaster', 'SCAN': 'btnLogFilterScan', 'UNTALLY': 'btnLogFilterUntally' }; Object.keys(btnMap).forEach(k => { const el = document.getElementById(btnMap[k]); if (!el) return; el.className = (k === mode) ? "px-2.5 py-1 rounded-lg font-bold bg-indigo-500 text-slate-950 transition-all" : "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all"; }); renderActivityLogTable(); }
         
+        function openDailyProgressModal() {
+            const stats = {};
+            for (let i = 0; i < rawScanning.length; i++) {
+                const rec = rawScanning[i];
+                const cleanTime = stripScanMetaTag(rec.scanTime || '');
+                const dateParts = cleanTime.split(' ');
+                const dateStr = (dateParts.length > 0 && dateParts[0].includes('/')) ? dateParts[0] : 'Tidak Terdata';
+
+                if (!stats[dateStr]) {
+                    stats[dateStr] = { skuCount: 0, qty: 0 };
+                }
+                stats[dateStr].skuCount += 1;
+                stats[dateStr].qty += (Number(rec.inputScanQty !== undefined ? rec.inputScanQty : rec.qty) || 0);
+            }
+
+            const tbody = document.getElementById('dailyProgressTableBody');
+            const dates = Object.keys(stats).sort((a, b) => {
+                if (a === 'Tidak Terdata') return 1;
+                if (b === 'Tidak Terdata') return -1;
+                const [da, ma, ya] = a.split('/');
+                const [db, mb, yb] = b.split('/');
+                const dateA = new Date(ya, ma - 1, da);
+                const dateB = new Date(yb, mb - 1, db);
+                return dateB - dateA;
+            });
+
+            if (dates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-500 italic text-[11px]">Belum ada data scan.</td></tr>`;
+            } else {
+                let html = '';
+                for (const d of dates) {
+                    const s = stats[d];
+                    html += `
+                    <tr class="hover:bg-slate-800/50 transition-colors">
+                        <td class="py-2.5 px-2 text-emerald-300 font-medium">${d}</td>
+                        <td class="py-2.5 px-2 text-center font-bold text-sky-400">${s.skuCount.toLocaleString('id-ID')}</td>
+                        <td class="py-2.5 px-2 text-right font-bold text-white">${s.qty.toLocaleString('id-ID')}</td>
+                    </tr>`;
+                }
+                tbody.innerHTML = html;
+            }
+            document.getElementById('dailyProgressModal').classList.remove('hidden');
+        }
+
+        function closeDailyProgressModal() {
+            document.getElementById('dailyProgressModal').classList.add('hidden');
+        }
+
         function checkVerifyABMStatus() { const btn = document.getElementById("btnDownloadVerifyABM"); if (!btn) return; const hasCompleted = posData.some(item => item.check3 !== null); btn.disabled = !hasCompleted; btn.className = hasCompleted ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all" : "bg-slate-800 text-slate-500 text-xs px-3 py-1.5 rounded-xl font-bold cursor-not-allowed"; }
         function downloadVerifyABMToExcel() { const rows = posData.filter(i => i.check3 !== null).map((item, idx) => ({ "No": idx + 1, "Toko": currentStore, "Rak": item.rack || '-', "SKU": item.sku, "Deskripsi": item.desc, "SYS": item.sys, "Fisik Scan Toko": item.fisikScan, "Keepstock Gudang": item.keepQty, "No Karton": item.keepCtns, "TOTAL FISIK": item.fisik, "SELISIH": item.dif, "Check 1": item.check1 ? `${item.check1.inspector} (${item.check1.qty})` : '-', "Check 2": item.check2 ? `${item.check2.inspector} (${item.check2.qty})` : '-', "Petugas Verify MP": item.check3 ? `${item.check3.inspector} (${item.check3.qty})` : '-' })); if (rows.length === 0) { showToast("Belum ada item yang selesai diverifikasi Check 3 / Verify MP.", "warning"); return; } recordActivity('EXPORT_EXCEL', `VERIFY_ABM_${currentStore}`, `Download laporan Verify ABM (${rows.length} item)`, 'PETUGAS'); const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Verify ABM"); XLSX.writeFile(wb, `Laporan_Verify_ABM_${currentStore}.xlsx`); showToast(`Laporan Verify ABM (${rows.length} SKU) berhasil diunduh!`, 'success'); }
         function showAsyncProgress(title, desc) { const modal = document.getElementById('asyncProcessingModal'); if (!modal) return; document.getElementById('asyncProcessTitle').innerText = title || "Memproses Data"; document.getElementById('asyncProcessDesc').innerText = desc || "Sedang memproses data tanpa lag..."; document.getElementById('asyncProgressBar').style.width = '0%'; document.getElementById('asyncProcessPct').innerText = '0%'; document.getElementById('asyncProcessDetails').innerText = '0 Baris'; modal.classList.remove('hidden'); }
