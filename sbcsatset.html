@@ -1354,54 +1354,100 @@
                             }
                         }
                     }
-                    keepstockMap = kMap; keepstockRowsList = data.keepstockData;
+                    
+                    // SMART MERGE KEEPSTOCK (Angka Terbesar yang Menang)
+                    const ksKeys = Object.keys(kMap);
+                    for (let i = 0; i < ksKeys.length; i++) {
+                        const sku = ksKeys[i];
+                        if (keepstockMap[sku]) {
+                            keepstockMap[sku].qty = Math.max(keepstockMap[sku].qty, kMap[sku].qty);
+                            kMap[sku].ctns.forEach(c => {
+                                if (c !== '-' && !keepstockMap[sku].ctns.includes(c)) keepstockMap[sku].ctns.push(c);
+                            });
+                        } else {
+                            keepstockMap[sku] = kMap[sku];
+                        }
+                    }
+                    
+                    keepstockRowsList = [];
+                    Object.keys(keepstockMap).forEach(sku => {
+                       keepstockRowsList.push({ ctn: keepstockMap[sku].ctns.join(', '), sku: sku, qty: keepstockMap[sku].qty, desc: masterSystem[sku]?.desc || 'DESKRIPSI TIDAK TERDAFTAR' });
+                    });
                 }
 
                 rebuildScanRecordsMap();
-                const localPureScanMap = new Map();
-                for (let i = 0; i < rawScanning.length; i++) {
-                    const loc = rawScanning[i];
-                    if (loc && loc.sku && loc.isPureScan) localPureScanMap.set(String(loc.sku).trim(), loc.inputScanQty !== undefined ? loc.inputScanQty : loc.qty);
-                }
 
-                if (Array.isArray(data.posData) && (showNotice || data.posData.length >= posData.length || rawScanning.length === 0)) {
-                    posData = data.posData.map(p => ({
-                        ...p,
-                        check1: typeof p.check1 === 'string' ? parseCheckStr(p.check1) : p.check1,
-                        check2: typeof p.check2 === 'string' ? parseCheckStr(p.check2) : p.check2,
-                        check3: typeof p.check3 === 'string' ? parseCheckStr(p.check3) : p.check3
-                    }));
-                }
-
-                if (Array.isArray(data.rawScanning) && (showNotice || data.rawScanning.length >= rawScanning.length || rawScanning.length === 0)) {
-                    const posLookup = new Map();
-                    if (Array.isArray(posData)) {
-                        for (let i = 0; i < posData.length; i++) if (posData[i] && posData[i].sku) posLookup.set(String(posData[i].sku).trim(), posData[i]);
+                // SMART MERGE SCANNING (ANTI DATA HILANG / BERKURANG)
+                if (Array.isArray(data.rawScanning)) {
+                    const mergedScanningMap = new Map();
+                    
+                    // 1. Amankan semua data lokal (HP) ke memori terlebih dahulu
+                    for (let i = 0; i < rawScanning.length; i++) {
+                        const loc = rawScanning[i];
+                        if (loc && loc.sku) {
+                            mergedScanningMap.set(String(loc.sku).trim(), { ...loc });
+                        }
                     }
 
-                    rawScanning = data.rawScanning.map(rItem => {
-                        const sku = String(rItem.sku || '').trim();
-                        const ksObj = keepstockMap[sku] || { qty: 0 };
-                        const master = masterSystem[sku] || { sys: 0 };
-                        const pItem = posLookup.get(sku) || null;
+                    // 2. Bandingkan dengan data dari Spreadsheet
+                    for (let i = 0; i < data.rawScanning.length; i++) {
+                        const cItem = data.rawScanning[i];
+                        const sku = String(cItem.sku || '').trim();
+                        if (!sku) continue;
 
-                        let pureQty = 0, isVerifiedPure = true;
-                        const meta = extractScanMetaTag(rItem.scanTime) || (pItem ? extractScanMetaTag(pItem.scanTime) : null);
-                        if (meta) { pureQty = meta.scanQty; }
-                        else if (rItem.fisikScan !== undefined) { pureQty = Number(rItem.fisikScan) || 0; }
-                        else if (pItem && pItem.fisikScan !== undefined) { pureQty = Number(pItem.fisikScan) || 0; }
-                        else if (rawScanRecordsMap.has(sku)) { pureQty = rawScanRecordsMap.get(sku).qty; }
-                        else if (!showNotice && localPureScanMap.has(sku)) { pureQty = localPureScanMap.get(sku); }
-                        else {
-                            isVerifiedPure = (Number(ksObj.qty) || 0) > 0;
-                            pureQty = resolvePureInputScanQty(sku, rItem, pItem, ksObj.qty, master.sys);
+                        let cQty = Number(cItem.fisikScan) || 0;
+                        if (cQty === 0) {
+                            const meta = extractScanMetaTag(cItem.scanTime);
+                            if (meta) cQty = meta.scanQty;
+                            else cQty = Number(cItem.qty) || 0;
                         }
 
-                        return {
-                            rack: String(rItem.rack || '-').trim(), sku: sku, qty: pureQty, inputScanQty: pureQty,
-                            isPureScan: isVerifiedPure, fromLegacyCloud: !isVerifiedPure, scanTime: stripScanMetaTag(rItem.scanTime || '')
-                        };
-                    });
+                        if (mergedScanningMap.has(sku)) {
+                            const exist = mergedScanningMap.get(sku);
+                            const lQty = Number(exist.inputScanQty !== undefined ? exist.inputScanQty : exist.qty) || 0;
+                            
+                            // JIKA CLOUD LEBIH BESAR, BARU TIMPA (TIDAK AKAN PERNAH MENGURANGI DATA LOKAL)
+                            if (cQty > lQty) {
+                                exist.qty = cQty;
+                                exist.inputScanQty = cQty;
+                                exist.scanTime = stripScanMetaTag(cItem.scanTime || exist.scanTime);
+                            }
+                            
+                            // Gabungkan histori Rak
+                            const cRack = String(cItem.rack || '-').trim();
+                            if (cRack !== '-' && !exist.rack.split('/').includes(cRack)) {
+                                exist.rack = exist.rack === '-' ? cRack : `${exist.rack}/${cRack}`;
+                            }
+                        } else {
+                            // Jika ada barang yang hanya discan di HP lain, tambahkan ke HP ini
+                            mergedScanningMap.set(sku, {
+                                rack: String(cItem.rack || '-').trim(),
+                                sku: sku,
+                                qty: cQty,
+                                inputScanQty: cQty,
+                                isPureScan: true,
+                                fromLegacyCloud: false,
+                                scanTime: stripScanMetaTag(cItem.scanTime || '')
+                            });
+                        }
+                    }
+                    rawScanning = Array.from(mergedScanningMap.values());
+                }
+
+                // PENGGABUNGAN DATA CHECK 1/2/3 AGAR TIDAK TER-RESET
+                if (Array.isArray(data.posData)) {
+                    const cloudPosMap = new Map();
+                    for (let i=0; i<data.posData.length; i++) cloudPosMap.set(String(data.posData[i].sku).trim(), data.posData[i]);
+                    
+                    for (let i=0; i<posData.length; i++) {
+                        const sku = String(posData[i].sku).trim();
+                        if (cloudPosMap.has(sku)) {
+                            const cP = cloudPosMap.get(sku);
+                            if (!posData[i].check1 && cP.check1) posData[i].check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
+                            if (!posData[i].check2 && cP.check2) posData[i].check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
+                            if (!posData[i].check3 && cP.check3) posData[i].check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
+                        }
+                    }
                 }
 
                 if (Array.isArray(data.recentLogs) && activityLogs.length === 0) activityLogs = data.recentLogs;
@@ -1416,7 +1462,7 @@
                 processToPOS(); renderActiveTabUI();
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
-                if (showNotice) showToast(`Sinkronisasi berhasil! Master: ${masterSkuList.length.toLocaleString('id-ID')} SKU, Keepstock: ${Object.keys(keepstockMap).length} SKU.`, 'success');
+                if (showNotice) showToast(`Sinkronisasi berhasil! Data aman terintegrasi tanpa ada yang hilang.`, 'success');
             } else {
                 if (icon) icon.className = "fa-solid fa-cloud-check text-emerald-400";
                 if (label) label.innerText = "Live Sync";
