@@ -2109,7 +2109,9 @@
         // CHECK & VERIFY LOGIC (UNTALLY)
         // =========================================================================
         function renderCheckCellTable(globalIndex, checkNum, checkData, isEnabled, sku) {
-            const inputId = `chk_${globalIndex}_${checkNum}`;
+            // BUG FIX: Kunci input menggunakan SKU secara absolut, bukan nomor urut array (globalIndex)
+            // agar kebal terhadap pergeseran baris akibat Auto-Sync.
+            const inputId = `chk_${checkNum}_${sku}`;
             
             if (checkData) {
                 return `
@@ -2200,11 +2202,15 @@
                 const val = parseInt(rawVal);
                 if (isNaN(val) || val < 0) continue;
 
+                // Ekstrak data dari struktur ID baru: chk_{checkNum}_{sku}
                 const parts = key.split('_');
-                const globalIndex = parseInt(parts[1]);
-                const checkNum = parseInt(parts[2]);
+                const checkNum = parseInt(parts[1]);
+                
+                // Ambil sisa teks sebagai SKU (berjaga-jaga jika SKU sendiri mengandung garis bawah)
+                const sku = key.substring(key.indexOf('_', key.indexOf('_') + 1) + 1);
 
-                const item = posData[globalIndex];
+                // Cari langsung item berdasarkan SKU yang absolut, bukan nomor urut array
+                const item = posData.find(p => p.sku === sku);
                 if (!item) continue;
 
                 const checkRecord = { qty: val, inspector, time: getCurrentFormattedDate() };
