@@ -323,7 +323,7 @@
 
     <!-- HEADER / TOP NAVBAR -->
     <header class="bg-[#0f172a]/95 border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-md backdrop-blur-md no-print">
-        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+        <div class="w-full max-w-[98%] 2xl:max-w-[1750px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
             <div class="w-full md:w-auto flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
                     <a href="https://luthfisss1.github.io/oneportalthj/" class="bg-sky-500/10 hover:bg-sky-500 hover:text-slate-950 text-sky-400 font-bold px-3 py-2 rounded-xl border border-sky-500/30 transition-all flex items-center gap-1.5 text-xs active:scale-95" title="Kembali ke Beranda Portal THJ">
@@ -366,7 +366,7 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 mt-4 space-y-5">
+    <main class="w-full max-w-[98%] 2xl:max-w-[1750px] mx-auto px-2 sm:px-4 md:px-6 mt-4 space-y-5">
         <!-- DASHBOARD PROGRESS OPNAME -->
         <section class="bg-[#0f172a] p-4 md:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3 no-print">
             <div class="flex items-center justify-between">
@@ -670,12 +670,16 @@
                         </span>
                         <span id="badgeTally" class="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-full border border-emerald-500/30">TALLY: 0</span>
                         <span id="badgeUntally" class="bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-full border border-rose-500/30">UNTALLY: 0</span>
+                        <span id="badgeDoneSc" class="bg-teal-500/20 text-teal-300 px-3 py-1.5 rounded-full border border-teal-500/30 font-bold">DONE SC: 0</span>
                         
                         <button type="button" onclick="normalizeExtraKeepstockNow()" class="bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 px-3 py-1.5 rounded-full border border-amber-500/30 transition-all flex items-center gap-1">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> NORMALISASI FISIK
                         </button>
                         <button type="button" onclick="downloadPosToExcel()" class="bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 px-3 py-1.5 rounded-full border border-sky-500/30 transition-all flex items-center gap-1">
                             <i class="fa-solid fa-file-excel"></i> EXPORT POS
+                        </button>
+                        <button type="button" onclick="downloadAllDoneScToExcel()" class="bg-teal-500/20 hover:bg-teal-500 hover:text-slate-950 text-teal-300 px-3 py-1.5 rounded-full border border-teal-500/30 transition-all flex items-center gap-1 shadow-md">
+                            <i class="fa-solid fa-file-excel"></i> EXPORT SC (SEMUA)
                         </button>
                         <button type="button" onclick="downloadDoubleRak()" class="bg-purple-500/20 hover:bg-purple-500 hover:text-white text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 transition-all flex items-center gap-1 shadow-md">
                             <i class="fa-solid fa-layer-group"></i> DOUBLE RAK
@@ -686,7 +690,10 @@
                         <button type="button" onclick="openBatchDeleteModal()" class="bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-300 px-3 py-1.5 rounded-full border border-rose-500/30 transition-all flex items-center gap-1 shadow-md">
                             <i class="fa-solid fa-list-check"></i> HAPUS BANYAK SKU
                         </button>
-                        <button type="button" id="btnDeleteSelectedSkus" onclick="deleteSelectedPosSkus()" class="hidden bg-rose-500 hover:bg-rose-400 text-slate-950 font-black px-3 py-1.5 rounded-full transition-all flex items-center gap-1 shadow-md animate-pulse">
+                        <button type="button" id="btnDownloadSelectedExcel" onclick="downloadSelectedDoneScToExcel()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 animate-pulse">
+                            <i class="fa-solid fa-file-excel"></i> DOWNLOAD EXCEL SC (<span id="lblSelectedExcelCount">0</span>)
+                        </button>
+                        <button type="button" id="btnDeleteSelectedSkus" onclick="deleteSelectedPosSkus()" class="hidden bg-rose-500 hover:bg-rose-400 text-slate-950 font-black px-3 py-1.5 rounded-full transition-all flex items-center gap-1 shadow-md">
                             <i class="fa-solid fa-trash-can"></i> HAPUS TERPILIH (<span id="lblSelectedCount">0</span>)
                         </button>
                         <button type="button" onclick="downloadUnscannedToExcel()" class="bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-300 px-3 py-1.5 rounded-full border border-rose-500/30 transition-all flex items-center gap-1 shadow-md">
@@ -709,6 +716,9 @@
                         </button>
                         <button type="button" id="posFilterUntally" onclick="setPosFilter('UNTALLY')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all">
                             UnTally
+                        </button>
+                        <button type="button" id="posFilterDoneSc" onclick="setPosFilter('DONE_SC')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all">
+                            Done SC
                         </button>
                     </div>
                     <div class="relative flex-1 max-w-xs">
@@ -735,7 +745,7 @@
                             <option value="" disabled selected>Pilih Petugas Verifikasi...</option>
                         </select>
                         <button type="button" onclick="processGlobalCheckSubmit()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
-                            <i class="fa-solid fa-check-double"></i> Simpan
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>
 
@@ -809,9 +819,9 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWtrkgMI_65SKNNE2-kE0tvgv0_3CNwOBE4-ww5No1wgKusM5wwu2RbpI_bMZBYjTq/exec";
 
         const STORE_STAFF_MAP = {
-            'XKLR': ['SENDI NUGRAHA', 'RATIH OCTAVIANI', 'KAMALUDIN'],
-            'XCIH': ['NINA', 'GALANG TAKBIR AKBARI', 'TENDI'],
-            'XCMG': ['NUR ALIM', 'DIKI LUKMAN HAKIM', 'JAJANG NURJAMAN']
+            'XKLR': ["MOHAMMAD LUTHFI SYAFI'UDDIN", 'SENDI NUGRAHA', 'RATIH OCTAVIANI', 'KAMALUDIN'],
+            'XCIH': ["MOHAMMAD LUTHFI SYAFI'UDDIN", 'NINA', 'GALANG TAKBIR AKBARI', 'TENDI'],
+            'XCMG': ["MOHAMMAD LUTHFI SYAFI'UDDIN", 'NUR ALIM', 'DIKI LUKMAN HAKIM', 'JAJANG NURJAMAN']
         };
 
         function safeGetStorage(key, fallbackVal) {
@@ -835,10 +845,16 @@
         let activityLogs = [];
         let pendingLogQueue = [];
         let deletedSkus = new Set();
+        let doneScSkus = new Set();
 
         function saveDeletedSkus() {
             if (!currentStore) return;
             try { localforage.setItem(`sbc_deletedSkus_${currentStore}`, Array.from(deletedSkus)); } catch (e) {}
+        }
+
+        function saveDoneScSkus() {
+            if (!currentStore) return;
+            try { localforage.setItem(`sbc_doneScSkus_${currentStore}`, Array.from(doneScSkus)); } catch (e) {}
         }
 
         let scanIndexMap = new Map();
@@ -949,7 +965,9 @@
         function getLockedSkus() {
             const lockedSkus = new Set();
             for (let i = 0; i < posData.length; i++) {
-                if (posData[i].status === "TALLY") lockedSkus.add(posData[i].sku);
+                if (posData[i].status === "TALLY" || posData[i].status === "DONE SC") {
+                    lockedSkus.add(posData[i].sku);
+                }
             }
             return lockedSkus;
         }
@@ -1097,14 +1115,21 @@
         }
 
         function updateSelectedButtonUI() {
-            const btn = document.getElementById('btnDeleteSelectedSkus');
-            const lbl = document.getElementById('lblSelectedCount');
-            if (!btn || !lbl) return;
-            lbl.innerText = selectedPosSkus.size.toLocaleString('id-ID');
-            if (selectedPosSkus.size > 0) {
-                btn.classList.remove('hidden');
+            const btnDel = document.getElementById('btnDeleteSelectedSkus');
+            const lblDel = document.getElementById('lblSelectedCount');
+            const btnExcel = document.getElementById('btnDownloadSelectedExcel');
+            const lblExcel = document.getElementById('lblSelectedExcelCount');
+            
+            const totalSelected = selectedPosSkus.size;
+            if (lblDel) lblDel.innerText = totalSelected.toLocaleString('id-ID');
+            if (lblExcel) lblExcel.innerText = totalSelected.toLocaleString('id-ID');
+
+            if (totalSelected > 0) {
+                if (btnDel) btnDel.classList.remove('hidden');
+                if (btnExcel) btnExcel.classList.remove('hidden');
             } else {
-                btn.classList.add('hidden');
+                if (btnDel) btnDel.classList.add('hidden');
+                if (btnExcel) btnExcel.classList.add('hidden');
             }
         }
 
@@ -1152,39 +1177,84 @@
         }
 
         function executeBatchDelete(skuList) {
-            const cleanSkus = [...new Set(skuList.map(s => String(s).trim()).filter(s => s))];
-            if (cleanSkus.length === 0) return;
+            const rawCleanSkus = skuList.map(s => String(s || '').trim());
+            const hasEmpty = rawCleanSkus.includes('');
+            const cleanSkus = [...new Set(rawCleanSkus.filter(s => s))];
+            if (cleanSkus.length === 0 && !hasEmpty) {
+                showToast("Tidak ada SKU valid yang dipilih untuk dihapus.", "warning");
+                return;
+            }
 
-            requestAdminAction('Hapus Massal SKU', `Yakin ingin menghapus ${cleanSkus.length.toLocaleString('id-ID')} SKU secara akumulasi dari POS dan Cloud Spreadsheet?`, async () => {
-                showAsyncProgress("Menghapus Banyak SKU", `Memproses ${cleanSkus.length.toLocaleString('id-ID')} SKU...`);
+            const labelDesc = cleanSkus.length > 0 
+                ? `${cleanSkus.length.toLocaleString('id-ID')} SKU${hasEmpty ? ' + baris SKU kosong' : ''}`
+                : 'baris data SKU kosong';
+
+            requestAdminAction('Hapus Massal SKU', `Yakin ingin menghapus ${labelDesc} secara akumulasi dari POS dan Cloud Spreadsheet?`, async () => {
+                showAsyncProgress("Menghapus Banyak SKU", `Memproses ${labelDesc}...`);
 
                 const skuSet = new Set(cleanSkus);
                 cleanSkus.forEach(s => deletedSkus.add(s));
                 saveDeletedSkus();
 
-                // 1. Bersihkan dari rawScanning
-                rawScanning = rawScanning.filter(r => !skuSet.has(String(r.sku).trim()));
+                // 1. Bersihkan dari masterSystem jika ada
+                let masterChanged = false;
+                cleanSkus.forEach(s => {
+                    if (masterSystem[s]) { delete masterSystem[s]; masterChanged = true; }
+                });
+                if (hasEmpty) {
+                    Object.keys(masterSystem).forEach(k => {
+                        if (!String(k || '').trim()) { delete masterSystem[k]; masterChanged = true; }
+                    });
+                }
+                if (masterChanged) {
+                    rebuildMasterCache();
+                    await localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
+                }
 
-                // 2. Bersihkan dari rawScanRecords
-                rawScanRecords = rawScanRecords.filter(r => !skuSet.has(String(r.sku).trim()));
+                // 2. Bersihkan dari rawScanning
+                rawScanning = rawScanning.filter(r => {
+                    const s = String(r.sku || '').trim();
+                    if (hasEmpty && !s) return false;
+                    return !skuSet.has(s);
+                });
 
-                // 3. Bersihkan dari keepstock
+                // 3. Bersihkan dari rawScanRecords
+                rawScanRecords = rawScanRecords.filter(r => {
+                    const s = String(r.sku || '').trim();
+                    if (hasEmpty && !s) return false;
+                    return !skuSet.has(s);
+                });
+
+                // 4. Bersihkan dari keepstock
                 cleanSkus.forEach(s => { if (keepstockMap[s]) delete keepstockMap[s]; });
-                keepstockRowsList = keepstockRowsList.filter(r => !skuSet.has(String(r.sku).trim()));
+                if (hasEmpty) {
+                    Object.keys(keepstockMap).forEach(k => {
+                        if (!String(k || '').trim()) delete keepstockMap[k];
+                    });
+                }
+                keepstockRowsList = keepstockRowsList.filter(r => {
+                    const s = String(r.sku || '').trim();
+                    if (hasEmpty && !s) return false;
+                    return !skuSet.has(s);
+                });
 
-                // 4. Bersihkan dari posData
-                posData = posData.filter(p => !skuSet.has(String(p.sku).trim()));
+                // 5. Bersihkan dari posData
+                posData = posData.filter(p => {
+                    const s = String(p.sku || '').trim();
+                    if (hasEmpty && !s) return false;
+                    return !skuSet.has(s);
+                });
 
-                // 5. Rebuild maps & render
+                // 6. Rebuild maps & render
                 rebuildScanIndexMap();
                 rebuildScanRecordsMap();
                 processToPOS();
                 renderActiveTabUI();
 
-                // 6. Simpan lokal
-                await saveToLocalStorage(true, false);
+                // 7. Simpan lokal
+                await saveToLocalStorage(true, true);
 
-                // 7. Kirim sinyal hapus ke Google Apps Script
+                // 8. Kirim sinyal hapus ke Google Apps Script
                 postToCloudAsync({
                     action: "deleteBatchSku",
                     storeCode: currentStore,
@@ -1200,33 +1270,64 @@
                 updateSelectedButtonUI();
                 renderPOSCards();
 
-                recordActivity('HAPUS_MASSAL_SKU', `${cleanSkus.length} SKU`, `Hapus massal ${cleanSkus.length} SKU secara akumulasi dari POS & Cloud`, 'ADMIN');
-                showToast(`Berhasil menghapus ${cleanSkus.length.toLocaleString('id-ID')} SKU dari POS dan Cloud!`, 'success');
+                recordActivity('HAPUS_MASSAL_SKU', labelDesc, `Hapus massal ${labelDesc} secara akumulasi dari POS & Cloud`, 'ADMIN');
+                showToast(`Berhasil menghapus ${labelDesc} dari POS dan Cloud!`, 'success');
             });
         }
 
         function deletePosItem(sku) {
-            requestAdminAction('Hapus Permanen SKU', `Masukkan password admin untuk menghapus seluruh data scan & keepstock SKU ${sku} secara akumulasi dari POS & Cloud.`, async () => {
+            const targetSku = String(sku || '').trim();
+            const labelText = targetSku || '(SKU Kosong / Anomali)';
+            requestAdminAction('Hapus Permanen SKU', `Masukkan password admin untuk menghapus seluruh data scan, master, & keepstock SKU ${labelText} dari POS & Cloud.`, async () => {
                 // 1. Daftarkan ke deletedSkus agar tidak dipulihkan saat auto-polling cloud
-                deletedSkus.add(String(sku).trim());
+                if (targetSku) deletedSkus.add(targetSku);
                 saveDeletedSkus();
 
-                // 2. Hapus dari akumulasi scan
-                if (scanIndexMap.has(sku)) {
-                    const idx = scanIndexMap.get(sku);
+                // 2. Hapus dari masterSystem jika terdaftar di Master POS
+                let masterChanged = false;
+                if (targetSku && masterSystem[targetSku]) {
+                    delete masterSystem[targetSku];
+                    masterChanged = true;
+                } else if (!targetSku) {
+                    Object.keys(masterSystem).forEach(k => {
+                        if (!String(k || '').trim()) { delete masterSystem[k]; masterChanged = true; }
+                    });
+                }
+                if (masterChanged) {
+                    rebuildMasterCache();
+                    await localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem);
+                }
+
+                // 3. Hapus dari akumulasi scan
+                if (targetSku && scanIndexMap.has(targetSku)) {
+                    const idx = scanIndexMap.get(targetSku);
                     rawScanning.splice(idx, 1);
                 }
-                rawScanning = rawScanning.filter(r => r.sku !== sku);
-
-                // 3. Hapus dari riwayat baris mentah
-                rawScanRecords = rawScanRecords.filter(r => r.sku !== sku);
+                if (targetSku) {
+                    rawScanning = rawScanning.filter(r => String(r.sku || '').trim() !== targetSku);
+                    rawScanRecords = rawScanRecords.filter(r => String(r.sku || '').trim() !== targetSku);
+                } else {
+                    rawScanning = rawScanning.filter(r => String(r.sku || '').trim() !== '');
+                    rawScanRecords = rawScanRecords.filter(r => String(r.sku || '').trim() !== '');
+                }
 
                 // 4. Hapus dari keepstock jika ada
-                if (keepstockMap[sku]) delete keepstockMap[sku];
-                keepstockRowsList = keepstockRowsList.filter(r => r.sku !== sku);
+                if (targetSku && keepstockMap[targetSku]) delete keepstockMap[targetSku];
+                if (targetSku) {
+                    keepstockRowsList = keepstockRowsList.filter(r => String(r.sku || '').trim() !== targetSku);
+                } else {
+                    Object.keys(keepstockMap).forEach(k => {
+                        if (!String(k || '').trim()) delete keepstockMap[k];
+                    });
+                    keepstockRowsList = keepstockRowsList.filter(r => String(r.sku || '').trim() !== '');
+                }
 
                 // 5. Hapus dari posData
-                posData = posData.filter(p => p.sku !== sku);
+                if (targetSku) {
+                    posData = posData.filter(p => String(p.sku || '').trim() !== targetSku);
+                } else {
+                    posData = posData.filter(p => String(p.sku || '').trim() !== '');
+                }
 
                 // 6. Rebuild mapping & render UI
                 rebuildScanIndexMap();
@@ -1235,31 +1336,35 @@
                 renderActiveTabUI();
 
                 // 7. Simpan lokal secepatnya
-                await saveToLocalStorage(true, false);
+                await saveToLocalStorage(true, true);
 
                 // 8. Kirim perintah hapus langsung ke Cloud Google Spreadsheet
                 postToCloudAsync({
                     action: "deleteSku",
                     storeCode: currentStore,
-                    sku: sku,
+                    sku: targetSku,
                     deletedSkus: Array.from(deletedSkus),
                     updatedAt: new Date().toISOString()
                 });
                 uploadAllDataToCloud();
 
-                recordActivity('HAPUS_SKU_POS', sku, `Hapus permanen akumulasi SKU ${sku} dari POS & Cloud.`, 'ADMIN');
-                showToast(`SKU ${sku} berhasil dihapus dari POS dan Cloud.`, 'success');
+                recordActivity('HAPUS_SKU_POS', labelText, `Hapus permanen akumulasi SKU ${labelText} dari POS & Cloud.`, 'ADMIN');
+                showToast(`Data ${labelText} berhasil dihapus dari POS dan Cloud.`, 'success');
             });
         }
 
-        function requestAdminAction(title, desc, onConfirm) {
+        let expectedAdminPassword = 'admin';
+        function requestAdminAction(title, desc, onConfirm, expectedPass = 'admin') {
             pendingAdminCallback = onConfirm;
+            expectedAdminPassword = expectedPass || 'admin';
             document.getElementById('adminModalTitle').innerText = title || 'Otorisasi Admin';
-            document.getElementById('adminModalDesc').innerText = desc || 'Masukkan password admin untuk melanjutkan.';
-            document.getElementById('inputAdminPassword').value = '';
+            document.getElementById('adminModalDesc').innerText = desc || 'Masukkan password untuk melanjutkan.';
+            const inp = document.getElementById('inputAdminPassword');
+            inp.value = '';
+            inp.placeholder = expectedPass === '1' ? 'Password: 1' : 'Password Admin';
             document.getElementById('txtAdminPromptError').classList.add('hidden');
             document.getElementById('adminPromptModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('inputAdminPassword').focus(), 80);
+            setTimeout(() => inp.focus(), 80);
         }
 
         function closeAdminPrompt() {
@@ -1273,14 +1378,15 @@
         function submitAdminPrompt(e) {
             e.preventDefault();
             const pass = document.getElementById('inputAdminPassword').value.trim();
-            if (pass === 'admin') {
+            const targetPass = expectedAdminPassword || 'admin';
+            if (pass === targetPass || pass === 'admin' || (targetPass === '1' && pass === '1')) {
                 const cb = pendingAdminCallback;
                 pendingAdminCallback = null;
                 document.getElementById('adminPromptModal').classList.add('hidden');
                 if (typeof cb === 'function') cb();
             } else {
                 const err = document.getElementById('txtAdminPromptError');
-                err.innerText = 'Password Admin salah!';
+                err.innerText = targetPass === '1' ? 'Password Otorisasi Salah! (Password: 1)' : 'Password Admin salah!';
                 err.classList.remove('hidden');
             }
         }
@@ -1449,7 +1555,10 @@
                 localforage.getItem(`sbc_deletedSkus_${storeCode}`).then(val => {
                     deletedSkus = Array.isArray(val) ? new Set(val) : new Set();
                 });
-            } catch(e) { deletedSkus = new Set(); }
+                localforage.getItem(`sbc_doneScSkus_${storeCode}`).then(val => {
+                    doneScSkus = Array.isArray(val) ? new Set(val) : new Set();
+                });
+            } catch(e) { deletedSkus = new Set(); doneScSkus = new Set(); }
             masterPage = 1; posPage = 1; untallyPage = 1; scanVisibleLimit = 50;
             renderActiveTabUI();
         }
@@ -1481,7 +1590,8 @@
                     localforage.setItem(`sbc_activityLogs_${currentStore}`, activityLogs),
                     localforage.setItem(`sbc_rawScanRecords_${currentStore}`, rawScanRecords),
                     localforage.setItem(`sbc_keepstockMap_${currentStore}`, keepstockMap),
-                    localforage.setItem(`sbc_keepstockRows_${currentStore}`, keepstockRowsList)
+                    localforage.setItem(`sbc_keepstockRows_${currentStore}`, keepstockRowsList),
+                    localforage.setItem(`sbc_doneScSkus_${currentStore}`, Array.from(doneScSkus))
                 ];
                 if (includeMaster) tasks.push(localforage.setItem(`sbc_masterSystem_${currentStore}`, masterSystem));
                 await Promise.all(tasks);
@@ -1518,6 +1628,8 @@
                 const logsToSend = pendingLogQueue.length > 0 ? [...pendingLogQueue] : [];
                 const cloudPosData = posData.map(item => ({
                     ...item,
+                    status: item.status || (item.dif === 0 ? "TALLY" : "UNTALLY"),
+                    finalStatus: item.finalStatus || item.status || (item.dif === 0 ? "TALLY" : "UNTALLY"),
                     fisikScan: Number(item.fisikScan) || 0,
                     keepQty: Number(item.keepQty) || 0,
                     fisik: calculateTotalFisik(item.fisikScan, item.keepQty),
@@ -1534,6 +1646,19 @@
                     scanTime: stripScanMetaTag(item.scanTime || '')
                 }));
 
+                const STORE_CODE_MAP_SYNC = { 'XCMG': 'JW1023', 'XKLR': 'JW5003', 'XCIH': 'JW1032' };
+                const scStoreCode = STORE_CODE_MAP_SYNC[currentStore] || currentStore;
+                const doneScList = posData.filter(p => p.status === 'DONE SC' || doneScSkus.has(p.sku)).map(p => ({
+                    storeCode: scStoreCode,
+                    remark: `${currentStore} SC ` + (p.doneScDate ? p.doneScDate.split(" ")[0] : getCurrentFormattedDate().split(" ")[0]).replace(/\//g, ""),
+                    sku: p.sku,
+                    physicalBalance: Number(p.fisik !== undefined ? p.fisik : p.fisikScan) || 0,
+                    systemBalance: Number(p.sys) || 0,
+                    variance: Number(p.dif) || 0,
+                    assignment: "Store Initiative (Balance Check by Gondola)",
+                    doneScDate: p.doneScDate || getCurrentFormattedDate()
+                }));
+
                 const payloadData = {
                     action: "saveAllData",
                     storeCode: currentStore,
@@ -1542,6 +1667,8 @@
                     keepstockData: keepstockRowsList,
                     activityLogs: logsToSend,
                     deletedSkus: Array.from(deletedSkus),
+                    doneScSkus: Array.from(doneScSkus),
+                    doneScData: doneScList,
                     updatedAt: new Date().toISOString()
                 };
 
@@ -1560,7 +1687,7 @@
         async function loadFromLocalStorage() {
             if (!currentStore) return;
             try {
-                const [savedRaw, savedMaster, savedPos, savedLogs, savedScanRecords, savedKeepstockMap, savedKeepstockRows, savedDeleted] = await Promise.all([
+                const [savedRaw, savedMaster, savedPos, savedLogs, savedScanRecords, savedKeepstockMap, savedKeepstockRows, savedDeleted, savedDoneSc] = await Promise.all([
                     localforage.getItem(`sbc_rawScanning_${currentStore}`),
                     localforage.getItem(`sbc_masterSystem_${currentStore}`),
                     localforage.getItem(`sbc_posData_${currentStore}`),
@@ -1568,12 +1695,22 @@
                     localforage.getItem(`sbc_rawScanRecords_${currentStore}`),
                     localforage.getItem(`sbc_keepstockMap_${currentStore}`),
                     localforage.getItem(`sbc_keepstockRows_${currentStore}`),
-                    localforage.getItem(`sbc_deletedSkus_${currentStore}`)
+                    localforage.getItem(`sbc_deletedSkus_${currentStore}`),
+                    localforage.getItem(`sbc_doneScSkus_${currentStore}`)
                 ]);
                 deletedSkus = Array.isArray(savedDeleted) ? new Set(savedDeleted) : new Set();
+                doneScSkus = Array.isArray(savedDoneSc) ? new Set(savedDoneSc) : new Set();
                 rawScanning = savedRaw || []; masterSystem = savedMaster || {}; posData = savedPos || [];
                 activityLogs = savedLogs || []; rawScanRecords = savedScanRecords || [];
                 keepstockMap = savedKeepstockMap || {}; keepstockRowsList = savedKeepstockRows || [];
+
+                // Pulihkan status DONE SC yang tersimpan di posData
+                for (let i = 0; i < posData.length; i++) {
+                    const it = posData[i];
+                    if (it && (it.status === "DONE SC" || it.finalStatus === "DONE SC") && it.sku) {
+                        doneScSkus.add(String(it.sku).trim());
+                    }
+                }
             } catch (err) {}
 
             rebuildMasterCache();
@@ -1646,7 +1783,15 @@
                 if (!data.masterUnchanged && data.masterSystem && typeof data.masterSystem === 'object') {
                     const incomingKeys = Object.keys(data.masterSystem);
                     if (incomingKeys.length > 0 && (showNotice || masterSkuList.length === 0 || incomingKeys.length >= masterSkuList.length)) {
-                        masterSystem = data.masterSystem;
+                        const cleanMaster = {};
+                        for (let i = 0; i < incomingKeys.length; i++) {
+                            const k = incomingKeys[i];
+                            const cleanKey = String(k || '').trim();
+                            if (cleanKey && !deletedSkus.has(cleanKey)) {
+                                cleanMaster[cleanKey] = data.masterSystem[k];
+                            }
+                        }
+                        masterSystem = cleanMaster;
                         rebuildMasterCache(); masterUpdated = true;
                     }
                 }
@@ -1702,10 +1847,11 @@
                         }
                     }
 
+                    const doneScSkus = new Set(posData.filter(p => p.status === "DONE SC").map(p => p.sku));
                     for (let i = 0; i < data.rawScanning.length; i++) {
                         const cItem = data.rawScanning[i];
                         const sku = String(cItem.sku || '').trim();
-                        if (!sku || deletedSkus.has(sku)) continue;
+                        if (!sku || deletedSkus.has(sku) || doneScSkus.has(sku)) continue; // Kebal dari restore cloud
 
                         let cQty = Number(cItem.fisikScan) || 0;
                         if (cQty === 0) {
@@ -1742,21 +1888,46 @@
                     rawScanning = Array.from(mergedScanningMap.values());
                 }
 
-                // PENGGABUNGAN DATA CHECK 1/2/3 AGAR TIDAK TER-RESET
+                // PEMULIHAN STATUS DONE SC DAN CHECK 1/2/3 DARI CLOUD
+                if (Array.isArray(data.doneScSkus)) {
+                    data.doneScSkus.forEach(s => {
+                        const clean = String(s || '').trim();
+                        if (clean && !deletedSkus.has(clean)) doneScSkus.add(clean);
+                    });
+                }
+
                 if (Array.isArray(data.posData)) {
                     const cloudPosMap = new Map();
-                    for (let i=0; i<data.posData.length; i++) cloudPosMap.set(String(data.posData[i].sku).trim(), data.posData[i]);
+                    for (let i = 0; i < data.posData.length; i++) {
+                        const cp = data.posData[i];
+                        const cSku = String(cp.sku || '').trim();
+                        if (cp && (cp.status === "DONE SC" || cp.finalStatus === "DONE SC")) {
+                            if (cSku && !deletedSkus.has(cSku)) doneScSkus.add(cSku);
+                        }
+                        cloudPosMap.set(cSku, cp);
+                    }
                     
-                    for (let i=0; i<posData.length; i++) {
+                    for (let i = 0; i < posData.length; i++) {
                         const sku = String(posData[i].sku).trim();
                         if (cloudPosMap.has(sku)) {
                             const cP = cloudPosMap.get(sku);
                             if (!posData[i].check1 && cP.check1) posData[i].check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
                             if (!posData[i].check2 && cP.check2) posData[i].check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
                             if (!posData[i].check3 && cP.check3) posData[i].check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
+                            if (cP.status === "DONE SC" || cP.finalStatus === "DONE SC" || doneScSkus.has(sku)) {
+                                posData[i].status = "DONE SC";
+                                posData[i].finalStatus = "DONE SC";
+                                posData[i].isLocked = true;
+                                doneScSkus.add(sku);
+                            }
+                        } else if (doneScSkus.has(sku)) {
+                            posData[i].status = "DONE SC";
+                            posData[i].finalStatus = "DONE SC";
+                            posData[i].isLocked = true;
                         }
                     }
                 }
+                saveDoneScSkus();
 
                 if (Array.isArray(data.recentLogs) && activityLogs.length === 0) activityLogs = data.recentLogs;
 
@@ -2066,6 +2237,9 @@
                 const totalFisik = calculateTotalFisik(fisikScan, keepQty);
                 const dif = totalFisik - sys;
                 const isTally = (dif === 0);
+                const isItemDoneSc = doneScSkus.has(sku) || prev.status === "DONE SC";
+                if (isItemDoneSc) doneScSkus.add(sku);
+                const preservedStatus = isItemDoneSc ? "DONE SC" : (isTally ? "TALLY" : "UNTALLY");
 
                 newPosData[idx] = {
                     globalIndex: idx,
@@ -2075,8 +2249,8 @@
                     sku: sku, desc: master.desc, sys: sys, initialFisik: fisikScan,
                     fisikScan: fisikScan, keepQty: keepQty, keepCtns: keepCtns,
                     fisik: totalFisik, dif: dif,
-                    status: isTally ? "TALLY" : "UNTALLY",
-                    finalStatus: isTally ? "TALLY" : "UNTALLY",
+                    status: preservedStatus,
+                    finalStatus: preservedStatus,
                     check1: prev.check1 || null, check2: prev.check2 || null, check3: prev.check3 || null,
                     scanTime: stripScanMetaTag(scan.scanTime || '')
                 };
@@ -2115,12 +2289,16 @@
             const list = document.getElementById('listPosCard');
             if (!list) return;
 
-            let tally = 0, untally = 0;
+            let tally = 0, untally = 0, doneScCount = 0;
             for (let i = 0; i < posData.length; i++) {
-                if (posData[i].status === "TALLY") tally++; else untally++;
+                if (posData[i].status === "TALLY") tally++;
+                else if (posData[i].status === "DONE SC") doneScCount++;
+                else untally++;
             }
             document.getElementById('badgeTally').innerText = `TALLY: ${tally.toLocaleString('id-ID')}`;
             document.getElementById('badgeUntally').innerText = `UNTALLY: ${untally.toLocaleString('id-ID')}`;
+            const badgeDoneSc = document.getElementById('badgeDoneSc');
+            if (badgeDoneSc) badgeDoneSc.innerText = `DONE SC: ${doneScCount.toLocaleString('id-ID')}`;
 
             const sourceList = getCombinedPosSourceList();
             if (sourceList.length === 0) {
@@ -2133,6 +2311,7 @@
                 const item = sourceList[i];
                 if (posFilterMode === 'TALLY' && item.status !== 'TALLY') continue;
                 if (posFilterMode === 'UNTALLY' && item.status !== 'UNTALLY') continue;
+                if (posFilterMode === 'DONE_SC' && item.status !== 'DONE SC') continue;
                 if (posSearchQuery) {
                     const mSku = item.sku.toLowerCase().includes(posSearchQuery);
                     const mRack = (item.rack || '').toLowerCase().includes(posSearchQuery);
@@ -2166,60 +2345,71 @@
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">+ Keepstock</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-16">= Total Fisik</th>
                                 <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-14">Selisih</th>
-                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-20">Status</th>
+                                <th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-24">Status</th>
+                                ${posFilterMode === 'DONE_SC' ? '<th class="p-2.5 border-r border-slate-800 text-center whitespace-nowrap w-28 text-teal-400">Tanggal SC</th>' : ''}
                                 <th class="p-2.5 text-center whitespace-nowrap w-12">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">`
             ];
 
+            const colSpanTotal = posFilterMode === 'DONE_SC' ? 13 : 12;
             if (totalFiltered === 0) {
-                htmlBuffer.push(`<tr><td colspan="12" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
+                htmlBuffer.push(`<tr><td colspan="${colSpanTotal}" class="p-6 text-center text-slate-500 italic">Tidak ada data POS yang cocok dengan filter/pencarian.</td></tr>`);
             } else {
                 for (let idx = startIdx; idx < endIdx; idx++) {
                     const item = filtered[idx];
                     const isTally = item.status === "TALLY";
+                    const isDoneSc = item.status === "DONE SC";
                     const isUnscanned = item.unscanned === true;
 
                     let badgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
-                    if (isTally) badgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    if (isDoneSc) badgeClass = 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-black';
+                    else if (isTally) badgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
                     else if (isUnscanned) badgeClass = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
 
+                    const rowBgClass = isDoneSc ? 'bg-teal-950/20' : (isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10');
+
+                    const isLocked = isTally || isDoneSc;
+                    const lockIconHtml = isDoneSc ? '<i class="fa-solid fa-lock text-[9px] text-teal-400 ml-1" title="Terkunci DONE SC"></i>' : '<i class="fa-solid fa-lock text-[9px] text-slate-500 ml-1" title="Terkunci Tally"></i>';
+
                     htmlBuffer.push(`
-                        <tr class="hover:bg-slate-900/60 transition-colors ${isTally ? 'bg-[#080d1a]/30' : 'bg-rose-950/10'}">
+                        <tr class="hover:bg-slate-900/60 transition-colors ${rowBgClass}">
                             <td class="p-2 border-r border-slate-800/80 text-center">
                                 <input type="checkbox" data-sku="${item.sku}" onchange="togglePosSkuSelect('${item.sku}', this.checked)" ${selectedPosSkus.has(item.sku) ? 'checked' : ''} class="pos-row-checkbox rounded bg-slate-900 border-slate-700 text-sky-500 focus:ring-0 cursor-pointer">
                             </td>
                             <td class="p-2 border-r border-slate-800/80 text-center text-slate-500 font-medium">${idx + 1}</td>
                             
-                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap ${isTally ? 'opacity-80' : 'cursor-pointer hover:bg-slate-800'}" 
-                                ${isTally ? 'title="Terkunci"' : `onclick="secureEditData('${item.sku}', 'rackScan')" title="Klik untuk Edit Rak"`}>
-                                ${item.rack || '-'} ${isTally ? '<i class="fa-solid fa-lock text-[9px] text-slate-500 ml-1"></i>' : '<i class="fa-solid fa-pencil text-[9px] text-amber-500/50 ml-1 no-print"></i>'}
+                            <td class="p-2 border-r border-slate-800/80 text-center font-bold text-amber-300 whitespace-nowrap ${isLocked ? 'opacity-80' : 'cursor-pointer hover:bg-slate-800'}" 
+                                ${isLocked ? 'title="Terkunci Permanen"' : `onclick="secureEditData('${item.sku}', 'rackScan')" title="Klik untuk Edit Rak"`}>
+                                ${item.rack || '-'} ${isLocked ? lockIconHtml : '<i class="fa-solid fa-pencil text-[9px] text-amber-500/50 ml-1 no-print"></i>'}
                             </td>
                             
-                            <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap ${isTally ? 'opacity-80' : 'cursor-pointer hover:bg-slate-800'}" 
-                                ${isTally ? 'title="Terkunci"' : `onclick="secureEditData('${item.sku}', 'sku')" title="Klik untuk Edit SKU"`}>
-                                ${item.sku} ${isTally ? '<i class="fa-solid fa-lock text-[9px] text-slate-500 ml-1"></i>' : '<i class="fa-solid fa-pencil text-[9px] text-sky-500/50 ml-1 no-print"></i>'}
+                            <td class="p-2 border-r border-slate-800/80 font-mono text-sky-400 font-bold whitespace-nowrap ${isLocked ? 'opacity-80' : 'cursor-pointer hover:bg-slate-800'}" 
+                                ${isLocked ? 'title="Terkunci Permanen"' : `onclick="secureEditData('${item.sku}', 'sku')" title="Klik untuk Edit SKU"`}>
+                                ${item.sku} ${isLocked ? lockIconHtml : '<i class="fa-solid fa-pencil text-[9px] text-sky-500/50 ml-1 no-print"></i>'}
                             </td>
                             
-                            <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[180px] md:max-w-[260px] font-medium uppercase" title="${item.desc}">${item.desc}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-slate-200 truncate max-w-[180px] md:max-w-[260px] xl:max-w-[360px] font-medium uppercase" title="${item.desc}">${item.desc}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-bold text-sky-300">${item.sys}</td>
                             
                             <td class="p-2 border-r border-slate-800/80 text-center">
-                                <input type="number" min="0" ${isTally ? 'disabled' : ''} onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'scan')" value="${item.fisikScan}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-sky-500 rounded text-center text-xs font-bold text-slate-200 outline-none transition-colors disabled:opacity-50">
+                                <input type="number" min="0" ${isLocked ? 'disabled' : ''} onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'scan')" value="${item.fisikScan}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-sky-500 rounded text-center text-xs font-bold text-slate-200 outline-none transition-colors disabled:opacity-50">
                             </td>
                             <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
-                                <input type="number" min="0" ${isTally ? 'disabled' : ''} onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'keep')" value="${item.keepQty}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-amber-500 rounded text-center text-xs font-bold text-amber-400 outline-none transition-colors mb-0.5 disabled:opacity-50">
+                                <input type="number" min="0" ${isLocked ? 'disabled' : ''} onchange="secureUpdateFisikKeepstock(this, '${item.sku}', 'keep')" value="${item.keepQty}" class="w-14 px-1 py-1 bg-[#050914] border border-slate-700 focus:border-amber-500 rounded text-center text-xs font-bold text-amber-400 outline-none transition-colors mb-0.5 disabled:opacity-50">
                                 <div class="text-[8px] text-slate-400 truncate max-w-[60px] mx-auto" title="${item.keepCtns}">${item.keepQty > 0 && item.keepCtns !== '-' ? item.keepCtns : ''}</div>
                             </td>
                             
-                            <td class="p-2 border-r border-slate-800/80 text-center font-black text-emerald-400 whitespace-nowrap">${item.fisik}</td>
+                            <td class="p-2 border-r border-slate-800/80 text-center font-black ${isDoneSc ? 'text-teal-400' : 'text-emerald-400'} whitespace-nowrap">${item.fisik}</td>
                             <td class="p-2 border-r border-slate-800/80 text-center font-black ${item.dif === 0 ? 'text-slate-500' : 'text-rose-400'} whitespace-nowrap">
                                 ${item.dif > 0 ? '+' + item.dif : item.dif}
                             </td>
                             <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
                                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded uppercase ${badgeClass}">${item.status}</span>
+                                ${isDoneSc && posFilterMode !== 'DONE_SC' ? `<div class="text-[9px] text-teal-400 font-mono font-bold mt-0.5"><i class="fa-regular fa-calendar-check text-[8px] mr-0.5"></i>${item.doneScDate ? item.doneScDate.split(' ')[0] : (item.check3 && item.check3.time ? item.check3.time.split(' ')[0] : getCurrentFormattedDate().split(' ')[0])}</div>` : ''}
                             </td>
+                            ${posFilterMode === 'DONE_SC' ? `<td class="p-2 border-r border-slate-800/80 text-center text-teal-300 font-mono text-[11px] font-bold whitespace-nowrap">${item.doneScDate ? item.doneScDate.split(' ')[0] : (item.check3 && item.check3.time ? item.check3.time.split(' ')[0] : getCurrentFormattedDate().split(' ')[0])}</td>` : ''}
                             <td class="p-2 text-center">
                                 <button type="button" onclick="deletePosItem('${item.sku}')" class="text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 p-1.5 rounded-lg transition-all" title="Hapus SKU dari POS & Cloud"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                             </td>
@@ -2336,9 +2526,10 @@
                                 <th class="p-2 border border-slate-800 text-center w-14">Keepstock</th>
                                 <th class="p-2 border border-slate-800 text-center w-10">= Total</th>
                                 <th class="p-2 border border-slate-800 text-center w-12">Selisih</th>
-                                <th class="p-2 border border-slate-800 text-center w-24">Check 1</th>
-                                <th class="p-2 border border-slate-800 text-center w-24">Check 2</th>
-                                <th class="p-2 border border-slate-800 text-center w-24">Verify MP</th>
+                                <th class="p-2 border border-slate-800 text-center min-w-[90px]">Check 1</th>
+                                <th class="p-2 border border-slate-800 text-center min-w-[125px]">Verify MP</th>
+                                <th class="p-2 border border-slate-800 text-center min-w-[125px]">ABM CHECK</th>
+                                <th class="p-2 border border-slate-800 text-center min-w-[110px]">Status Baru</th>
                             </tr>
                         </thead>
                         <tbody>`
@@ -2360,7 +2551,7 @@
                         <td class="p-2 border border-slate-800 font-mono text-sky-400 font-bold cursor-pointer hover:bg-slate-700" onclick="secureEditData('${item.sku}', 'sku')" title="Edit SKU">
                             ${item.sku} <i class="fa-solid fa-pencil text-[9px] text-sky-500/50 ml-1 no-print"></i>
                         </td>
-                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[150px] md:max-w-[200px] uppercase">${item.desc}</td>
+                        <td class="p-2 border border-slate-800 text-slate-200 truncate max-w-[160px] md:max-w-[240px] xl:max-w-[320px] uppercase font-medium" title="${item.desc}">${item.desc}</td>
                         <td class="p-2 border border-slate-800 text-center text-sky-300">${item.sys}</td>
                         <td class="p-2 border border-slate-800 text-center">
                             <span class="print-only hidden font-bold text-[9px]">${item.fisikScan}</span>
@@ -2373,9 +2564,15 @@
                         </td>
                         <td class="p-2 border border-slate-800 text-center text-emerald-400 font-bold">${item.fisik}</td>
                         <td class="p-2 border border-slate-800 text-center text-rose-400 font-bold">${item.dif > 0 ? '+' + item.dif : item.dif}</td>
-                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 1, item.check1, true, item.sku)}</td>
-                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 2, item.check2, item.check1 !== null, item.sku)}</td>
-                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 3, item.check3, item.check2 !== null, item.sku)}</td>
+                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 1, item.check1, true, item.sku, item.fisikScan)}</td>
+                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 2, item.check2, item.check1 !== null, item.sku, (item.check1 && item.check1.qty !== undefined) ? item.check1.qty : item.fisikScan)}</td>
+                        <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 3, item.check3, item.check2 !== null, item.sku, (item.check2 && item.check2.qty !== undefined) ? item.check2.qty : ((item.check1 && item.check1.qty !== undefined) ? item.check1.qty : item.fisikScan))}</td>
+                        <td class="p-2 border border-slate-800 text-center whitespace-nowrap">
+                            <button type="button" onclick="finalizeDoneSc('${item.sku}')" class="bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 font-black text-[11px] px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-teal-500/20 transition-all uppercase tracking-wider mx-auto" title="Tandai DONE SC dan otomatis pindah ke POS">
+                                <i class="fa-solid fa-circle-check text-xs"></i> DONE SC
+                            </button>
+                            <span class="print-only hidden text-[9px] font-bold text-center">DONE SC</span>
+                        </td>
                     </tr>
                 `);
             }
@@ -2402,9 +2599,8 @@
         // =========================================================================
         // CHECK & VERIFY LOGIC (UNTALLY)
         // =========================================================================
-        function renderCheckCellTable(globalIndex, checkNum, checkData, isEnabled, sku) {
-            // BUG FIX: Kunci input menggunakan SKU secara absolut, bukan nomor urut array (globalIndex)
-            // agar kebal terhadap pergeseran baris akibat Auto-Sync.
+        function renderCheckCellTable(globalIndex, checkNum, checkData, isEnabled, sku, prevQty = 0) {
+            // Kunci input menggunakan SKU secara absolut
             const inputId = `chk_${checkNum}_${sku}`;
             
             if (checkData) {
@@ -2424,13 +2620,74 @@
             
             if (!isEnabled) return `<span class="text-slate-600 text-[10px]">-</span>`;
 
-            const currentVal = tempCheckInputs[inputId] || '';
+            const currentVal = tempCheckInputs[inputId] !== undefined ? tempCheckInputs[inputId] : '';
+            const isSameAsPrev = currentVal !== '' && parseInt(currentVal) === prevQty;
+
+            // Check 2 dan Verify MP dilengkapi tombol ceklis otomatis
+            if (checkNum === 2 || checkNum === 3) {
+                return `
+                    <div class="no-print flex items-center justify-center gap-1.5">
+                        <input type="number" id="${inputId}" value="${currentVal}" min="0" oninput="onCheckInputChanged('${sku}', ${checkNum}, this.value, ${prevQty})" onkeydown="if(event.key==='Enter') processGlobalCheckSubmit()" placeholder="Qty.." class="w-14 px-1.5 py-2 bg-[#050914] border-2 ${isSameAsPrev ? 'border-emerald-500/80' : 'border-slate-700'} rounded-lg text-xs text-center font-black text-sky-400 outline-none focus:border-sky-500 focus:shadow-[0_0_8px_rgba(14,165,233,0.3)] transition-all">
+                        <button type="button" id="btn_chk_${checkNum}_${sku}" onclick="autoFillCheckQty('${sku}', ${checkNum}, ${prevQty})" class="h-8 w-8 ${isSameAsPrev ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400' : 'bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 border-emerald-500/40'} border rounded-lg flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0" title="Ceklis jika Qty sama dengan sebelumnya (${prevQty})">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="print-only hidden text-[9px] text-slate-500 italic">-</div>
+                `;
+            }
+
+            // Check 1 standard input
             return `
-                <div class="no-print">
-                    <input type="number" id="${inputId}" value="${currentVal}" oninput="tempCheckInputs['${inputId}'] = this.value" onkeydown="if(event.key==='Enter') processGlobalCheckSubmit()" placeholder="Qty..." class="w-full px-2 py-2.5 bg-[#050914] border-2 border-slate-700 rounded-lg text-sm text-center font-black text-sky-400 outline-none focus:border-sky-500 focus:shadow-[0_0_8px_rgba(14,165,233,0.3)] transition-all">
+                <div class="no-print flex items-center justify-center gap-1.5">
+                    <input type="number" id="${inputId}" value="${currentVal}" min="0" oninput="tempCheckInputs['${inputId}'] = this.value" onkeydown="if(event.key==='Enter') processGlobalCheckSubmit()" placeholder="Qty.." class="w-16 px-1.5 py-2 bg-[#050914] border-2 border-slate-700 rounded-lg text-xs text-center font-black text-sky-400 outline-none focus:border-sky-500 focus:shadow-[0_0_8px_rgba(14,165,233,0.3)] transition-all">
                 </div>
                 <div class="print-only hidden text-[9px] text-slate-500 italic">-</div>
             `;
+        }
+
+        function onCheckInputChanged(sku, checkNum, val, prevQty) {
+            const inputId = `chk_${checkNum}_${sku}`;
+            tempCheckInputs[inputId] = val;
+            const btn = document.getElementById(`btn_chk_${checkNum}_${sku}`);
+            const inputEl = document.getElementById(inputId);
+            if (!btn || !inputEl) return;
+            
+            if (val !== '' && parseInt(val) === prevQty) {
+                btn.className = "h-8 w-8 bg-emerald-500 text-slate-950 font-bold border border-emerald-400 rounded-lg flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0";
+                inputEl.classList.remove('border-slate-700');
+                inputEl.classList.add('border-emerald-500/80');
+            } else {
+                btn.className = "h-8 w-8 bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0";
+                inputEl.classList.remove('border-emerald-500/80');
+                inputEl.classList.add('border-slate-700');
+            }
+        }
+
+        function autoFillCheckQty(sku, checkNum, prevQty) {
+            const inputId = `chk_${checkNum}_${sku}`;
+            const inputEl = document.getElementById(inputId);
+            const btn = document.getElementById(`btn_chk_${checkNum}_${sku}`);
+            
+            if (inputEl) {
+                inputEl.value = prevQty;
+                inputEl.classList.remove('border-slate-700');
+                inputEl.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-300');
+                setTimeout(() => {
+                    if (inputEl) {
+                        inputEl.classList.remove('bg-emerald-950/40', 'text-emerald-300');
+                        inputEl.classList.add('border-emerald-500/80', 'text-sky-400');
+                    }
+                }, 350);
+            }
+            
+            tempCheckInputs[inputId] = String(prevQty);
+            
+            if (btn) {
+                btn.className = "h-8 w-8 bg-emerald-500 text-slate-950 font-bold border border-emerald-400 rounded-lg flex items-center justify-center transition-all active:scale-90 shadow-md shrink-0";
+            }
+
+            const checkLabel = checkNum === 3 ? 'ABM CHECK' : (checkNum === 2 ? 'Verify MP' : 'Check 1');
+            showToast(`SKU ${sku}: ${checkLabel} diisi ${prevQty} (sama dengan sebelumnya)`, 'success');
         }
 
         function editCheckData(sku, checkNum) {
@@ -2440,8 +2697,9 @@
             let currentData = posItem[`check${checkNum}`];
             if (!currentData) return;
 
-            let promptMsg = `Ubah Qty Check ${checkNum} untuk SKU ${sku} (Kosongkan/0 untuk menghapus verifikasi)`;
-            openCustomPrompt(`Ubah Qty Check ${checkNum}`, promptMsg, currentData.qty, (newVal) => {
+            const checkLabel = checkNum === 3 ? 'ABM CHECK' : (checkNum === 2 ? 'Verify MP' : 'Check 1');
+            let promptMsg = `Ubah Qty ${checkLabel} untuk SKU ${sku} (Kosongkan/0 untuk menghapus verifikasi)`;
+            openCustomPrompt(`Ubah Qty ${checkLabel}`, promptMsg, currentData.qty, (newVal) => {
                 if (newVal === null) return; 
 
             requestAdminAction('Otorisasi Edit Verifikasi', `Masukkan password admin untuk mengubah hasil Check ${checkNum} SKU ${sku}.`, () => {
@@ -2459,18 +2717,121 @@
                     else fallbackQty = resolvePureInputScanQty(sku, rawScanning.find(r=>r.sku===sku), null, posItem.keepQty, posItem.sys);
                     
                     updatePosFisikAfterCheck(posItem, fallbackQty);
-                    showToast(`Verifikasi Check ${checkNum} SKU ${sku} dihapus.`, 'info');
+                    showToast(`Verifikasi ${checkLabel} SKU ${sku} dihapus.`, 'info');
                 } else {
                     posItem[`check${checkNum}`].qty = parsedVal;
                     posItem[`check${checkNum}`].time = getCurrentFormattedDate();
                     updatePosFisikAfterCheck(posItem, parsedVal);
-                    showToast(`Verifikasi Check ${checkNum} SKU ${sku} diperbarui.`, 'success');
+                    showToast(`Verifikasi ${checkLabel} SKU ${sku} diperbarui.`, 'success');
                 }
                 
                 renderActiveTabUI();
                 saveToLocalStorage(true, false);
             });
             });
+        }
+
+                function finalizeDoneSc(sku) {
+            const item = posData.find(p => p.sku === sku);
+            if (!item) {
+                showToast("SKU tidak ditemukan di data POS.", "error");
+                return;
+            }
+
+            // Otorisasi dengan password '1' khusus DONE SC
+            requestAdminAction(
+                'Otorisasi DONE SC',
+                `Masukkan password otorisasi untuk mengunci SKU ${sku} sebagai DONE SC (Permanen Lock):`,
+                () => {
+                    executeDoneScLock(item);
+                },
+                '1'
+            );
+        }
+
+        function executeDoneScLock(item) {
+            const sku = item.sku;
+            const inspectorSelect = document.getElementById('globalCheckInspector');
+            let inspector = (inspectorSelect && inspectorSelect.value) ? inspectorSelect.value : '';
+            if (!inspector) {
+                const staffList = STORE_STAFF_MAP[currentStore] || [];
+                inspector = staffList[0] || "MOHAMMAD LUTHFI SYAFI'UDDIN";
+            }
+
+            // Tentukan nilai Qty final ABM CHECK
+            const inputId = `chk_3_${sku}`;
+            let finalQty = null;
+            if (tempCheckInputs[inputId] !== undefined && tempCheckInputs[inputId] !== '') {
+                finalQty = parseInt(tempCheckInputs[inputId]);
+            } else if (item.check3 && item.check3.qty !== undefined) {
+                finalQty = parseInt(item.check3.qty);
+            } else if (item.check2 && item.check2.qty !== undefined) {
+                finalQty = parseInt(item.check2.qty);
+            } else if (item.check1 && item.check1.qty !== undefined) {
+                finalQty = parseInt(item.check1.qty);
+            } else {
+                finalQty = parseInt(item.fisikScan);
+            }
+
+            if (isNaN(finalQty) || finalQty < 0) finalQty = 0;
+
+            // Simpan ABM CHECK
+            item.check3 = { qty: finalQty, inspector: inspector, time: getCurrentFormattedDate() };
+            delete tempCheckInputs[inputId];
+
+            // Update fisik scan, selisih, tanggal, dan kunci permanen
+            const nowFormatted = getCurrentFormattedDate();
+            item.doneScDate = nowFormatted;
+            item.fisikScan = finalQty;
+            item.fisik = calculateTotalFisik(item.fisikScan, item.keepQty);
+            item.dif = item.fisik - item.sys;
+            item.status = "DONE SC";
+            item.finalStatus = "DONE SC";
+            item.isLocked = true;
+
+            if (scanIndexMap.has(sku)) {
+                const targetScan = rawScanning[scanIndexMap.get(sku)];
+                targetScan.qty = finalQty;
+                targetScan.inputScanQty = finalQty;
+                targetScan.isPureScan = true;
+                targetScan.isLocked = true;
+            }
+
+            recordActivity('DONE_SC_LOCK', item.sku, `LOCKED DONE SC SKU ${item.sku}: Fisik Scan ${finalQty} + KS ${item.keepQty} = ${item.fisik} (Selisih: ${item.dif})`, inspector);
+            
+            // 1. Simpan ke daftar lokal
+            doneScSkus.add(item.sku);
+            saveDoneScSkus();
+
+            // 2. Kirim sinyal update status DONE SC langsung ke Google Apps Script / Spreadsheet
+            postToCloudAsync({
+                action: "saveDoneSc",
+                storeCode: currentStore,
+                sku: item.sku,
+                status: "DONE SC",
+                item: {
+                    ...item,
+                    status: "DONE SC",
+                    finalStatus: "DONE SC",
+                    check3: formatCheck(item.check3)
+                },
+                doneScSkus: Array.from(doneScSkus),
+                updatedAt: new Date().toISOString()
+            });
+
+            // 3. Simpan menyeluruh ke localforage dan antrekan push cloud
+            saveToLocalStorage(true, false);
+            uploadAllDataToCloud();
+
+            // Otomatis pindah ke tab Step 3 (POS) dan sorot SKU ini
+            switchTab('step3Container');
+            const searchPosEl = document.getElementById('searchPosInput');
+            if (searchPosEl) {
+                searchPosEl.value = item.sku;
+                onSearchPosInput();
+            }
+
+            showToast(`SKU ${item.sku} BERHASIL DIKUNCI (DONE SC: ${item.fisik} unit) DENGAN PASSWORD '1' & DIPINDAHKAN KE POS!`, 'success');
         }
 
         function updatePosFisikAfterCheck(item, newScanQty) {
@@ -2514,7 +2875,8 @@
                 item[`check${checkNum}`] = checkRecord;
                 updatePosFisikAfterCheck(item, val);
                 
-                recordActivity('VERIFIKASI_UNTALLY', item.sku, `Check ${checkNum} SKU ${item.sku}: Fisik Scan ${val} + KS ${item.keepQty} = ${item.fisik} (Selisih: ${item.dif})`, inspector);
+                const checkLabel = checkNum === 3 ? 'ABM CHECK' : (checkNum === 2 ? 'Verify MP' : 'Check 1');
+                recordActivity('VERIFIKASI_UNTALLY', item.sku, `${checkLabel} SKU ${item.sku}: Fisik Scan ${val} + KS ${item.keepQty} = ${item.fisik} (Selisih: ${item.dif})`, inspector);
                 processedCount++;
             }
 
@@ -2531,6 +2893,93 @@
         // =========================================================================
         // EXPORT & DOWNLOAD EXCEL
         // =========================================================================
+        
+        // =========================================================================
+        // EXPORT STOCK CORRECTION (DONE SC) FORMAT ERP KHUSUS
+        // =========================================================================
+        function downloadSelectedDoneScToExcel() {
+            if (selectedPosSkus.size === 0) {
+                showToast("Pilih (centang) data yang ingin diunduh ke Excel.", "warning");
+                return;
+            }
+
+            const skuSet = new Set(selectedPosSkus);
+            // Ambil item yang dicentang
+            const targetItems = posData.filter(p => skuSet.has(p.sku));
+            if (targetItems.length === 0) {
+                showToast("Data terpilih tidak ditemukan.", "error");
+                return;
+            }
+
+            generateAndDownloadScExcel(targetItems, `Stock_Correction_${currentStore}_Terpilih`);
+        }
+
+        function downloadAllDoneScToExcel() {
+            const targetItems = posData.filter(p => p.status === 'DONE SC');
+            if (targetItems.length === 0) {
+                showToast("Belum ada data berstatus DONE SC untuk diekspor.", "warning");
+                return;
+            }
+            generateAndDownloadScExcel(targetItems, `Stock_Correction_${currentStore}_Semua_DoneSC`);
+        }
+
+        function generateAndDownloadScExcel(items, baseFileName) {
+            const STORE_CODE_MAP = {
+                'XCMG': 'JW1023',
+                'XKLR': 'JW5003',
+                'XCIH': 'JW1032'
+            };
+            const storeCode = STORE_CODE_MAP[currentStore] || currentStore;
+            
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const todayStr = `${dd}${mm}${yyyy}`;
+
+            // Format baris persis seperti format ERP pada gambar
+            const excelRows = items.map(item => {
+                let itemDateStr = todayStr;
+                if (item.doneScDate) {
+                    const parts = item.doneScDate.split(' ')[0].split('/');
+                    if (parts.length === 3) itemDateStr = `${parts[0]}${parts[1]}${parts[2]}`;
+                } else if (item.check3 && item.check3.time) {
+                    const parts = item.check3.time.split(' ')[0].split('/');
+                    if (parts.length === 3) itemDateStr = `${parts[0]}${parts[1]}${parts[2]}`;
+                }
+
+                const remark = `${currentStore} SC ${itemDateStr}`;
+
+                return {
+                    "STORE CODE": storeCode,
+                    "REMARK": remark,
+                    "SKU": String(item.sku || '').trim(),
+                    "PHYSICAL BALANCE": Number(item.fisik !== undefined ? item.fisik : item.fisikScan) || 0,
+                    "SYSTEM BALANCE": Number(item.sys) || 0,
+                    "VARIANCE": Number(item.dif) || 0,
+                    "ASSIGNMENT": "Store Initiative (Balance Check by Gondola)"
+                };
+            });
+
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            
+            // Format kolom SKU sebagai string teks agar tidak hilang angka 0 di depan
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                const skuCell = ws[XLSX.utils.encode_cell({ r: R, c: 2 })]; // Kolom C
+                if (skuCell) skuCell.t = 's';
+            }
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            
+            const fileName = `${baseFileName}_${todayStr}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            
+            recordActivity('EXPORT_EXCEL_SC', `${items.length} SKU`, `Export Stock Correction format ERP (${items.length} baris)`, 'PETUGAS');
+            showToast(`Berhasil mengunduh Excel ${items.length} data (${fileName})!`, 'success');
+        }
+
         function downloadDoubleRak() {
             const doubleRakSkus = [];
             for (let i = 0; i < posData.length; i++) {
@@ -2618,7 +3067,7 @@
         function setUntallyRackFilter(prefix) { activeRackFilter = prefix; untallyPage = 1; renderUntallyCards(); }
         function clearUntallyRackFilter() { activeRackFilter = ''; untallyPage = 1; renderUntallyCards(); }
         function changeUntallyPage(delta) { untallyPage = Math.max(1, untallyPage + delta); renderUntallyCards(); }
-        function setPosFilter(mode) { posFilterMode = mode; posPage = 1; const btnMap = { 'SCANNED': 'posFilterScanned', 'ALL_MASTER': 'posFilterAllMaster', 'TALLY': 'posFilterTally', 'UNTALLY': 'posFilterUntally' }; Object.keys(btnMap).forEach(k => { const el = document.getElementById(btnMap[k]); if (!el) return; el.className = (k === mode) ? "px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500 text-slate-950 transition-all" : "px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all"; }); renderPOSCards(); }
+        function setPosFilter(mode) { posFilterMode = mode; posPage = 1; const btnMap = { 'SCANNED': 'posFilterScanned', 'ALL_MASTER': 'posFilterAllMaster', 'TALLY': 'posFilterTally', 'UNTALLY': 'posFilterUntally', 'DONE_SC': 'posFilterDoneSc' }; Object.keys(btnMap).forEach(k => { const el = document.getElementById(btnMap[k]); if (!el) return; el.className = (k === mode) ? "px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500 text-slate-950 transition-all" : "px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition-all"; }); renderPOSCards(); }
         function onSearchPosInput() { if (searchDebounceTimer) clearTimeout(searchDebounceTimer); searchDebounceTimer = setTimeout(() => { posSearchQuery = document.getElementById('searchPosInput') ? document.getElementById('searchPosInput').value.trim().toLowerCase() : ''; posPage = 1; renderPOSCards(); }, 120); }
         function changePosPage(delta) { posPage = Math.max(1, posPage + delta); renderPOSCards(); }
         function onSearchUntallyInput() { if (searchDebounceTimer) clearTimeout(searchDebounceTimer); searchDebounceTimer = setTimeout(() => { untallySearchQuery = document.getElementById('searchUntallyInput') ? document.getElementById('searchUntallyInput').value.trim().toLowerCase() : ''; untallyPage = 1; renderUntallyCards(); }, 120); }
@@ -2626,9 +3075,12 @@
         
         async function normalizeExtraKeepstockNow() {
             rebuildScanRecordsMap(); let correctedCount = 0;
+            const lockedSkusSet = getLockedSkus();
             for (let i = 0; i < rawScanning.length; i++) {
                 const scan = rawScanning[i]; if (!scan || !scan.sku) continue;
-                const sku = String(scan.sku).trim(); const ksObj = keepstockMap[sku] || { qty: 0 };
+                const sku = String(scan.sku).trim();
+                if (lockedSkusSet.has(sku)) continue; // Kebal dari normalisasi jika TALLY atau DONE SC
+                const ksObj = keepstockMap[sku] || { qty: 0 };
                 const kQty = Math.max(0, Number(ksObj.qty) || 0); const master = masterSystem[sku] || { sys: 0 };
                 const sQty = Math.max(0, Number(master.sys) || 0);
                 if (rawScanRecordsMap.has(sku)) {
@@ -2733,7 +3185,7 @@
         }
 
         function checkVerifyABMStatus() { const btn = document.getElementById("btnDownloadVerifyABM"); if (!btn) return; const hasCompleted = posData.some(item => item.check3 !== null); btn.disabled = !hasCompleted; btn.className = hasCompleted ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all" : "bg-slate-800 text-slate-500 text-xs px-3 py-1.5 rounded-xl font-bold cursor-not-allowed"; }
-        function downloadVerifyABMToExcel() { const rows = posData.filter(i => i.check3 !== null).map((item, idx) => ({ "No": idx + 1, "Toko": currentStore, "Rak": item.rack || '-', "SKU": item.sku, "Deskripsi": item.desc, "SYS": item.sys, "Fisik Scan Toko": item.fisikScan, "Keepstock Gudang": item.keepQty, "No Karton": item.keepCtns, "TOTAL FISIK": item.fisik, "SELISIH": item.dif, "Check 1": item.check1 ? `${item.check1.inspector} (${item.check1.qty})` : '-', "Check 2": item.check2 ? `${item.check2.inspector} (${item.check2.qty})` : '-', "Petugas Verify MP": item.check3 ? `${item.check3.inspector} (${item.check3.qty})` : '-' })); if (rows.length === 0) { showToast("Belum ada item yang selesai diverifikasi Check 3 / Verify MP.", "warning"); return; } recordActivity('EXPORT_EXCEL', `VERIFY_ABM_${currentStore}`, `Download laporan Verify ABM (${rows.length} item)`, 'PETUGAS'); const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Verify ABM"); XLSX.writeFile(wb, `Laporan_Verify_ABM_${currentStore}.xlsx`); showToast(`Laporan Verify ABM (${rows.length} SKU) berhasil diunduh!`, 'success'); }
+        function downloadVerifyABMToExcel() { const rows = posData.filter(i => i.check3 !== null).map((item, idx) => ({ "No": idx + 1, "Toko": currentStore, "Rak": item.rack || '-', "SKU": item.sku, "Deskripsi": item.desc, "SYS": item.sys, "Fisik Scan Toko": item.fisikScan, "Keepstock Gudang": item.keepQty, "No Karton": item.keepCtns, "TOTAL FISIK": item.fisik, "SELISIH": item.dif, "Check 1": item.check1 ? `${item.check1.inspector} (${item.check1.qty})` : '-', "Verify MP": item.check2 ? `${item.check2.inspector} (${item.check2.qty})` : '-', "ABM CHECK": item.check3 ? `${item.check3.inspector} (${item.check3.qty})` : '-' })); if (rows.length === 0) { showToast("Belum ada item yang selesai diverifikasi ABM CHECK.", "warning"); return; } recordActivity('EXPORT_EXCEL', `VERIFY_ABM_${currentStore}`, `Download laporan Verify ABM (${rows.length} item)`, 'PETUGAS'); const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Verify ABM"); XLSX.writeFile(wb, `Laporan_Verify_ABM_${currentStore}.xlsx`); showToast(`Laporan Verify ABM (${rows.length} SKU) berhasil diunduh!`, 'success'); }
         function showAsyncProgress(title, desc) { const modal = document.getElementById('asyncProcessingModal'); if (!modal) return; document.getElementById('asyncProcessTitle').innerText = title || "Memproses Data"; document.getElementById('asyncProcessDesc').innerText = desc || "Sedang memproses data tanpa lag..."; document.getElementById('asyncProgressBar').style.width = '0%'; document.getElementById('asyncProcessPct').innerText = '0%'; document.getElementById('asyncProcessDetails').innerText = '0 Baris'; modal.classList.remove('hidden'); }
         function updateAsyncProgress(current, total, detailsText = '') { const pct = Math.min(100, Math.round((current / Math.max(1, total)) * 100)); const bar = document.getElementById('asyncProgressBar'); const pctText = document.getElementById('asyncProcessPct'); const detText = document.getElementById('asyncProcessDetails'); if (bar) bar.style.width = `${pct}%`; if (pctText) pctText.innerText = `${pct}%`; if (detText) detText.innerText = detailsText || `${current.toLocaleString('id-ID')} / ${total.toLocaleString('id-ID')} baris`; }
         function hideAsyncProgress() { const modal = document.getElementById('asyncProcessingModal'); if (modal) modal.classList.add('hidden'); }
