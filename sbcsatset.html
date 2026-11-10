@@ -744,8 +744,11 @@
                         <select id="globalCheckInspector" class="bg-[#050914] text-emerald-400 font-bold text-xs border border-emerald-500/50 rounded-lg px-2 py-1.5 outline-none focus:border-emerald-400">
                             <option value="" disabled selected>Pilih Petugas Verifikasi...</option>
                         </select>
-                        <button type="button" onclick="processGlobalCheckSubmit()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
+                        <button type="button" onclick="processGlobalCheckSubmit()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
+                        <button type="button" onclick="batchFinalizeDoneSc()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md shadow-teal-500/25 active:scale-95 transition-all uppercase tracking-wider" title="Satu tombol DONE SC: Proses semua data yang ada di ABM CHECK dan pindah ke POS">
+                            <i class="fa-solid fa-circle-check"></i> DONE SC
                         </button>
                     </div>
 
@@ -2529,7 +2532,11 @@
                                 <th class="p-2 border border-slate-800 text-center min-w-[90px]">Check 1</th>
                                 <th class="p-2 border border-slate-800 text-center min-w-[125px]">Verify MP</th>
                                 <th class="p-2 border border-slate-800 text-center min-w-[125px]">ABM CHECK</th>
-                                <th class="p-2 border border-slate-800 text-center min-w-[110px]">Status Baru</th>
+                                <th class="p-2 border border-slate-800 text-center min-w-[115px]">
+                                    <button type="button" onclick="batchFinalizeDoneSc()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 shadow-md uppercase tracking-wider mx-auto" title="DONE SC semua data ABM CHECK">
+                                        <i class="fa-solid fa-circle-check text-xs"></i> DONE SC
+                                    </button>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>`
@@ -2568,10 +2575,12 @@
                         <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 2, item.check2, item.check1 !== null, item.sku, (item.check1 && item.check1.qty !== undefined) ? item.check1.qty : item.fisikScan)}</td>
                         <td class="p-2 border border-slate-800 text-center">${renderCheckCellTable(globalIndex, 3, item.check3, item.check2 !== null, item.sku, (item.check2 && item.check2.qty !== undefined) ? item.check2.qty : ((item.check1 && item.check1.qty !== undefined) ? item.check1.qty : item.fisikScan))}</td>
                         <td class="p-2 border border-slate-800 text-center whitespace-nowrap">
-                            <button type="button" onclick="finalizeDoneSc('${item.sku}')" class="bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 font-black text-[11px] px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-teal-500/20 transition-all uppercase tracking-wider mx-auto" title="Tandai DONE SC dan otomatis pindah ke POS">
-                                <i class="fa-solid fa-circle-check text-xs"></i> DONE SC
-                            </button>
-                            <span class="print-only hidden text-[9px] font-bold text-center">DONE SC</span>
+                            ${((item.check3 !== null) || (tempCheckInputs[`chk_3_${item.sku}`] !== undefined && tempCheckInputs[`chk_3_${item.sku}`] !== '')) ? `
+                                <button type="button" onclick="finalizeDoneSc('${item.sku}')" class="bg-teal-500/20 hover:bg-teal-500 hover:text-slate-950 text-teal-300 border border-teal-500/40 font-bold text-[10px] px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 shadow-sm transition-all uppercase tracking-wider mx-auto" title="DONE SC SKU ${item.sku}">
+                                    <i class="fa-solid fa-circle-check text-xs text-teal-400"></i> DONE SC
+                                </button>
+                                <span class="print-only hidden text-[9px] font-bold text-center">DONE SC</span>
+                            ` : `<span class="text-slate-600 font-mono text-[10px]">-</span>`}
                         </td>
                     </tr>
                 `);
@@ -2731,7 +2740,120 @@
             });
         }
 
-                function finalizeDoneSc(sku) {
+                
+        // =========================================================================
+        // SATU TOMBOL DONE SC: HANYA MENGAMBIL DATA YANG ADA DI ABM CHECK
+        // =========================================================================
+        function batchFinalizeDoneSc() {
+            const itemsToProcess = [];
+
+            for (let i = 0; i < posData.length; i++) {
+                const item = posData[i];
+                if (item.status === 'DONE SC') continue; // lewati yang sudah DONE SC
+
+                const inputId = `chk_3_${item.sku}`;
+                const domInput = document.getElementById(inputId);
+                const domVal = domInput ? domInput.value.trim() : '';
+                const tempVal = tempCheckInputs[inputId] !== undefined ? String(tempCheckInputs[inputId]).trim() : '';
+
+                let hasValue = false;
+                let valToUse = null;
+
+                if (domVal !== '') {
+                    const parsed = parseInt(domVal);
+                    if (!isNaN(parsed) && parsed >= 0) {
+                        hasValue = true;
+                        valToUse = parsed;
+                    }
+                } else if (tempVal !== '') {
+                    const parsed = parseInt(tempVal);
+                    if (!isNaN(parsed) && parsed >= 0) {
+                        hasValue = true;
+                        valToUse = parsed;
+                    }
+                } else if (item.check3 && item.check3.qty !== undefined) {
+                    hasValue = true;
+                    valToUse = parseInt(item.check3.qty);
+                }
+
+                // HANYA ambil data yang ADA di ABM CHECK (baris bernilai '-' atau kosong otomatis diabaikan)
+                if (hasValue && valToUse !== null) {
+                    itemsToProcess.push({ item: item, finalQty: valToUse });
+                }
+            }
+
+            if (itemsToProcess.length === 0) {
+                showToast("Tidak ada data di kolom ABM CHECK untuk diproses. Isi atau ceklis Qty pada kolom ABM CHECK terlebih dahulu.", "warning");
+                return;
+            }
+
+            // Otorisasi massal dengan password '1'
+            requestAdminAction(
+                'Otorisasi DONE SC Massal',
+                `Ditemukan ${itemsToProcess.length} data di ABM CHECK. Masukkan password otorisasi untuk mengunci ke DONE SC dan pindah ke POS:`,
+                () => {
+                    executeBatchDoneScLock(itemsToProcess);
+                },
+                '1'
+            );
+        }
+
+        function executeBatchDoneScLock(itemsToProcess) {
+            const inspectorSelect = document.getElementById('globalCheckInspector');
+            let inspector = (inspectorSelect && inspectorSelect.value) ? inspectorSelect.value : '';
+            if (!inspector) {
+                const staffList = STORE_STAFF_MAP[currentStore] || [];
+                inspector = staffList[0] || "MOHAMMAD LUTHFI SYAFI'UDDIN";
+            }
+
+            const nowFormatted = getCurrentFormattedDate();
+
+            for (let k = 0; k < itemsToProcess.length; k++) {
+                const entry = itemsToProcess[k];
+                const item = entry.item;
+                const finalQty = entry.finalQty;
+                const sku = item.sku;
+                const inputId = `chk_3_${sku}`;
+
+                // Simpan ABM CHECK
+                item.check3 = { qty: finalQty, inspector: inspector, time: nowFormatted };
+                delete tempCheckInputs[inputId];
+
+                // Update fisik scan, selisih, tanggal, dan kunci permanen
+                item.doneScDate = nowFormatted;
+                item.fisikScan = finalQty;
+                item.fisik = calculateTotalFisik(item.fisikScan, item.keepQty);
+                item.dif = item.fisik - item.sys;
+                item.status = "DONE SC";
+                item.finalStatus = "DONE SC";
+                item.isLocked = true;
+
+                if (scanIndexMap.has(sku)) {
+                    const targetScan = rawScanning[scanIndexMap.get(sku)];
+                    targetScan.qty = finalQty;
+                    targetScan.inputScanQty = finalQty;
+                    targetScan.isPureScan = true;
+                    targetScan.isLocked = true;
+                }
+
+                doneScSkus.add(sku);
+            }
+
+            // Simpan ke storage dan kirim sinyal ke cloud
+            saveDoneScSkus();
+            saveToLocalStorage(true, false);
+            uploadAllDataToCloud();
+
+            recordActivity('DONE_SC_BATCH', `${itemsToProcess.length} SKU`, `Batch DONE SC ${itemsToProcess.length} data dari ABM CHECK`, inspector);
+
+            // Otomatis pindah ke tab Step 3 (POS) dan tampilkan filter Done SC
+            switchTab('step3Container');
+            setPosFilter('DONE_SC');
+
+            showToast(`Berhasil memproses ${itemsToProcess.length} data dari ABM CHECK menjadi DONE SC dan dipindahkan ke POS!`, 'success');
+        }
+
+        function finalizeDoneSc(sku) {
             const item = posData.find(p => p.sku === sku);
             if (!item) {
                 showToast("SKU tidak ditemukan di data POS.", "error");
