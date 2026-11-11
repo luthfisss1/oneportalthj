@@ -1639,7 +1639,8 @@
                     scanTime: `${stripScanMetaTag(item.scanTime || getCurrentFormattedDate())} [SCAN:${Number(item.fisikScan) || 0}|KS:${Number(item.keepQty) || 0}]`,
                     check1: formatCheck(item.check1),
                     check2: formatCheck(item.check2),
-                    check3: formatCheck(item.check3)
+                    check3: formatCheck(item.check3),
+                    doneScDate: item.doneScDate || ''
                 }));
                 const cloudRawScanning = rawScanning.map(item => ({
                     ...item,
@@ -1850,11 +1851,16 @@
                         }
                     }
 
-                    const doneScSkus = new Set(posData.filter(p => p.status === "DONE SC").map(p => p.sku));
+                    // Sinkronkan status Done SC ke variabel global doneScSkus (tanpa redeklarasi const)
+                    for (let i = 0; i < posData.length; i++) {
+                        if (posData[i] && (posData[i].status === "DONE SC" || posData[i].finalStatus === "DONE SC") && posData[i].sku) {
+                            doneScSkus.add(String(posData[i].sku).trim());
+                        }
+                    }
                     for (let i = 0; i < data.rawScanning.length; i++) {
                         const cItem = data.rawScanning[i];
                         const sku = String(cItem.sku || '').trim();
-                        if (!sku || deletedSkus.has(sku) || doneScSkus.has(sku)) continue; // Kebal dari restore cloud
+                        if (!sku || deletedSkus.has(sku)) continue;
 
                         let cQty = Number(cItem.fisikScan) || 0;
                         if (cQty === 0) {
@@ -1867,7 +1873,7 @@
                             const exist = mergedScanningMap.get(sku);
                             const lQty = Number(exist.inputScanQty !== undefined ? exist.inputScanQty : exist.qty) || 0;
                             
-                            if (cQty > lQty) {
+                            if (!doneScSkus.has(sku) && cQty > lQty) {
                                 exist.qty = cQty;
                                 exist.inputScanQty = cQty;
                                 exist.scanTime = stripScanMetaTag(cItem.scanTime || exist.scanTime);
@@ -1910,20 +1916,34 @@
                         cloudPosMap.set(cSku, cp);
                     }
                     
+                    const localPosMap = new Map();
+                    for (let i = 0; i < posData.length; i++) {
+                        if (posData[i] && posData[i].sku) localPosMap.set(String(posData[i].sku).trim(), posData[i]);
+                    }
+
+                    cloudPosMap.forEach((cP, cSku) => {
+                        if (deletedSkus.has(cSku)) return;
+                        let pItem = localPosMap.get(cSku);
+                        if (!pItem) {
+                            pItem = { ...cP };
+                            posData.push(pItem);
+                            localPosMap.set(cSku, pItem);
+                        }
+                        if (!pItem.check1 && cP.check1) pItem.check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
+                        if (!pItem.check2 && cP.check2) pItem.check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
+                        if (!pItem.check3 && cP.check3) pItem.check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
+                        if (cP.doneScDate && !pItem.doneScDate) pItem.doneScDate = cP.doneScDate;
+                        if (cP.status === "DONE SC" || cP.finalStatus === "DONE SC" || doneScSkus.has(cSku)) {
+                            pItem.status = "DONE SC";
+                            pItem.finalStatus = "DONE SC";
+                            pItem.isLocked = true;
+                            doneScSkus.add(cSku);
+                        }
+                    });
+
                     for (let i = 0; i < posData.length; i++) {
                         const sku = String(posData[i].sku).trim();
-                        if (cloudPosMap.has(sku)) {
-                            const cP = cloudPosMap.get(sku);
-                            if (!posData[i].check1 && cP.check1) posData[i].check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
-                            if (!posData[i].check2 && cP.check2) posData[i].check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
-                            if (!posData[i].check3 && cP.check3) posData[i].check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
-                            if (cP.status === "DONE SC" || cP.finalStatus === "DONE SC" || doneScSkus.has(sku)) {
-                                posData[i].status = "DONE SC";
-                                posData[i].finalStatus = "DONE SC";
-                                posData[i].isLocked = true;
-                                doneScSkus.add(sku);
-                            }
-                        } else if (doneScSkus.has(sku)) {
+                        if (doneScSkus.has(sku)) {
                             posData[i].status = "DONE SC";
                             posData[i].finalStatus = "DONE SC";
                             posData[i].isLocked = true;
@@ -2240,7 +2260,7 @@
                 const totalFisik = calculateTotalFisik(fisikScan, keepQty);
                 const dif = totalFisik - sys;
                 const isTally = (dif === 0);
-                const isItemDoneSc = doneScSkus.has(sku) || prev.status === "DONE SC";
+                const isItemDoneSc = doneScSkus.has(sku) || prev.status === "DONE SC" || prev.finalStatus === "DONE SC";
                 if (isItemDoneSc) doneScSkus.add(sku);
                 const preservedStatus = isItemDoneSc ? "DONE SC" : (isTally ? "TALLY" : "UNTALLY");
 
@@ -2254,6 +2274,8 @@
                     fisik: totalFisik, dif: dif,
                     status: preservedStatus,
                     finalStatus: preservedStatus,
+                    isLocked: isItemDoneSc || isTally,
+                    doneScDate: prev.doneScDate || (isItemDoneSc ? (prev.check3 && prev.check3.time ? prev.check3.time : getCurrentFormattedDate()) : ''),
                     check1: prev.check1 || null, check2: prev.check2 || null, check3: prev.check3 || null,
                     scanTime: stripScanMetaTag(scan.scanTime || '')
                 };
@@ -2960,7 +2982,10 @@
             item.fisikScan = newScanQty;
             item.fisik = calculateTotalFisik(item.fisikScan, item.keepQty);
             item.dif = item.fisik - item.sys;
-            item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
+            if (item.status !== "DONE SC") {
+                item.status = (item.dif === 0) ? "TALLY" : "UNTALLY";
+                item.finalStatus = item.status;
+            }
             if (scanIndexMap.has(item.sku)) {
                 const targetScan = rawScanning[scanIndexMap.get(item.sku)];
                 targetScan.qty = newScanQty; targetScan.inputScanQty = newScanQty; targetScan.isPureScan = true;
