@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISTEM TERPADU TAHU AJA</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+            };
         }
     </script>
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
     <style>
         @media (max-width: 640px) {
             input, select, button, textarea {
@@ -318,7 +320,7 @@
                         <span id="badgeMode" class="badge-mode checkin">CHECK IN</span>
                     </div>
 
-                    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onSuccessSubmit();}"></iframe>
+                    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(typeof submitted !== 'undefined' && submitted){onSuccessSubmit();}"></iframe>
 
                     <form id="attendanceForm" action="https://script.google.com/macros/s/AKfycbzsln4Dmey78qmkYTwoGcXeQFY6K-QxE_WmzcfBaNQxeZ3JRfEaCHKvXXkpEcgbTLmhGw/exec" method="POST" target="hidden_iframe" onsubmit="handleSubmit(event)">
                         <input type="hidden" name="toko" id="hiddenToko">
@@ -344,7 +346,7 @@
                         <div class="form-group">
                             <label class="label"><span class="req">*</span> Nama Karyawan</label>
                             <div class="select-wrapper">
-                                <select id="selectNama" class="custom-select" disabled required>
+                                <select id="selectNama" class="custom-select" onchange="onNamaChanged()" disabled required>
                                     <option value="">Pilih Toko Terlebih Dahulu...</option>
                                 </select>
                             </div>
@@ -361,10 +363,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="label"><span class="req">*</span> GPS Location</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="inputLocation" class="custom-input" placeholder="Mendapatkan lokasi..." readonly required>
-                                <button type="button" class="btn-action" style="width: auto;" onclick="getGPSLocation()">📍 Refres</button>
+                            <label class="label"><span class="req">*</span> GPS Location (Nama Jalan)</label>
+                            <div style="display: flex; gap: 8px; align-items: stretch;">
+                                <textarea id="inputLocation" rows="2" class="custom-input" style="resize: none; line-height: 1.35;" placeholder="Mencari lokasi & nama jalan..." readonly required></textarea>
+                                <button type="button" class="btn-action" style="width: auto; white-space: nowrap;" onclick="getGPSLocation()">📍 Refres</button>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+                                <div id="gpsStatusMsg" style="font-size: 0.78rem; color: #94a3b8;">Menunggu lokasi GPS...</div>
+                                <a id="gpsMapsLink" href="#" target="_blank" rel="noopener noreferrer" class="hidden" style="font-size: 0.75rem; color: #60a5fa; text-decoration: underline;">🗺️ Lihat di Google Maps</a>
                             </div>
                         </div>
 
@@ -458,6 +464,11 @@
                     </div>
 
                     <div id="itemsContainer" class="space-y-3 md:space-y-0 md:divide-y md:divide-slate-700/50 md:border md:border-slate-700 md:rounded-b-xl md:bg-slate-800/50"></div>
+                </div>
+
+                <div id="upsellingErrorBanner" class="hidden bg-rose-500/15 border border-rose-500/40 text-rose-300 rounded-xl px-4 py-3 text-xs font-medium flex items-start gap-2.5">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+                    <span id="upsellingErrorText"></span>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
@@ -686,9 +697,63 @@
         </div>
     </div>
 
+        <!-- Modal Notifikasi & Konfirmasi In-Page -->
+    <div id="modalAppDialog" class="modal" style="z-index: 200;" onclick="closeAppDialog(false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                <h3 id="appDialogTitle" class="font-bold text-white flex items-center gap-2 text-sm">Notifikasi</h3>
+                <button type="button" onclick="closeAppDialog(false)" class="text-slate-400 hover:text-white text-lg leading-none">&times;</button>
+            </div>
+            <p id="appDialogMessage" class="text-xs text-slate-200 whitespace-pre-line leading-relaxed"></p>
+            <div class="flex justify-end gap-2 mt-2">
+                <button type="button" id="appDialogCancelBtn" onclick="closeAppDialog(false)" class="hidden px-4 py-2 rounded-xl text-xs font-semibold bg-slate-700 text-slate-300 hover:bg-slate-600">Batal</button>
+                <button type="button" id="appDialogOkBtn" onclick="closeAppDialog(true)" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500">OK</button>
+            </div>
+        </div>
+    </div>
+
     <canvas id="watermarkCanvas" class="hidden"></canvas>
 
     <script>
+        // HELPER DIALOG IN-PAGE (PENGGANTI ALERT/CONFIRM)
+        let _appDialogResolver = null;
+        let _appDialogOnOk = null;
+
+        function showAppAlert(message, title = "Informasi", onOk = null) {
+            const modal = document.getElementById('modalAppDialog');
+            document.getElementById('appDialogTitle').textContent = title;
+            document.getElementById('appDialogMessage').textContent = message;
+            document.getElementById('appDialogCancelBtn').classList.add('hidden');
+            document.getElementById('appDialogOkBtn').textContent = 'OK';
+            _appDialogResolver = null;
+            _appDialogOnOk = typeof onOk === 'function' ? onOk : null;
+            modal.style.display = 'flex';
+        }
+
+        function showAppConfirm(message, title = "Konfirmasi") {
+            return new Promise(resolve => {
+                const modal = document.getElementById('modalAppDialog');
+                document.getElementById('appDialogTitle').textContent = title;
+                document.getElementById('appDialogMessage').textContent = message;
+                document.getElementById('appDialogCancelBtn').classList.remove('hidden');
+                document.getElementById('appDialogOkBtn').textContent = 'Ya, Lanjutkan';
+                _appDialogOnOk = null;
+                _appDialogResolver = resolve;
+                modal.style.display = 'flex';
+            });
+        }
+
+        function closeAppDialog(result) {
+            const modal = document.getElementById('modalAppDialog');
+            modal.style.display = 'none';
+            const resolver = _appDialogResolver;
+            const onOk = _appDialogOnOk;
+            _appDialogResolver = null;
+            _appDialogOnOk = null;
+            if (resolver) resolver(Boolean(result));
+            if (result && onOk) onOk();
+        }
+
         // LOGIKA KUNCI PASSWORD UPSELLING
         const UPSELLING_PASSWORD = "MP1";
 
@@ -786,7 +851,7 @@ AG03-05\t9077297\t6`;
         function processStockData() {
             const rawText = document.getElementById('excelInput').value.trim();
             if (!rawText) {
-                alert("Silakan tempel (paste) data Excel terlebih dahulu!");
+                showAppAlert("Silakan tempel (paste) data Excel terlebih dahulu!");
                 return;
             }
 
@@ -838,7 +903,7 @@ AG03-05\t9077297\t6`;
             });
 
             if (totalRows === 0) {
-                alert("Format data tidak terbaca. Pastikan terdapat data SKU yang valid.");
+                showAppAlert("Format data tidak terbaca. Pastikan terdapat data SKU yang valid.");
                 return;
             }
 
@@ -893,31 +958,31 @@ AG03-05\t9077297\t6`;
 
         function copyUniqueStockToClipboard() {
             if (currentStockUniqueData.length === 0) {
-                alert("Tidak ada data unik untuk disalin.");
+                showAppAlert("Tidak ada data unik untuk disalin.");
                 return;
             }
 
             const tsvContent = currentStockUniqueData.map(item => `${item.racks.join(', ')}\t${item.sku}\t${item.totalInput}`).join('\n');
 
             navigator.clipboard.writeText(tsvContent).then(() => {
-                alert("✅ Data SKU Unik berhasil disalin ke Clipboard!\nAnda bisa langsung menekan Ctrl+V di lembar kerja Excel Anda.");
+                showAppAlert("✅ Data SKU Unik berhasil disalin ke Clipboard!\nAnda bisa langsung menekan Ctrl+V di lembar kerja Excel Anda.");
             }).catch(err => {
-                alert("Gagal menyalin data: " + err);
+                showAppAlert("Gagal menyalin data: " + err);
             });
         }
 
         function copyDuplicateStockToClipboard() {
             if (currentStockDuplicateData.length === 0) {
-                alert("Tidak ada data duplikat untuk disalin.");
+                showAppAlert("Tidak ada data duplikat untuk disalin.");
                 return;
             }
 
             const tsvContent = currentStockDuplicateData.map(item => `${item.sku}\t${item.count}x\t${item.racks.join(', ')}\t${item.inputs.join('+')}\t${item.totalInput}`).join('\n');
 
             navigator.clipboard.writeText(tsvContent).then(() => {
-                alert("✅ Daftar SKU Duplikat berhasil disalin ke Clipboard!");
+                showAppAlert("✅ Daftar SKU Duplikat berhasil disalin ke Clipboard!");
             }).catch(err => {
-                alert("Gagal menyalin data: " + err);
+                showAppAlert("Gagal menyalin data: " + err);
             });
         }
 
@@ -1356,7 +1421,7 @@ AG03-05\t9077297\t6`;
                 document.getElementById(rowId).remove();
                 calculateTotals();
             } else {
-                alert("Minimal harus ada 1 item transaksi.");
+                showAppAlert("Minimal harus ada 1 item transaksi.");
             }
         }
 
@@ -1400,13 +1465,13 @@ AG03-05\t9077297\t6`;
             const kasir = document.getElementById('kasir').value;
             const mainPerson = document.getElementById('mainPerson').value;
 
-            if (!store) { alert("Harap pilih Store / Cabang terlebih dahulu!"); return null; }
-            if (!tanggal) { alert("Harap isi Tanggal transaksi!"); return null; }
-            if (!kasir) { alert("Harap pilih Kasir terlebih dahulu!"); return null; }
-            if (!mainPerson) { alert("Harap pilih Main Person (MP) terlebih dahulu!"); return null; }
+            if (!store) { showAppAlert("Harap pilih Store / Cabang terlebih dahulu!"); return null; }
+            if (!tanggal) { showAppAlert("Harap isi Tanggal transaksi!"); return null; }
+            if (!kasir) { showAppAlert("Harap pilih Kasir terlebih dahulu!"); return null; }
+            if (!mainPerson) { showAppAlert("Harap pilih Main Person (MP) terlebih dahulu!"); return null; }
 
             const rows = document.querySelectorAll('.item-row');
-            if (rows.length === 0) { alert("Harap tambahkan setidaknya 1 item produk!"); return null; }
+            if (rows.length === 0) { showAppAlert("Harap tambahkan setidaknya 1 item produk!"); return null; }
 
             const items = [];
             let grandTotal = 0;
@@ -1423,22 +1488,22 @@ AG03-05\t9077297\t6`;
                 const point = parseFloat(pointText) || 0;
 
                 if (!sku) {
-                    alert(`Item ke-${idx + 1}: SKU wajib diisi!`);
+                    showAppAlert(`Item ke-${idx + 1}: SKU wajib diisi!`);
                     isValid = false;
                     return;
                 }
                 if (value <= 0) {
-                    alert(`Item ke-${idx + 1}: Value (Rp) harus lebih besar dari 0!`);
+                    showAppAlert(`Item ke-${idx + 1}: Value (Rp) harus lebih besar dari 0!`);
                     isValid = false;
                     return;
                 }
                 if (qty <= 0 || qty > 9) {
-                    alert(`Item ke-${idx + 1}: Qty harus diisi 1 digit (1-9)!`);
+                    showAppAlert(`Item ke-${idx + 1}: Qty harus diisi 1 digit (1-9)!`);
                     isValid = false;
                     return;
                 }
                 if (!keterangan) {
-                    alert(`Item ke-${idx + 1}: Harap pilih Keterangan produk!`);
+                    showAppAlert(`Item ke-${idx + 1}: Harap pilih Keterangan produk!`);
                     isValid = false;
                     return;
                 }
@@ -1462,13 +1527,45 @@ AG03-05\t9077297\t6`;
             };
         }
 
-        function handleSaveToSystem(e) {
+        function showUpsellingError(message) {
+            const banner = document.getElementById('upsellingErrorBanner');
+            const textEl = document.getElementById('upsellingErrorText');
+            if (banner && textEl) {
+                textEl.textContent = message;
+                banner.classList.remove('hidden');
+            }
+        }
+
+        function hideUpsellingError() {
+            const banner = document.getElementById('upsellingErrorBanner');
+            if (banner) banner.classList.add('hidden');
+        }
+
+        function handleUploadFailure(errorMessage) {
+            const btn = document.getElementById('btnSubmit');
+            const status = document.getElementById('systemStatus');
+
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="rotate-cw" class="w-5 h-5"></i> <span>COBA UPLOAD ULANG</span>`;
+            status.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Gagal Upload!`;
+            status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20";
+            showUpsellingError(errorMessage);
+            safeCreateIcons();
+        }
+
+        async function handleSaveToSystem(e) {
             e.preventDefault();
-            
+            hideUpsellingError();
+
             const data = validateFormData();
             if (!data) return;
 
-            if (!confirm("Apakah seluruh data transaksi sudah sesuai?")) return;
+            if (!navigator.onLine) {
+                handleUploadFailure("Perangkat sedang offline. Periksa koneksi internet Anda lalu klik COBA UPLOAD ULANG. Data form tetap aman.");
+                return;
+            }
+
+            if (!(await showAppConfirm("Apakah seluruh data transaksi sudah sesuai?", "Konfirmasi Upload"))) return;
 
             const btn = document.getElementById('btnSubmit');
             const status = document.getElementById('systemStatus');
@@ -1476,33 +1573,74 @@ AG03-05\t9077297\t6`;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Mengunggah...`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Uploading...`;
             status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
-            if (window.lucide) lucide.createIcons();
+            safeCreateIcons();
 
-            fetch(APP_SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-            .then(() => finalizeSave(data))
-            .catch(err => {
-                console.error("Gagal koneksi Google Sheets:", err);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                // Gunakan text/plain;charset=utf-8 agar lolos CORS Google Apps Script tanpa preflight OPTIONS
+                // sehingga respons server (res.ok / JSON error) benar-benar bisa diverifikasi.
+                const response = await fetch(APP_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Server mengembalikan status HTTP ${response.status}`);
+                }
+
+                const respText = (await response.text()).trim();
+                if (respText) {
+                    try {
+                        const parsed = JSON.parse(respText);
+                        if (parsed && (parsed.status === 'error' || parsed.result === 'error' || parsed.success === false)) {
+                            throw new Error(parsed.message || parsed.error || "Apps Script melaporkan kegagalan penyimpanan.");
+                        }
+                    } catch (jsonErr) {
+                        if (jsonErr.message && !jsonErr.message.toLowerCase().includes('json')) {
+                            throw jsonErr;
+                        }
+                    }
+                }
+
                 finalizeSave(data);
-            });
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.error("Gagal upload transaksi ke Google Sheets:", err);
+                let reason = "Gagal mengirim data ke Spreadsheet. Data form tidak dihapus, silakan klik COBA UPLOAD ULANG.";
+                if (err.name === 'AbortError') {
+                    reason = "Koneksi timeout (>15 detik). Data belum terkonfirmasi masuk ke Spreadsheet—cek jaringan lalu coba lagi.";
+                } else if (!navigator.onLine) {
+                    reason = "Koneksi internet terputus saat mengunggah. Sambungkan kembali jaringan lalu coba lagi.";
+                } else if (err.message) {
+                    reason = `Upload gagal (${err.message}). Data form tetap aman, silakan cek koneksi atau izin Apps Script lalu coba lagi.`;
+                }
+                handleUploadFailure(reason);
+            }
         }
 
         function finalizeSave(data) {
             const btn = document.getElementById('btnSubmit');
             const status = document.getElementById('systemStatus');
-            const savedTx = JSON.parse(localStorage.getItem('system_transactions') || '[]');
-            savedTx.unshift(data);
-            localStorage.setItem('system_transactions', JSON.stringify(savedTx));
+            hideUpsellingError();
+
+            try {
+                const savedTx = JSON.parse(localStorage.getItem('system_transactions') || '[]');
+                savedTx.unshift(data);
+                localStorage.setItem('system_transactions', JSON.stringify(savedTx));
+            } catch (storageErr) {
+                console.warn("Gagal menyimpan riwayat lokal:", storageErr);
+            }
 
             btn.disabled = false;
             btn.innerHTML = `<i data-lucide="upload-cloud" class="w-5 h-5"></i> <span>UPLOAD DATA</span>`;
             status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sukses Upload!`;
             status.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            if (window.lucide) lucide.createIcons();
+            safeCreateIcons();
 
             renderSystemLogs();
             document.getElementById('itemsContainer').innerHTML = '';
@@ -1555,8 +1693,149 @@ AG03-05\t9077297\t6`;
         let currentMode = 'CHECKIN';
         let selectedKehadiran = 'On Duty / Hadir';
         let processedImageData = '';
+        let rawAttendanceImage = null;
+        let photoCapturedAt = null;
+        // Opsional: isi dengan Google Maps Geocoding API Key Anda agar lookup langsung via Google Maps API.
+        // Jika dikosongkan, sistem otomatis menggunakan Reverse Geocoding gratis (OpenStreetMap Nominatim & BigDataCloud).
+        const GOOGLE_MAPS_API_KEY = "";
+
         let currentCoords = '';
+        let currentAddress = '';
+        let isGpsValid = false;
         let submitted = false;
+
+        const GPS_COORD_REGEX = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
+
+        function isValidGpsCoordinates(coords) {
+            return Boolean(coords && GPS_COORD_REGEX.test(coords.trim()));
+        }
+
+        function formatNominatimAddress(data) {
+            if (!data) return '';
+            const a = data.address || {};
+            const streetParts = [
+                a.road || a.pedestrian || a.footway || a.path || a.neighbourhood || a.hamlet || data.name || '',
+                a.house_number || ''
+            ].filter(Boolean).join(' ');
+            const areaParts = [
+                streetParts,
+                a.village || a.suburb || a.town || '',
+                a.city_district || a.subdistrict || a.municipality || '',
+                a.city || a.county || a.regency || '',
+                a.state || ''
+            ].filter(Boolean);
+            // Hapus duplikat berurutan
+            const uniqueParts = areaParts.filter((part, idx) => idx === 0 || part.toLowerCase() !== areaParts[idx - 1].toLowerCase());
+            if (uniqueParts.length > 0) return uniqueParts.join(', ');
+            return (data.display_name || '').trim();
+        }
+
+        async function reverseGeocodeAddress(lat, lng) {
+            const fetchJsonWithTimeout = async (url, timeoutMs = 6000) => {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const res = await fetch(url, { signal: controller.signal, headers: { 'Accept': 'application/json' } });
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return await res.json();
+                } catch (e) {
+                    clearTimeout(timer);
+                    throw e;
+                }
+            };
+
+            // 1. Google Maps Geocoding API (jika GOOGLE_MAPS_API_KEY diisi)
+            if (GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY.trim()) {
+                try {
+                    const gmUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=id&key=${encodeURIComponent(GOOGLE_MAPS_API_KEY.trim())}`;
+                    const gmData = await fetchJsonWithTimeout(gmUrl);
+                    if (gmData && gmData.status === 'OK' && Array.isArray(gmData.results) && gmData.results.length > 0) {
+                        const formatted = gmData.results[0].formatted_address;
+                        if (formatted) return { address: formatted, source: 'Google Maps' };
+                    }
+                } catch (err) {
+                    console.warn("Google Maps Geocoding gagal, mencoba layanan cadangan...", err);
+                }
+            }
+
+            // 2. OpenStreetMap Nominatim (gratis, detail hingga nama jalan & desa/kecamatan)
+            try {
+                const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=id&zoom=18&addressdetails=1`;
+                const nomData = await fetchJsonWithTimeout(nomUrl);
+                const formatted = formatNominatimAddress(nomData);
+                if (formatted) return { address: formatted, source: 'Peta Jalan' };
+            } catch (err) {
+                console.warn("Nominatim reverse geocoding gagal, mencoba BigDataCloud...", err);
+            }
+
+            // 3. BigDataCloud Client Reverse Geocode (gratis, CORS-friendly)
+            try {
+                const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`;
+                const bdcData = await fetchJsonWithTimeout(bdcUrl);
+                const parts = [
+                    bdcData.locality || '',
+                    bdcData.city || '',
+                    bdcData.principalSubdivision || ''
+                ].filter(Boolean);
+                const uniqueParts = parts.filter((p, i) => i === 0 || p.toLowerCase() !== parts[i - 1].toLowerCase());
+                if (uniqueParts.length > 0) return { address: uniqueParts.join(', '), source: 'Peta Wilayah' };
+            } catch (err) {
+                console.warn("BigDataCloud reverse geocoding gagal:", err);
+            }
+
+            return null;
+        }
+
+        function setGpsStatus(state, message, extra = {}) {
+            const inputLoc = document.getElementById('inputLocation');
+            const statusEl = document.getElementById('gpsStatusMsg');
+            const mapsLink = document.getElementById('gpsMapsLink');
+            if (!inputLoc) return;
+
+            if (state === 'valid') {
+                isGpsValid = true;
+                currentCoords = extra.coords || currentCoords;
+                currentAddress = message;
+                inputLoc.value = message;
+                inputLoc.placeholder = "Alamat lokasi terverifikasi";
+                inputLoc.style.borderColor = "#10b981";
+                if (statusEl) {
+                    const sourceLabel = extra.source ? ` (${extra.source})` : '';
+                    statusEl.textContent = `✅ Lokasi terverifikasi${sourceLabel}`;
+                    statusEl.style.color = "#34d399";
+                }
+                if (mapsLink && extra.lat !== undefined && extra.lng !== undefined) {
+                    mapsLink.href = `https://www.google.com/maps?q=${extra.lat},${extra.lng}`;
+                    mapsLink.classList.remove('hidden');
+                }
+                if (rawAttendanceImage) renderAttendanceWatermark();
+            } else if (state === 'loading') {
+                isGpsValid = false;
+                currentCoords = '';
+                currentAddress = '';
+                inputLoc.value = '';
+                inputLoc.placeholder = message || "Mencari lokasi & nama jalan...";
+                inputLoc.style.borderColor = "#f59e0b";
+                if (statusEl) {
+                    statusEl.textContent = "⏳ " + message;
+                    statusEl.style.color = "#fbbf24";
+                }
+                if (mapsLink) mapsLink.classList.add('hidden');
+            } else {
+                isGpsValid = false;
+                currentCoords = '';
+                currentAddress = '';
+                inputLoc.value = '';
+                inputLoc.placeholder = "Alamat lokasi belum tersedia";
+                inputLoc.style.borderColor = "#ef4444";
+                if (statusEl) {
+                    statusEl.textContent = "❌ " + message;
+                    statusEl.style.color = "#f87171";
+                }
+                if (mapsLink) mapsLink.classList.add('hidden');
+            }
+        }
 
         function openAttendanceForm(mode) {
             currentMode = mode;
@@ -1580,6 +1859,7 @@ AG03-05\t9077297\t6`;
                 selectedKehadiran = 'Pulang';
             }
             updateKehadiranUI();
+            if (rawAttendanceImage) renderAttendanceWatermark();
             getGPSLocation();
         }
 
@@ -1597,6 +1877,7 @@ AG03-05\t9077297\t6`;
             if (!tokoVal || !karyawanMap[tokoVal]) {
                 selectNama.disabled = true;
                 selectNama.innerHTML = '<option value="">Pilih Toko Terlebih Dahulu...</option>';
+                if (rawAttendanceImage) renderAttendanceWatermark();
                 return;
             }
 
@@ -1609,6 +1890,12 @@ AG03-05\t9077297\t6`;
                 opt.textContent = nama;
                 selectNama.appendChild(opt);
             });
+
+            if (rawAttendanceImage) renderAttendanceWatermark();
+        }
+
+        function onNamaChanged() {
+            if (rawAttendanceImage) renderAttendanceWatermark();
         }
 
         function startClock() {
@@ -1623,38 +1910,45 @@ AG03-05\t9077297\t6`;
             setInterval(updateTime, 1000);
         }
 
+        async function handleGpsSuccess(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            setGpsStatus('loading', "Mengambil nama jalan dari peta...");
+
+            const geoResult = await reverseGeocodeAddress(lat, lng);
+            if (geoResult && geoResult.address) {
+                setGpsStatus('valid', geoResult.address, { coords, lat, lng, source: geoResult.source });
+            } else {
+                // Fallback terakhir jika layanan peta gagal dihubungi
+                setGpsStatus('valid', `Koordinat: ${coords} (Nama jalan tidak tersedia)`, { coords, lat, lng, source: 'GPS' });
+            }
+        }
+
         function getGPSLocation() {
             const inputLoc = document.getElementById('inputLocation');
-            if(!inputLoc) return;
-            inputLoc.value = "Mencari lokasi GPS...";
+            if (!inputLoc) return;
 
             if (!navigator.geolocation) {
-                inputLoc.value = "GPS Tidak Didukung Browser";
-                currentCoords = "No GPS Support";
+                setGpsStatus('error', "GPS tidak didukung oleh browser ini.");
                 return;
             }
+
+            setGpsStatus('loading', "Mencari lokasi GPS...");
 
             const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
 
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    currentCoords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-                    inputLoc.value = currentCoords;
-                },
+                (pos) => { handleGpsSuccess(pos); },
                 (err) => {
                     navigator.geolocation.getCurrentPosition(
-                        (posFallback) => {
-                            currentCoords = `${posFallback.coords.latitude.toFixed(5)}, ${posFallback.coords.longitude.toFixed(5)}`;
-                            inputLoc.value = currentCoords;
-                        },
-                        (errFallback) => {
-                            let errMsg = "GPS Error";
-                            if (err.code === 1) errMsg = "Izin GPS Ditolak (Aktifkan Lokasi HP)";
-                            else if (err.code === 2) errMsg = "Sinyal GPS Tidak Ditemukan";
-                            else if (err.code === 3) errMsg = "Waktu GPS Habis (Refres)";
-                            
-                            inputLoc.value = errMsg;
-                            currentCoords = errMsg;
+                        (posFallback) => { handleGpsSuccess(posFallback); },
+                        () => {
+                            let errMsg = "Gagal mendapatkan lokasi GPS. Tekan tombol Refres.";
+                            if (err.code === 1) errMsg = "Izin GPS ditolak. Aktifkan lokasi HP & izin browser lalu tekan Refres.";
+                            else if (err.code === 2) errMsg = "Sinyal GPS tidak ditemukan. Pindah ke area terbuka lalu tekan Refres.";
+                            else if (err.code === 3) errMsg = "Waktu pencarian GPS habis. Silakan tekan tombol Refres.";
+                            setGpsStatus('error', errMsg);
                         },
                         { enableHighAccuracy: false, timeout: 5000 }
                     );
@@ -1682,8 +1976,118 @@ AG03-05\t9077297\t6`;
         function closeKehadiranModal() { document.getElementById('modalKehadiran').style.display = 'none'; }
         function selectKehadiranValue(val) { selectedKehadiran = val; document.getElementById('selectKehadiran').innerText = val; closeKehadiranModal(); }
 
-        function triggerCamera() { document.getElementById('fileCamera').click(); }
-        function triggerGallery() { document.getElementById('fileGallery').click(); }
+        function validateBeforePhoto() {
+            const toko = document.getElementById('selectToko').value;
+            const nama = document.getElementById('selectNama').value;
+            if (!toko || !nama) {
+                showAppAlert("Pilih Store dan Nama Karyawan terlebih dahulu sebelum mengambil bukti foto agar watermark terisi dengan benar!");
+                if (!toko) document.getElementById('selectToko').focus();
+                else document.getElementById('selectNama').focus();
+                return false;
+            }
+            return true;
+        }
+
+        function triggerCamera() {
+            if (!validateBeforePhoto()) return;
+            document.getElementById('fileCamera').click();
+        }
+
+        function triggerGallery() {
+            if (!validateBeforePhoto()) return;
+            document.getElementById('fileGallery').click();
+        }
+
+        function wrapCanvasLines(ctx, text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (ctx.measureText(testLine).width <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    // Jika satu kata saja lebih lebar dari maxWidth, pecah per karakter
+                    if (ctx.measureText(word).width > maxWidth) {
+                        let chunk = '';
+                        for (const ch of word) {
+                            if (ctx.measureText(chunk + ch).width > maxWidth && chunk) {
+                                lines.push(chunk);
+                                chunk = ch;
+                            } else {
+                                chunk += ch;
+                            }
+                        }
+                        currentLine = chunk;
+                    } else {
+                        currentLine = word;
+                    }
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
+
+        function renderAttendanceWatermark() {
+            if (!rawAttendanceImage) return;
+            const img = rawAttendanceImage;
+            const canvas = document.getElementById('watermarkCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const maxDim = 1000;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                else { w = Math.round((w * maxDim) / h); h = maxDim; }
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+
+            const timestamp = photoCapturedAt || new Date();
+            const toko = document.getElementById('selectToko').value || "-";
+            const nama = document.getElementById('selectNama').value || "-";
+            const gpsText = (isGpsValid && currentAddress) ? currentAddress : "Menunggu lokasi GPS";
+
+            const padX = Math.max(12, Math.round(w * 0.03));
+            const padY = Math.max(10, Math.round(w * 0.022));
+            const fontSize = Math.max(13, Math.min(24, Math.floor(w / 28)));
+            const lineHeight = Math.round(fontSize * 1.42);
+            const maxTextWidth = w - (padX * 2);
+
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.textBaseline = "top";
+
+            const rawRows = [
+                `[${currentMode}] ${toko} - ${nama}`,
+                `Waktu: ${timestamp.toLocaleString('id-ID')} WIB`,
+                `Lokasi: ${gpsText}`
+            ];
+
+            const wrappedLines = [];
+            rawRows.forEach(row => {
+                wrapCanvasLines(ctx, row, maxTextWidth).forEach(line => wrappedLines.push(line));
+            });
+
+            const boxHeight = (wrappedLines.length * lineHeight) + (padY * 2);
+            const boxTop = Math.max(0, h - boxHeight);
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
+            ctx.fillRect(0, boxTop, w, boxHeight);
+
+            ctx.fillStyle = "#ffffff";
+            wrappedLines.forEach((line, idx) => {
+                ctx.fillText(line, padX, boxTop + padY + (idx * lineHeight));
+            });
+
+            processedImageData = canvas.toDataURL('image/jpeg', 0.75);
+            document.getElementById('imgPreview').src = processedImageData;
+            document.getElementById('previewBox').style.display = 'block';
+        }
 
         function processImage(input) {
             if (!input.files || !input.files[0]) return;
@@ -1693,35 +2097,9 @@ AG03-05\t9077297\t6`;
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    const canvas = document.getElementById('watermarkCanvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    let maxDim = 1000;
-                    let w = img.width, h = img.height;
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
-                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
-                    }
-
-                    canvas.width = w;
-                    canvas.height = h;
-                    ctx.drawImage(img, 0, 0, w, h);
-
-                    const now = new Date();
-                    const toko = document.getElementById('selectToko').value || "Toko Unselected";
-                    const nama = document.getElementById('selectNama').value || "No Name";
-                    const watermarkText = `[${currentMode}] ${toko} - ${nama} | ${now.toLocaleString('id-ID')} | ${currentCoords}`;
-
-                    const fontSize = Math.max(16, Math.floor(canvas.width / 25));
-                    ctx.font = `bold ${fontSize}px sans-serif`;
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-                    ctx.fillRect(0, canvas.height - (fontSize * 2.5), canvas.width, fontSize * 2.5);
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillText(watermarkText, 15, canvas.height - (fontSize * 0.8));
-
-                    processedImageData = canvas.toDataURL('image/jpeg', 0.75);
-                    document.getElementById('imgPreview').src = processedImageData;
-                    document.getElementById('previewBox').style.display = 'block';
+                    rawAttendanceImage = img;
+                    photoCapturedAt = new Date();
+                    renderAttendanceWatermark();
                 };
                 img.src = e.target.result;
             };
@@ -1729,17 +2107,37 @@ AG03-05\t9077297\t6`;
         }
 
         function handleSubmit(e) {
-            if (!processedImageData) {
+            const toko = document.getElementById('selectToko').value;
+            const nama = document.getElementById('selectNama').value;
+
+            if (!toko || !nama) {
                 e.preventDefault();
-                alert("Harap sertakan Bukti Foto!");
+                showAppAlert("Harap pilih Store dan Nama Karyawan terlebih dahulu!");
                 return false;
             }
 
-            document.getElementById('hiddenToko').value = document.getElementById('selectToko').value;
-            document.getElementById('hiddenNama').value = document.getElementById('selectNama').value;
+            if (!isGpsValid || !isValidGpsCoordinates(currentCoords) || !currentAddress) {
+                e.preventDefault();
+                setGpsStatus('error', "Lokasi & nama jalan wajib terverifikasi sebelum mengirim absensi. Tekan tombol Refres.");
+                showAppAlert("Lokasi GPS belum valid! Aktifkan izin lokasi di HP lalu tekan tombol Refres GPS sebelum mengirim absensi.");
+                document.getElementById('inputLocation').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            if (!rawAttendanceImage || !processedImageData) {
+                e.preventDefault();
+                showAppAlert("Harap sertakan Bukti Foto!");
+                return false;
+            }
+
+            // Pastikan watermark selalu sinkron dengan Store, Nama, Mode, dan GPS terbaru
+            renderAttendanceWatermark();
+
+            document.getElementById('hiddenToko').value = toko;
+            document.getElementById('hiddenNama').value = nama;
             document.getElementById('hiddenDatetime').value = document.getElementById('inputDateTime').value;
             document.getElementById('hiddenKehadiran').value = selectedKehadiran;
-            document.getElementById('hiddenLocation').value = document.getElementById('inputLocation').value;
+            document.getElementById('hiddenLocation').value = currentAddress;
             document.getElementById('hiddenPhoto').value = processedImageData;
             document.getElementById('hiddenRemarks').value = document.getElementById('inputRemarks').value || "-";
 
@@ -1750,8 +2148,9 @@ AG03-05\t9077297\t6`;
         }
 
         function onSuccessSubmit() {
-            alert(`Berhasil mengirim absensi [${currentMode}]! Data tersimpan di Spreadsheet.`);
-            location.reload();
+            showAppAlert(`Berhasil mengirim absensi [${currentMode}]! Data tersimpan di Spreadsheet.`, "Absensi Berhasil", () => {
+                location.reload();
+            });
         }
 
         window.onload = () => {
