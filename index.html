@@ -754,6 +754,59 @@
             if (result && onOk) onOk();
         }
 
+        function safeStorageGet(key, fallback = null) {
+            try {
+                const val = localStorage.getItem(key);
+                return val !== null ? val : fallback;
+            } catch (e) {
+                console.warn("localStorage get diblokir/gagal:", e);
+                return fallback;
+            }
+        }
+
+        function safeStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.warn("localStorage set diblokir/gagal:", e);
+                return false;
+            }
+        }
+
+        function copyTextWithFallback(text, successMessage) {
+            const fallbackCopy = () => {
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.setAttribute('readonly', '');
+                    ta.style.position = 'fixed';
+                    ta.style.top = '-9999px';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    ta.setSelectionRange(0, text.length);
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    if (ok) {
+                        showAppAlert(successMessage);
+                    } else {
+                        showAppAlert("Gagal menyalin data otomatis. Silakan salin manual dari tabel.");
+                    }
+                } catch (err) {
+                    showAppAlert("Gagal menyalin data: " + err);
+                }
+            };
+
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                navigator.clipboard.writeText(text)
+                    .then(() => showAppAlert(successMessage))
+                    .catch(() => fallbackCopy());
+            } else {
+                fallbackCopy();
+            }
+        }
+
         // LOGIKA KUNCI PASSWORD UPSELLING
         const UPSELLING_PASSWORD = "MP1";
 
@@ -963,12 +1016,10 @@ AG03-05\t9077297\t6`;
             }
 
             const tsvContent = currentStockUniqueData.map(item => `${item.racks.join(', ')}\t${item.sku}\t${item.totalInput}`).join('\n');
-
-            navigator.clipboard.writeText(tsvContent).then(() => {
-                showAppAlert("✅ Data SKU Unik berhasil disalin ke Clipboard!\nAnda bisa langsung menekan Ctrl+V di lembar kerja Excel Anda.");
-            }).catch(err => {
-                showAppAlert("Gagal menyalin data: " + err);
-            });
+            copyTextWithFallback(
+                tsvContent,
+                "✅ Data SKU Unik berhasil disalin ke Clipboard!\nAnda bisa langsung menekan Ctrl+V di lembar kerja Excel Anda."
+            );
         }
 
         function copyDuplicateStockToClipboard() {
@@ -978,12 +1029,10 @@ AG03-05\t9077297\t6`;
             }
 
             const tsvContent = currentStockDuplicateData.map(item => `${item.sku}\t${item.count}x\t${item.racks.join(', ')}\t${item.inputs.join('+')}\t${item.totalInput}`).join('\n');
-
-            navigator.clipboard.writeText(tsvContent).then(() => {
-                showAppAlert("✅ Daftar SKU Duplikat berhasil disalin ke Clipboard!");
-            }).catch(err => {
-                showAppAlert("Gagal menyalin data: " + err);
-            });
+            copyTextWithFallback(
+                tsvContent,
+                "✅ Daftar SKU Duplikat berhasil disalin ke Clipboard!"
+            );
         }
 
         // ==========================================
@@ -1278,10 +1327,10 @@ AG03-05\t9077297\t6`;
             const html = document.documentElement;
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                localStorage.setItem('theme_mode', 'light');
+                safeStorageSet('theme_mode', 'light');
             } else {
                 html.classList.add('dark');
-                localStorage.setItem('theme_mode', 'dark');
+                safeStorageSet('theme_mode', 'dark');
             }
             updateThemeUI();
         }
@@ -1313,7 +1362,7 @@ AG03-05\t9077297\t6`;
         }
 
         function initTheme() {
-            const savedTheme = localStorage.getItem('theme_mode') || 'dark';
+            const savedTheme = safeStorageGet('theme_mode', 'dark') || 'dark';
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
@@ -1654,7 +1703,15 @@ AG03-05\t9077297\t6`;
         function renderSystemLogs() {
             const container = document.getElementById('systemLogs');
             if(!container) return;
-            const savedTx = JSON.parse(localStorage.getItem('system_transactions') || '[]');
+            let savedTx = [];
+            try {
+                const raw = safeStorageGet('system_transactions', '[]');
+                const parsed = JSON.parse(raw || '[]');
+                if (Array.isArray(parsed)) savedTx = parsed;
+            } catch (err) {
+                console.warn("Data riwayat lokal rusak, direset aman:", err);
+                savedTx = [];
+            }
             if (savedTx.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada transaksi tersimpan di sistem.</div>`;
                 return;
@@ -1702,7 +1759,9 @@ AG03-05\t9077297\t6`;
         let currentCoords = '';
         let currentAddress = '';
         let isGpsValid = false;
+        let gpsRequestId = 0;
         let submitted = false;
+        let absensiSubmitTimeout = null;
 
         const GPS_COORD_REGEX = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
 
@@ -1910,13 +1969,16 @@ AG03-05\t9077297\t6`;
             setInterval(updateTime, 1000);
         }
 
-        async function handleGpsSuccess(pos) {
+        async function handleGpsSuccess(pos, reqId) {
+            if (reqId !== gpsRequestId) return;
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
             const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             setGpsStatus('loading', "Mengambil nama jalan dari peta...");
 
             const geoResult = await reverseGeocodeAddress(lat, lng);
+            if (reqId !== gpsRequestId) return;
+
             if (geoResult && geoResult.address) {
                 setGpsStatus('valid', geoResult.address, { coords, lat, lng, source: geoResult.source });
             } else {
@@ -1929,6 +1991,8 @@ AG03-05\t9077297\t6`;
             const inputLoc = document.getElementById('inputLocation');
             if (!inputLoc) return;
 
+            const reqId = ++gpsRequestId;
+
             if (!navigator.geolocation) {
                 setGpsStatus('error', "GPS tidak didukung oleh browser ini.");
                 return;
@@ -1939,11 +2003,13 @@ AG03-05\t9077297\t6`;
             const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
 
             navigator.geolocation.getCurrentPosition(
-                (pos) => { handleGpsSuccess(pos); },
+                (pos) => { handleGpsSuccess(pos, reqId); },
                 (err) => {
+                    if (reqId !== gpsRequestId) return;
                     navigator.geolocation.getCurrentPosition(
-                        (posFallback) => { handleGpsSuccess(posFallback); },
+                        (posFallback) => { handleGpsSuccess(posFallback, reqId); },
                         () => {
+                            if (reqId !== gpsRequestId) return;
                             let errMsg = "Gagal mendapatkan lokasi GPS. Tekan tombol Refres.";
                             if (err.code === 1) errMsg = "Izin GPS ditolak. Aktifkan lokasi HP & izin browser lalu tekan Refres.";
                             else if (err.code === 2) errMsg = "Sinyal GPS tidak ditemukan. Pindah ke area terbuka lalu tekan Refres.";
@@ -2101,9 +2167,17 @@ AG03-05\t9077297\t6`;
                     photoCapturedAt = new Date();
                     renderAttendanceWatermark();
                 };
+                img.onerror = function() {
+                    showAppAlert("File foto tidak valid atau rusak. Silakan pilih foto lain.");
+                };
                 img.src = e.target.result;
             };
+            reader.onerror = function() {
+                showAppAlert("Gagal membaca file foto. Silakan coba lagi.");
+            };
             reader.readAsDataURL(file);
+            // Reset nilai input agar memilih ulang file yang sama tetap memicu onchange
+            input.value = '';
         }
 
         function handleSubmit(e) {
@@ -2141,13 +2215,48 @@ AG03-05\t9077297\t6`;
             document.getElementById('hiddenPhoto').value = processedImageData;
             document.getElementById('hiddenRemarks').value = document.getElementById('inputRemarks').value || "-";
 
+            if (!navigator.onLine) {
+                e.preventDefault();
+                showAppAlert("Perangkat sedang offline! Sambungkan koneksi internet terlebih dahulu sebelum mengirim absensi.", "Koneksi Terputus");
+                return false;
+            }
+
             const btnSubmit = document.getElementById('btnSubmitAbsensi');
             btnSubmit.disabled = true;
             btnSubmit.innerText = "Mengirim data...";
             submitted = true;
+
+            if (absensiSubmitTimeout) clearTimeout(absensiSubmitTimeout);
+            absensiSubmitTimeout = setTimeout(() => {
+                if (submitted) {
+                    submitted = false;
+                    resetAbsensiSubmitButton();
+                    showAppAlert("Waktu pengiriman absensi habis (>20 detik). Periksa koneksi internet Anda lalu coba kirim ulang.", "Timeout Pengiriman");
+                }
+            }, 20000);
+        }
+
+        function resetAbsensiSubmitButton() {
+            const btnSubmit = document.getElementById('btnSubmitAbsensi');
+            if (!btnSubmit) return;
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = currentMode === 'CHECKIN' ? 'Kirim Check In' : 'Kirim Check Out';
         }
 
         function onSuccessSubmit() {
+            if (!submitted) return;
+            submitted = false;
+            if (absensiSubmitTimeout) {
+                clearTimeout(absensiSubmitTimeout);
+                absensiSubmitTimeout = null;
+            }
+
+            if (!navigator.onLine) {
+                resetAbsensiSubmitButton();
+                showAppAlert("Koneksi internet terputus saat mengirim absensi. Data kemungkinan belum masuk—sambungkan internet lalu kirim ulang.", "Gagal Mengirim");
+                return;
+            }
+
             showAppAlert(`Berhasil mengirim absensi [${currentMode}]! Data tersimpan di Spreadsheet.`, "Absensi Berhasil", () => {
                 location.reload();
             });
