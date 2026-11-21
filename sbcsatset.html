@@ -734,9 +734,20 @@
                             Done SC
                         </button>
                     </div>
-                    <div class="relative flex-1 max-w-xs">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="searchPosInput" oninput="onSearchPosInput()" placeholder="Cari SKU, Rak, atau Deskripsi..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                    <div class="flex flex-wrap items-center gap-2 flex-1 justify-end">
+                        <div id="posDoneScDateFilterWrap" class="hidden flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1 rounded-xl border border-teal-500/40">
+                            <i class="fa-regular fa-calendar-days text-teal-400 text-xs"></i>
+                            <select id="posDoneScDateSelect" onchange="onChangePosDoneScDateFilter(this.value)" class="bg-transparent text-teal-300 font-bold text-[11px] outline-none cursor-pointer pr-1">
+                                <option value="" class="bg-slate-900 text-slate-200">Semua Tanggal SC</option>
+                            </select>
+                            <button type="button" id="btnClearPosDoneScDate" onclick="onChangePosDoneScDateFilter('')" class="hidden text-rose-400 hover:text-rose-300 text-xs px-1" title="Reset Filter Tanggal SC">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="relative flex-1 min-w-[180px] max-w-xs">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="searchPosInput" oninput="onSearchPosInput()" placeholder="Cari SKU, Rak, Deskripsi, Tanggal..." class="w-full pl-8 pr-3 py-1.5 bg-[#080d1a] border border-slate-800 rounded-xl focus:border-sky-500 text-xs text-slate-200 outline-none">
+                        </div>
                     </div>
                 </div>
 
@@ -976,7 +987,7 @@
 
         let masterPage = 1, masterSearchQuery = '';
         let scanVisibleLimit = 50, scanSearchQuery = '';
-        let posFilterMode = 'SCANNED', posPage = 1, posSearchQuery = '';
+        let posFilterMode = 'SCANNED', posPage = 1, posSearchQuery = '', posDoneScDateFilter = '';
         const MASTER_PAGE_SIZE = 50, POS_PAGE_SIZE = 80, UNTALLY_PAGE_SIZE = 50;
         let untallyPage = 1, untallySearchQuery = '', isPrintingUntally = false, activeRackFilter = '';
         let logFilterMode = 'ALL';
@@ -1671,7 +1682,7 @@
                     importedScanFiles = Array.isArray(val) ? val : [];
                 });
             } catch(e) { deletedSkus = new Set(); doneScSkus = new Set(); }
-            masterPage = 1; posPage = 1; untallyPage = 1; scanVisibleLimit = 50;
+            masterPage = 1; posPage = 1; untallyPage = 1; scanVisibleLimit = 50; posDoneScDateFilter = '';
             renderActiveTabUI();
         }
 
@@ -1763,13 +1774,13 @@
                 const scStoreCode = STORE_CODE_MAP_SYNC[currentStore] || currentStore;
                 const doneScList = posData.filter(p => p.status === 'DONE SC' || doneScSkus.has(p.sku)).map(p => ({
                     storeCode: scStoreCode,
-                    remark: `${currentStore} SC ` + (p.doneScDate ? p.doneScDate.split(" ")[0] : getCurrentFormattedDate().split(" ")[0]).replace(/\//g, ""),
+                    remark: `${currentStore} SC ` + (getItemDoneScDateStr(p) !== "-" ? getItemDoneScDateStr(p) : "").replace(/\//g, ""),
                     sku: p.sku,
                     physicalBalance: Number(p.fisik !== undefined ? p.fisik : p.fisikScan) || 0,
                     systemBalance: Number(p.sys) || 0,
                     variance: Number(p.dif) || 0,
                     assignment: "Store Initiative (Balance Check by Gondola)",
-                    doneScDate: p.doneScDate || getCurrentFormattedDate()
+                    doneScDate: p.doneScDate || (p.check3 ? (typeof p.check3 === "string" ? (parseCheckStr(p.check3)?.time || "") : (p.check3.time || "")) : "")
                 }));
 
                 const payloadData = {
@@ -2040,10 +2051,14 @@
                             posData.push(pItem);
                             localPosMap.set(cSku, pItem);
                         }
-                        if (!pItem.check1 && cP.check1) pItem.check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
-                        if (!pItem.check2 && cP.check2) pItem.check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
-                        if (!pItem.check3 && cP.check3) pItem.check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
-                        if (cP.doneScDate && !pItem.doneScDate) pItem.doneScDate = cP.doneScDate;
+                        if (typeof pItem.check1 === 'string') pItem.check1 = parseCheckStr(pItem.check1);
+                        else if (!pItem.check1 && cP.check1) pItem.check1 = typeof cP.check1 === 'string' ? parseCheckStr(cP.check1) : cP.check1;
+                        if (typeof pItem.check2 === 'string') pItem.check2 = parseCheckStr(pItem.check2);
+                        else if (!pItem.check2 && cP.check2) pItem.check2 = typeof cP.check2 === 'string' ? parseCheckStr(cP.check2) : cP.check2;
+                        if (typeof pItem.check3 === 'string') pItem.check3 = parseCheckStr(pItem.check3);
+                        else if (!pItem.check3 && cP.check3) pItem.check3 = typeof cP.check3 === 'string' ? parseCheckStr(cP.check3) : cP.check3;
+                        if (cP.doneScDate) pItem.doneScDate = cP.doneScDate;
+                        else if (!pItem.doneScDate && pItem.check3 && pItem.check3.time) pItem.doneScDate = pItem.check3.time;
                         if (cP.status === "DONE SC" || cP.finalStatus === "DONE SC" || doneScSkus.has(cSku)) {
                             pItem.status = "DONE SC";
                             pItem.finalStatus = "DONE SC";
@@ -2389,7 +2404,7 @@
                     status: preservedStatus,
                     finalStatus: preservedStatus,
                     isLocked: isItemDoneSc || isTally,
-                    doneScDate: prev.doneScDate || (isItemDoneSc ? (prev.check3 && prev.check3.time ? prev.check3.time : getCurrentFormattedDate()) : ''),
+                    doneScDate: prev.doneScDate || (prev.check3 ? (typeof prev.check3 === 'string' ? (parseCheckStr(prev.check3)?.time || '') : (prev.check3.time || '')) : ''),
                     check1: prev.check1 || null, check2: prev.check2 || null, check3: prev.check3 || null,
                     scanTime: stripScanMetaTag(scan.scanTime || '')
                 };
@@ -2424,6 +2439,88 @@
             return combined;
         }
 
+        function getItemDoneScDateStr(item) {
+            if (!item) return "-";
+            let raw = item.doneScDate ? String(item.doneScDate).trim() : "";
+            if (!raw && item.check3) {
+                const chk3 = typeof item.check3 === "string" ? parseCheckStr(item.check3) : item.check3;
+                if (chk3 && chk3.time) raw = String(chk3.time).trim();
+            }
+            if (!raw) return "-";
+            const token = raw.split(" ")[0].trim();
+            if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(token)) {
+                const [d, m, y] = token.split("/");
+                return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+            }
+            if (/^\d{4}-\d{2}-\d{2}/.test(token)) {
+                const [y, m, d] = token.slice(0, 10).split("-");
+                return `${d}/${m}/${y}`;
+            }
+            const parsedDate = new Date(raw);
+            if (!isNaN(parsedDate.getTime())) {
+                const dd = String(parsedDate.getDate()).padStart(2, "0");
+                const mm = String(parsedDate.getMonth() + 1).padStart(2, "0");
+                return `${dd}/${mm}/${parsedDate.getFullYear()}`;
+            }
+            return token || "-";
+        }
+
+        function populatePosDoneScDateOptions() {
+            const wrap = document.getElementById("posDoneScDateFilterWrap");
+            const sel = document.getElementById("posDoneScDateSelect");
+            const clearBtn = document.getElementById("btnClearPosDoneScDate");
+            if (!wrap || !sel) return;
+
+            if (posFilterMode !== "DONE_SC") {
+                wrap.classList.add("hidden");
+                return;
+            }
+            wrap.classList.remove("hidden");
+
+            const dateCounts = {};
+            let totalDoneSc = 0;
+            for (let i = 0; i < posData.length; i++) {
+                if (posData[i].status === "DONE SC") {
+                    totalDoneSc++;
+                    const dStr = getItemDoneScDateStr(posData[i]);
+                    dateCounts[dStr] = (dateCounts[dStr] || 0) + 1;
+                }
+            }
+
+            const sortedDates = Object.keys(dateCounts).sort((a, b) => {
+                if (a === "-") return 1;
+                if (b === "-") return -1;
+                const pa = a.split("/").map(Number);
+                const pb = b.split("/").map(Number);
+                if (pa.length === 3 && pb.length === 3) return new Date(pb[2], pb[1] - 1, pb[0]) - new Date(pa[2], pa[1] - 1, pa[0]);
+                return b.localeCompare(a);
+            });
+
+            if (posDoneScDateFilter && !dateCounts[posDoneScDateFilter]) {
+                posDoneScDateFilter = "";
+            }
+
+            let optsHtml = `<option value="" class="bg-slate-900 text-slate-200">Semua Tanggal SC (${totalDoneSc.toLocaleString("id-ID")})</option>`;
+            for (let i = 0; i < sortedDates.length; i++) {
+                const d = sortedDates[i];
+                const selectedAttr = (d === posDoneScDateFilter) ? "selected" : "";
+                optsHtml += `<option value="${d}" ${selectedAttr} class="bg-slate-900 text-teal-300">${d} (${dateCounts[d].toLocaleString("id-ID")} SKU)</option>`;
+            }
+            sel.innerHTML = optsHtml;
+            sel.value = posDoneScDateFilter;
+
+            if (clearBtn) {
+                if (posDoneScDateFilter) clearBtn.classList.remove("hidden");
+                else clearBtn.classList.add("hidden");
+            }
+        }
+
+        function onChangePosDoneScDateFilter(val) {
+            posDoneScDateFilter = String(val || "").trim();
+            posPage = 1;
+            renderPOSCards();
+        }
+
         function renderPOSCards() {
             const list = document.getElementById('listPosCard');
             if (!list) return;
@@ -2445,17 +2542,23 @@
                 return;
             }
 
+            populatePosDoneScDateOptions();
+
             const filtered = [];
             for (let i = 0; i < sourceList.length; i++) {
                 const item = sourceList[i];
                 if (posFilterMode === 'TALLY' && item.status !== 'TALLY') continue;
                 if (posFilterMode === 'UNTALLY' && item.status !== 'UNTALLY') continue;
-                if (posFilterMode === 'DONE_SC' && item.status !== 'DONE SC') continue;
+                if (posFilterMode === 'DONE_SC') {
+                    if (item.status !== 'DONE SC') continue;
+                    if (posDoneScDateFilter && getItemDoneScDateStr(item) !== posDoneScDateFilter) continue;
+                }
                 if (posSearchQuery) {
                     const mSku = item.sku.toLowerCase().includes(posSearchQuery);
                     const mRack = (item.rack || '').toLowerCase().includes(posSearchQuery);
                     const mDesc = (item.desc || '').toLowerCase().includes(posSearchQuery);
-                    if (!mSku && !mRack && !mDesc) continue;
+                    const mDate = item.status === 'DONE SC' && getItemDoneScDateStr(item).toLowerCase().includes(posSearchQuery);
+                    if (!mSku && !mRack && !mDesc && !mDate) continue;
                 }
                 filtered.push(item);
             }
@@ -2546,9 +2649,9 @@
                             </td>
                             <td class="p-2 border-r border-slate-800/80 text-center whitespace-nowrap">
                                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded uppercase ${badgeClass}">${item.status}</span>
-                                ${isDoneSc && posFilterMode !== 'DONE_SC' ? `<div class="text-[9px] text-teal-400 font-mono font-bold mt-0.5"><i class="fa-regular fa-calendar-check text-[8px] mr-0.5"></i>${item.doneScDate ? item.doneScDate.split(' ')[0] : (item.check3 && item.check3.time ? item.check3.time.split(' ')[0] : getCurrentFormattedDate().split(' ')[0])}</div>` : ''}
+                                ${isDoneSc && posFilterMode !== 'DONE_SC' ? `<div class="text-[9px] text-teal-400 font-mono font-bold mt-0.5"><i class="fa-regular fa-calendar-check text-[8px] mr-0.5"></i>${getItemDoneScDateStr(item)}</div>` : ''}
                             </td>
-                            ${posFilterMode === 'DONE_SC' ? `<td class="p-2 border-r border-slate-800/80 text-center text-teal-300 font-mono text-[11px] font-bold whitespace-nowrap">${item.doneScDate ? item.doneScDate.split(' ')[0] : (item.check3 && item.check3.time ? item.check3.time.split(' ')[0] : getCurrentFormattedDate().split(' ')[0])}</td>` : ''}
+                            ${posFilterMode === 'DONE_SC' ? `<td class="p-2 border-r border-slate-800/80 text-center text-teal-300 font-mono text-[11px] font-bold whitespace-nowrap">${getItemDoneScDateStr(item)}</td>` : ''}
                             <td class="p-2 text-center">
                                 <button type="button" onclick="deletePosItem('${item.sku}')" class="text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 p-1.5 rounded-lg transition-all" title="Hapus SKU dari POS & Cloud"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                             </td>
@@ -3176,12 +3279,17 @@
         }
 
         function downloadAllDoneScToExcel() {
-            const targetItems = posData.filter(p => p.status === 'DONE SC');
+            let targetItems = posData.filter(p => p.status === 'DONE SC');
+            let suffix = "Semua_DoneSC";
+            if (posFilterMode === 'DONE_SC' && posDoneScDateFilter) {
+                targetItems = targetItems.filter(p => getItemDoneScDateStr(p) === posDoneScDateFilter);
+                suffix = `Tanggal_${posDoneScDateFilter.replace(/\//g, "")}`;
+            }
             if (targetItems.length === 0) {
                 showToast("Belum ada data berstatus DONE SC untuk diekspor.", "warning");
                 return;
             }
-            generateAndDownloadScExcel(targetItems, `Stock_Correction_${currentStore}_Semua_DoneSC`);
+            generateAndDownloadScExcel(targetItems, `Stock_Correction_${currentStore}_${suffix}`);
         }
 
         function generateAndDownloadScExcel(items, baseFileName) {
