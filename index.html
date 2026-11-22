@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,101 @@
                 darkMode: 'class',
             };
         }
+
+        // ==========================================
+        // LOGIKA MODUL F003 AUTO LOGIN
+        // ==========================================
+        const F003_TARGET_URL = "https://script.google.com/a/macros/mrdiy.com/s/AKfycbzMJ9vSrf0vtwkL8WU47XDPaDVZqecQs2YAtrtip5UtAB4wGyff33LKokTwsodbRRDbKw/exec";
+
+        function showF003Toast(msg) {
+            const toast = document.getElementById('f003Toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        const F003_STORES_DATA = {
+            JW5003: { name: 'XKLR', pass: 'XKLR826' },
+            JW1023: { name: 'XCMG', pass: 'XCMG582' },
+            JW1032: { name: 'XCIH', pass: 'XCIH636' }
+        };
+        let f003PendingStoreCode = '';
+
+        function openF003Store(storeCode) {
+            f003PendingStoreCode = storeCode;
+            const store = F003_STORES_DATA[storeCode] || { name: '', pass: '' };
+            document.getElementById('f003ModalSubtitle').textContent = `Verifikasi untuk ${storeCode} (${store.name})`;
+
+            const input = document.getElementById('f003VerifyCodeInput');
+            const errorBox = document.getElementById('f003VerifyError');
+            input.value = '';
+            input.classList.remove('invalid');
+            errorBox.classList.remove('show');
+
+            document.getElementById('f003VerifyModal').classList.add('open');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeF003VerifyModal() {
+            f003PendingStoreCode = '';
+            document.getElementById('f003VerifyModal').classList.remove('open');
+        }
+
+        function handleF003BackdropClick(event) {
+            if (event.target.id === 'f003VerifyModal') {
+                closeF003VerifyModal();
+            }
+        }
+
+        function confirmF003StoreVerification() {
+            const input = document.getElementById('f003VerifyCodeInput');
+            const errorBox = document.getElementById('f003VerifyError');
+            const modalBox = document.getElementById('f003VerifyModalBox');
+            const enteredPass = input.value.trim();
+            const expectedPass = (F003_STORES_DATA[f003PendingStoreCode] || {}).pass || '';
+
+            if (!enteredPass || enteredPass !== expectedPass) {
+                input.classList.add('invalid');
+                errorBox.textContent = !enteredPass
+                    ? 'Password wajib diisi terlebih dahulu!'
+                    : 'Password salah! Silakan masukkan Password toko yang sesuai.';
+                errorBox.classList.add('show');
+
+                modalBox.classList.remove('f003-shake');
+                void modalBox.offsetWidth;
+                modalBox.classList.add('f003-shake');
+                input.focus();
+                return;
+            }
+
+            const verifiedCode = f003PendingStoreCode;
+            closeF003VerifyModal();
+            showF003Toast(`Verifikasi berhasil! Membuka form login untuk ${verifiedCode}...`);
+            window.open(`${F003_TARGET_URL}#${verifiedCode}`, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const f003InputEl = document.getElementById('f003VerifyCodeInput');
+            if (f003InputEl) {
+                f003InputEl.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        confirmF003StoreVerification();
+                    } else {
+                        this.classList.remove('invalid');
+                        document.getElementById('f003VerifyError').classList.remove('show');
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            const modal = document.getElementById('f003VerifyModal');
+            if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
+                closeF003VerifyModal();
+            }
+        });
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
@@ -84,20 +179,567 @@
         .modal-content { background: var(--card-bg); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--border-color); width: 90%; max-width: 400px; }
         .modal-item { padding: 16px; background: var(--input-bg); border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .modal-item:hover { background: var(--border-color); }
-    </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-3 md:p-8 font-sans transition-colors duration-300">
 
-    <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        /* F003 AUTO LOGIN STYLES */
+        .f003-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0;
+        }
+        .f003-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+        .f003-header {
+            background: #ffcc00;
+            padding: 22px 24px;
+            text-align: center;
+            border-bottom: 5px solid #d32f2f;
+        }
+        .f003-brand {
+            display: inline-block;
+            background: #d32f2f;
+            color: #ffcc00;
+            font-weight: 900;
+            font-size: 13px;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .f003-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #111827;
+        }
+        .f003-header p {
+            font-size: 13px;
+            color: #4b5563;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .f003-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .f003-store-btn {
+            width: 100%;
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .f003-store-btn:hover {
+            background: #ffcc00;
+            border-color: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(245, 158, 11, 0.25);
+        }
+        .f003-store-btn:active {
+            transform: translateY(0);
+        }
+        .f003-store-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .f003-store-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .f003-store-tag {
+            background: #111827;
+            color: #ffcc00;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+        .f003-store-email {
+            font-size: 13px;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        .f003-store-btn:hover .f003-store-email {
+            color: #1f2937;
+        }
+        .f003-login-pill {
+            background: #d32f2f;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 8px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(211, 47, 47, 0.3);
+        }
+        .f003-recipients-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        .f003-recipients-box strong {
+            color: #111827;
+        }
+        .f003-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #111827;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 2500;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+        .f003-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .f003-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.72);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+        .f003-modal-backdrop.open {
+            display: flex;
+        }
+        .f003-modal-box {
+            width: 100%;
+            max-width: 390px;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            border: 1px solid #e5e7eb;
+            color: #1f2937;
+            animation: f003ModalPop 0.2s ease-out;
+        }
+        @keyframes f003ModalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes f003Shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .f003-shake {
+            animation: f003Shake 0.25s ease-in-out;
+        }
+        .f003-modal-header {
+            background: #ffcc00;
+            padding: 18px 20px;
+            border-bottom: 4px solid #d32f2f;
+            text-align: center;
+        }
+        .f003-modal-badge {
+            display: inline-block;
+            background: #d32f2f;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin-bottom: 6px;
+        }
+        .f003-modal-header h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+        .f003-modal-header p {
+            font-size: 13px;
+            color: #374151;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+        .f003-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .f003-modal-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+        }
+        .f003-modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #111827;
+            background: #ffffff;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .f003-modal-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        .f003-modal-input.invalid {
+            border-color: #d32f2f;
+            background: #fef2f2;
+        }
+        .f003-modal-error {
+            display: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #d32f2f;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+        .f003-modal-error.show {
+            display: block;
+        }
+        .f003-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .f003-btn-cancel {
+            flex: 1;
+            padding: 11px 14px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .f003-btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        .f003-btn-verify {
+            flex: 2;
+            padding: 11px 14px;
+            background: #d32f2f;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(211, 47, 47, 0.3);
+        }
+        .f003-btn-verify:hover {
+            background: #b91c1c;
+        }
+
+
+        /* LIGHT MODE GLOBAL OVERRIDES (DEFAULT THEME) */
+        html:not(.dark) {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --input-bg: #f8fafc;
+            --border-color: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+        html:not(.dark) body {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+        html:not(.dark) .app-container {
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+        }
+        html:not(.dark) .landing-title {
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        html:not(.dark) .mode-card.checkin {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), #ffffff);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        html:not(.dark) .mode-card.checkin:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), #eff6ff);
+        }
+        html:not(.dark) .mode-card.checkout {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), #ffffff);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+        html:not(.dark) .mode-card.checkout:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), #fffbeb);
+        }
+        html:not(.dark) .badge-mode.checkin {
+            background-color: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+        }
+        html:not(.dark) .badge-mode.checkout {
+            background-color: rgba(245, 158, 11, 0.14);
+            color: #b45309;
+        }
+        html:not(.dark) .label {
+            color: #334155;
+        }
+        html:not(.dark) .custom-select:disabled {
+            background-color: #e2e8f0;
+            color: #64748b;
+        }
+        html:not(.dark) #inputDateTime {
+            color: #4338ca !important;
+        }
+        html:not(.dark) #modalKehadiran h3 {
+            color: #0f172a !important;
+        }
+        html:not(.dark) .modal-item:hover {
+            background: #e2e8f0;
+        }
+
+        /* Portal cards & containers in Light Mode (excluding Price Change & F003 white cards) */
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *):not(.f003-container):not(.f003-container *).bg-slate-800,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *):not(.f003-container):not(.f003-container *).bg-slate-800\/90,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *):not(.f003-container):not(.f003-container *).bg-slate-800\/50 {
+            background-color: #ffffff !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-800\/40 {
+            background-color: #f8fafc !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).hover\:bg-slate-800:hover {
+            background-color: #f8fafc !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-900,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-900\/90,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-900\/80,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-900\/70,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-900\/60 {
+            background-color: #f8fafc !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).hover\:bg-slate-900:hover {
+            background-color: #f1f5f9 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-700,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-slate-700\/50 {
+            background-color: #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).hover\:bg-slate-600:hover {
+            background-color: #cbd5e1 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).bg-amber-950\/20 {
+            background-color: #fffbeb !important;
+        }
+
+        /* Borders & Dividers in Light Mode */
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-700,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-700\/80,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-700\/70,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-700\/60,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-700\/50,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-600,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).border-slate-800 {
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) #pagePriceChange > div {
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Text contrast in Light Mode */
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *):not(.f003-container):not(.f003-container *):not(.bg-indigo-600):not(.bg-cyan-600):not(.bg-emerald-600):not(.bg-amber-600\/80):not(.bg-rose-600).text-white {
+            color: #0f172a !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-slate-100,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-slate-200 {
+            color: #1e293b !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-slate-300 {
+            color: #334155 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-slate-400 {
+            color: #475569 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-indigo-300,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-indigo-400 {
+            color: #4f46e5 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-amber-300,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-amber-400 {
+            color: #b45309 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-emerald-300,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-emerald-400 {
+            color: #047857 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-cyan-300,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-cyan-400 {
+            color: #0e7490 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-blue-400 {
+            color: #2563eb !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-violet-400 {
+            color: #6d28d9 !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-teal-400 {
+            color: #0f766e !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-rose-300,
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).text-rose-400 {
+            color: #be123c !important;
+        }
+        html:not(.dark) :not(#pagePriceChange):not(#pagePriceChange *).shadow-xl {
+            box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.05) !important;
+        }
+
+
+        /* ACCENT KUNING #FDC607 */
+        html .header-brand-bar.border-slate-700 {
+            border-top: 4px solid #FDC607 !important;
+        }
+        .brand-icon-badge {
+            background-color: #FDC607;
+            color: #1e293b;
+            padding: 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(253, 198, 7, 0.35);
+        }
+        html:not(.dark) .clock-pill-brand.text-indigo-300 {
+            background-color: rgba(253, 198, 7, 0.18) !important;
+            border-color: #FDC607 !important;
+            color: #713f12 !important;
+        }
+        html:not(.dark) .clock-pill-brand svg,
+        html:not(.dark) .clock-pill-brand .text-indigo-400 {
+            color: #a16207 !important;
+        }
+        .brand-underline {
+            width: 72px;
+            height: 4px;
+            border-radius: 9999px;
+            background-color: #FDC607;
+            margin: 10px auto 0;
+        }
+        html:not(.dark) #pageHome .grid > div:not(.cursor-not-allowed):hover,
+        html:not(.dark) #pageHome .grid > a:hover {
+            border-color: #FDC607 !important;
+            box-shadow: 0 10px 24px -6px rgba(253, 198, 7, 0.28), 0 4px 10px -4px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        /* PRICE CHANGE CHECK AUTO STYLES */
+        .font-mono-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            #pc-print-sheet {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            table.pc-print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 11px;
+            }
+            table.pc-print-table th {
+                background-color: #f8fafc !important;
+                color: #475569 !important;
+                border-top: 1px solid #cbd5e1;
+                border-bottom: 1.5px solid #94a3b8;
+                padding: 7px 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 10px;
+                letter-spacing: 0.04em;
+            }
+            table.pc-print-table td {
+                border-bottom: 1px solid #e2e8f0;
+                padding: 6px 10px;
+                color: #1e293b;
+            }
+            table.pc-print-table tbody tr:nth-child(even) {
+                background-color: #f8fafc !important;
+            }
+            table.pc-print-table tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+    <style id="pc-dynamic-print-style"></style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-3 md:p-8 font-sans transition-colors duration-300">
+
+    <div class="no-print max-w-7xl mx-auto space-y-4 md:space-y-6">
         
         <!-- Header Utama Dashboard -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl transition-colors duration-300">
+        <div class="header-brand-bar flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl transition-colors duration-300">
             <div>
-                <h1 id="ui_main_title" class="text-xl md:text-2xl font-extrabold text-white flex items-start gap-2 tracking-wide">
-                    <i data-lucide="layout-dashboard" class="text-indigo-400 w-7 h-7 mt-0.5 shrink-0"></i>
+                <h1 id="ui_main_title" class="text-xl md:text-2xl font-extrabold text-white flex items-center gap-3 tracking-wide">
+                    <span class="brand-icon-badge shrink-0"><i data-lucide="layout-dashboard" class="w-6 h-6"></i></span>
                     <span>SISTEM TERPADU<br>TAHU AJA</span>
                 </h1>
-                <p id="ui_main_subtitle" class="text-slate-400 text-xs md:text-sm mt-1 font-medium">AREA XKLR • XCMG • XCIH</p>
+                <p id="ui_main_subtitle" class="text-slate-400 text-xs md:text-sm mt-1.5 font-medium">AREA XKLR • XCMG • XCIH</p>
             </div>
             
             <div class="flex items-center gap-2 md:gap-3 flex-wrap">
@@ -105,14 +747,14 @@
                     <i data-lucide="home" class="w-4 h-4 text-indigo-400"></i> BERANDA
                 </button>
 
-                <div class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
+                <div class="clock-pill-brand inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
                     <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
                     <span id="realtimeDateTime">Loading...</span>
                 </div>
 
-                <button type="button" onclick="toggleTheme()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 dark:bg-slate-700 dark:text-amber-400 dark:hover:bg-slate-600 border border-amber-500/30 dark:border-slate-600 transition active:scale-95">
-                    <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
-                    <span id="themeLabel">Light Mode</span>
+                <button type="button" onclick="toggleTheme()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-slate-700 dark:text-amber-400 dark:hover:bg-slate-600 border border-indigo-200 dark:border-slate-600 transition active:scale-95">
+                    <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+                    <span id="themeLabel">Dark Mode</span>
                 </button>
             </div>
         </div>
@@ -120,10 +762,11 @@
         <!-- DASHBOARD MENU -->
         <div id="pageHome" class="space-y-6">
             <div class="text-center py-4">
-                <h2 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-amber-400 uppercase">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-indigo-400 dark:via-purple-400 dark:to-amber-400 uppercase tracking-tight">
                     Pilih Menu Layanan Operasional
                 </h2>
                 <p class="text-slate-400 text-xs md:text-sm mt-1">Silakan pilih salah satu menu di bawah ini untuk memulai transaksi atau pencatatan</p>
+                <div class="brand-underline"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -181,19 +824,31 @@
                     <p class="text-slate-400 text-xs mt-2">Akses modul SBC SATSET langsung melalui GitHub Pages.</p>
                 </a>
 
-                <!-- 5. STOCK BALANCE CHECK (PENGHAPUS DATA DUPLIKAT SKU) -->
-                <div onclick="navigateTo('stockBalance')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <!-- 5. F003 AUTO LOGIN (DITUKAR DARI POSISI 7) -->
+                <div onclick="navigateTo('f003AutoLogin')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3.5 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20 group-hover:scale-110 transition-transform">
-                            <i data-lucide="scan-line" class="w-8 h-8"></i>
+                        <div class="p-3.5 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="key-round" class="w-8 h-8"></i>
                         </div>
-                        <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">AKTIF</span>
+                        <span class="text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20">AUTO LOGIN</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">5. GABUNGKAN QTY SKU YANG SAMA, HAPUS DUPLICATE</h3>
-                    <p class="text-slate-400 text-xs mt-2">Filter & hapus SKU duplikat hasil scanning, gabungkan Qty input, lalu salin kembali ke Excel.</p>
+                    <h3 class="text-lg font-bold text-white group-hover:text-rose-400 transition-colors uppercase">5. F003 AUTO LOGIN</h3>
+                    <p class="text-slate-400 text-xs mt-2">Akses cepat & verifikasi password toko untuk F003 Store Damage Submission (XKLR, XCMG, XCIH).</p>
                 </div>
 
-                <!-- 6. KUMPULAN LINK -->
+                <!-- 6. PRICE CHANGE CHECK AUTO -->
+                <div onclick="navigateTo('priceChange')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-teal-500/10 text-teal-400 rounded-xl border border-teal-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="tag" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded-full border border-teal-500/20">AKTIF</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-teal-400 transition-colors uppercase">6. PRICE CHANGE CHECK AUTO</h3>
+                    <p class="text-slate-400 text-xs mt-2">Filter otomatis tarikan data POS/ERP berdasarkan List SKU target, cek stok Qty &gt; 0, export CSV, dan cetak daftar siap pakai.</p>
+                </div>
+
+                <!-- 7. KUMPULAN LINK -->
                 <div onclick="navigateTo('kumpulanLink')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
@@ -201,11 +856,23 @@
                         </div>
                         <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">PORTAL LINK</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors uppercase">6. KUMPULAN LINK</h3>
+                    <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors uppercase">7. KUMPULAN LINK</h3>
                     <p class="text-slate-400 text-xs mt-2">Akses cepat ke Drive Report, F003 Store Damage, Qube ERP, dan Fast Petty Cash MP.</p>
                 </div>
 
-                <!-- 7. EXPIRED DATA -->
+                <!-- 8. REMOVE DUPLICATE -->
+                <div onclick="navigateTo('stockBalance')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3.5 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="scan-line" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">AKTIF</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase">8. REMOVE DUPLICATE</h3>
+                    <p class="text-slate-400 text-xs mt-2">Filter & hapus SKU duplikat hasil scanning, gabungkan Qty input, lalu salin kembali ke Excel.</p>
+                </div>
+
+                <!-- 9. EXPIRED DATA -->
                 <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
@@ -213,11 +880,11 @@
                         </div>
                         <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-300 uppercase">7. EXPIRED DATA</h3>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">9. EXPIRED DATA</h3>
                     <p class="text-slate-500 text-xs mt-2">Modul pendataan dan pengawasan barang yang mendekati tanggal kadaluarsa toko.</p>
                 </div>
 
-                <!-- 8. SHORTCUT MP -->
+                <!-- 10. SHORTCUT MP -->
                 <div class="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl opacity-60 cursor-not-allowed select-none">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3.5 bg-slate-700/50 text-slate-400 rounded-xl border border-slate-600/30">
@@ -225,13 +892,239 @@
                         </div>
                         <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">SEGERA HADIR</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-300 uppercase">8. SHORTCUT MP</h3>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase">10. SHORTCUT MP</h3>
                     <p class="text-slate-500 text-xs mt-2">Pintasan cepat modul dan utilitas khusus Main Person (MP).</p>
                 </div>
             </div>
         </div>
 
-        <!-- 6. KUMPULAN LINK PAGE -->
+        <!-- 6. PRICE CHANGE CHECK AUTO PAGE -->
+        <div id="pagePriceChange" class="hidden">
+            <div class="bg-slate-50 text-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-700/80 shadow-xl space-y-5">
+
+
+    <!-- Header -->
+    <header class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Price Change Tool</h1>
+          <p class="text-xs sm:text-sm text-slate-500">Filter tarikan data POS/ERP (CSV/TSV) berdasarkan List SKU dan cetak daftar siap pakai</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="pc-btn-export-csv" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 active:scale-[0.99] transition">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export CSV
+        </button>
+        <button id="pc-btn-open-print" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-sm active:scale-[0.99] transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Preview &amp; Print
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI Summary Row -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Total Tarikan Data</div>
+        <div id="pc-kpi-total-raw" class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">0</div>
+        <div class="text-[11px] text-slate-400 mt-0.5">Baris data terbaca</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Target SKU Cocok</div>
+        <div class="flex items-baseline gap-1.5 mt-1">
+          <span id="pc-kpi-matched" class="text-2xl font-bold text-indigo-600 tabular-nums">0</span>
+          <span id="pc-kpi-target-total" class="text-xs font-medium text-slate-400">/ 0 SKU</span>
+        </div>
+        <div id="pc-kpi-missing-note" class="text-[11px] text-amber-600 mt-0.5">0 belum ditemukan</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Total Qty (Ditampilkan)</div>
+        <div id="pc-kpi-total-qty" class="text-2xl font-bold text-emerald-600 mt-1 tabular-nums">0</div>
+        <div id="pc-kpi-nonzero-qty" class="text-[11px] text-slate-400 mt-0.5">0 item stok &gt; 0</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Item Dipilih (Print)</div>
+        <div id="pc-kpi-selected" class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">0</div>
+        <div class="text-[11px] text-slate-400 mt-0.5">Siap cetak / export</div>
+      </div>
+    </section>
+
+    <!-- Input Panels: Raw Data & Target SKU List -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <!-- Raw Data Panel -->
+      <div id="pc-raw-drop-zone" class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col transition">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-900">1. Sumber Tarikan Data (CSV / TXT / TSV)</h2>
+            <p class="text-xs text-slate-500">Mendukung pemisah <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">,</span> <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">;</span> atau <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">Tab</span>: <span class="font-mono-code text-[11px] bg-slate-100 px-1.5 py-0.5 rounded">SKU,Rak,Harga,Qty,,Tanggal,,Barcode,Deskripsi</span></p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <label class="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Upload File
+              <input id="pc-file-upload" type="file" accept=".txt,.csv,.tsv" class="hidden" />
+            </label>
+            <button id="pc-btn-load-sample" type="button" class="px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+              Contoh Data
+            </button>
+            <button id="pc-btn-clear-raw" type="button" class="px-2.5 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition">
+              Hapus
+            </button>
+          </div>
+        </div>
+        <textarea id="pc-raw-data-input" rows="6" spellcheck="false" placeholder="Tempel hasil tarikan data di sini..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
+      </div>
+
+      <!-- Target SKU List Panel -->
+      <div id="pc-sku-drop-zone" class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col transition">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold text-slate-900">2. List SKU Target</h2>
+              <span id="pc-sku-count-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-100 text-indigo-700 tabular-nums">0 SKU</span>
+            </div>
+            <p class="text-xs text-slate-500">Tempel ribuan SKU dari Excel (1 per baris)</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <label class="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition">
+              Upload SKU
+              <input id="pc-sku-file-upload" type="file" accept=".txt,.csv,.tsv" class="hidden" />
+            </label>
+            <button id="pc-btn-load-default-skus" type="button" class="px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+              SKU Default
+            </button>
+            <button id="pc-btn-clear-skus" type="button" class="px-2.5 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition">
+              Hapus
+            </button>
+          </div>
+        </div>
+        <textarea id="pc-sku-list-input" rows="6" spellcheck="false" placeholder="3109262&#10;3109263&#10;..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
+      </div>
+    </section>
+
+    <!-- Non-blocking loading progress bar for huge files -->
+    <div id="pc-loading-banner" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-indigo-600 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span id="pc-loading-banner-text" class="font-medium">Memproses data...</span>
+      </div>
+      <div class="w-32 sm:w-48 h-2 bg-indigo-200/70 rounded-full overflow-hidden">
+        <div id="pc-loading-progress-bar" class="h-full bg-indigo-600 transition-all duration-100" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Notice banner if 0 target SKUs match raw data -->
+    <div id="pc-mismatch-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-xs sm:text-sm flex items-center gap-2.5">
+      <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span id="pc-mismatch-banner-text"></span>
+    </div>
+
+    <!-- Main Data Table Card -->
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- Toolbar -->
+      <div class="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Static Label -->
+          <span class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-indigo-50 text-indigo-700">
+            Sesuai List SKU
+          </span>
+
+          <!-- Active Qty > 0 Badge -->
+          <span class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-700">
+            Hanya Qty &gt; 0
+          </span>
+
+          <!-- Missing SKUs Status Button -->
+          <button id="pc-btn-toggle-missing" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/70 rounded-xl text-xs font-medium text-slate-700 transition">
+            <span>Cek Status SKU</span>
+            <span id="pc-badge-missing-count" class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-200 text-slate-700">0</span>
+          </button>
+        </div>
+
+        <!-- Search -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 sm:w-64">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="pc-search-input" type="text" placeholder="Cari SKU, deskripsi, rak..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible SKU Status Drawer -->
+      <div id="pc-missing-drawer" class="hidden border-b border-slate-200 bg-slate-50/80 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Status Pencocokan List SKU Target</h3>
+          <button id="pc-btn-close-missing" type="button" class="text-xs text-slate-500 hover:text-slate-800">Tutup</button>
+        </div>
+        <div id="pc-missing-chips" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <th class="py-3 pl-4 pr-2 w-10">
+                <input id="pc-select-all-checkbox" type="checkbox" title="Pilih semua" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+              </th>
+              <th class="py-3 px-3 w-14">No.</th>
+              <th class="py-3 px-3 cursor-pointer hover:text-slate-800 select-none" data-sort="sku">SKU <span class="pc-sort-ind" data-col="sku"></span></th>
+              <th class="py-3 px-3 cursor-pointer hover:text-slate-800 select-none" data-sort="desc">Deskripsi <span class="pc-sort-ind" data-col="desc"></span></th>
+              <th class="py-3 px-3 cursor-pointer hover:text-slate-800 select-none text-right w-28" data-sort="qty">Qty <span class="pc-sort-ind" data-col="qty"></span></th>
+              <th class="py-3 px-3 cursor-pointer hover:text-slate-800 select-none" data-sort="rack">Rak <span class="pc-sort-ind" data-col="rack"></span></th>
+              <th class="py-3 px-3 cursor-pointer hover:text-slate-800 select-none text-right" data-sort="price">Harga <span class="pc-sort-ind" data-col="price"></span></th>
+              <th class="py-3 px-3 pr-4">Tanggal</th>
+            </tr>
+          </thead>
+          <tbody id="pc-data-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Bar -->
+      <div id="pc-pagination-bar" class="hidden px-4 py-3 border-t border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
+        <span id="pc-pagination-info">Menampilkan 0–0 dari 0 item</span>
+        <div class="flex items-center gap-1.5">
+          <button id="pc-btn-prev-page" type="button" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition">Sebelumnya</button>
+          <span id="pc-pagination-page-label" class="px-2 font-medium text-slate-700">Hal 1 / 1</span>
+          <button id="pc-btn-next-page" type="button" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition">Berikutnya</button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="pc-empty-state" class="hidden py-12 px-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <p id="pc-empty-state-title" class="text-sm font-medium text-slate-700">Tidak ada data yang cocok saat ini</p>
+        <p class="text-xs text-slate-500 mt-1">Coba ubah kata kunci pencarian atau periksa kembali List SKU Target.</p>
+      </div>
+    </section>
+  
+            </div>
+        </div>
+
+        <!-- 7. KUMPULAN LINK PAGE -->
         <div id="pageKumpulanLink" class="hidden space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
@@ -370,7 +1263,7 @@
                             </div>
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
                                 <div id="gpsStatusMsg" style="font-size: 0.78rem; color: #94a3b8;">Menunggu lokasi GPS...</div>
-                                <a id="gpsMapsLink" href="#" target="_blank" rel="noopener noreferrer" class="hidden" style="font-size: 0.75rem; color: #60a5fa; text-decoration: underline;">🗺️ Lihat di Google Maps</a>
+                                <a id="gpsMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" class="hidden" style="font-size: 0.75rem; color: #60a5fa; text-decoration: underline;">🗺️ Lihat di Google Maps</a>
                             </div>
                         </div>
 
@@ -538,14 +1431,14 @@
             </div>
         </div>
 
-        <!-- 5. STOCK BALANCE CHECK PAGE -->
+        <!-- 8. REMOVE DUPLICATE PAGE (STOCK BALANCE CHECK) -->
         <div id="pageStockBalance" class="hidden space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-6">
                 <!-- Header Section -->
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
                     <div>
                         <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2 uppercase tracking-wide">
-                            <i data-lucide="scan-line" class="w-6 h-6 text-cyan-400"></i> Stock Balance Check & Duplicate Cleaner
+                            <i data-lucide="scan-line" class="w-6 h-6 text-cyan-400"></i> Remove Duplicate &amp; Stock Balance Check
                         </h2>
                         <p class="text-xs md:text-sm text-slate-400 mt-1">
                             Tempel data hasil scan Excel (RACK, SKU, INPUT) untuk menghapus SKU duplikat, menjumlahkan kuantitas, dan menyalin hasil bersih kembali ke Excel.
@@ -668,10 +1561,61 @@
             </div>
         </div>
 
+        <!-- 5. F003 AUTO LOGIN PAGE -->
+        <div id="pageF003AutoLogin" class="hidden f003-wrapper">
+            <div class="f003-container">
+                <div class="f003-header">
+                    <div class="f003-brand">MR.D.I.Y.</div>
+                    <h2>F003 STORE DAMAGE SUBMISSION</h2>
+                    <p>Pilih toko untuk langsung membuka &amp; login otomatis</p>
+                </div>
+
+                <div class="f003-content">
+                    <!-- Tombol 1: JW5003 -->
+                    <button type="button" class="f003-store-btn" onclick="openF003Store('JW5003')">
+                        <div class="f003-store-info">
+                            <div class="f003-store-title">
+                                JW5003 <span class="f003-store-tag">XKLR</span>
+                            </div>
+                            <div class="f003-store-email">jw5003xklr@mrdiy.com</div>
+                        </div>
+                        <div class="f003-login-pill">LOGIN &rarr;</div>
+                    </button>
+
+                    <!-- Tombol 2: JW1023 -->
+                    <button type="button" class="f003-store-btn" onclick="openF003Store('JW1023')">
+                        <div class="f003-store-info">
+                            <div class="f003-store-title">
+                                JW1023 <span class="f003-store-tag">XCMG</span>
+                            </div>
+                            <div class="f003-store-email">jw1023xcmg@mrdiy.com</div>
+                        </div>
+                        <div class="f003-login-pill">LOGIN &rarr;</div>
+                    </button>
+
+                    <!-- Tombol 3: JW1032 -->
+                    <button type="button" class="f003-store-btn" onclick="openF003Store('JW1032')">
+                        <div class="f003-store-info">
+                            <div class="f003-store-title">
+                                JW1032 <span class="f003-store-tag">XCIH</span>
+                            </div>
+                            <div class="f003-store-email">jw1032xcih@mrdiy.com</div>
+                        </div>
+                        <div class="f003-login-pill">LOGIN &rarr;</div>
+                    </button>
+
+                    <div class="f003-recipients-box">
+                        <div><strong>Recipient 1 (ABM):</strong> mohammad.syafiuddin@mrdiy.com</div>
+                        <div><strong>Recipient 2 (BM):</strong> azhar.fauzi@mrdiy.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Modal Status Kehadiran Absensi -->
-    <div id="modalKehadiran" class="modal" onclick="closeKehadiranModal()">
+    <div id="modalKehadiran" class="no-print modal" onclick="closeKehadiranModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 style="font-weight:700; color:#fff;">Pilih Status Kehadiran</h3>
             <div id="modalKehadiranItems"></div>
@@ -679,7 +1623,7 @@
     </div>
 
     <!-- Modal Password Auth Upselling -->
-    <div id="modalPassword" class="modal">
+    <div id="modalPassword" class="no-print modal">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-white flex items-center gap-2">
@@ -698,7 +1642,7 @@
     </div>
 
         <!-- Modal Notifikasi & Konfirmasi In-Page -->
-    <div id="modalAppDialog" class="modal" style="z-index: 200;" onclick="closeAppDialog(false)">
+    <div id="modalAppDialog" class="no-print modal" style="z-index: 200;" onclick="closeAppDialog(false)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between border-b border-slate-700 pb-2">
                 <h3 id="appDialogTitle" class="font-bold text-white flex items-center gap-2 text-sm">Notifikasi</h3>
@@ -711,6 +1655,140 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Verifikasi Password Toko F003 -->
+    <div id="f003VerifyModal" class="no-print f003-modal-backdrop" onclick="handleF003BackdropClick(event)">
+        <div id="f003VerifyModalBox" class="f003-modal-box" role="dialog" aria-modal="true" aria-labelledby="f003ModalTitle">
+            <div class="f003-modal-header">
+                <span class="f003-modal-badge">VERIFIKASI AKSES</span>
+                <h3 id="f003ModalTitle">Masukkan Password Toko</h3>
+                <p id="f003ModalSubtitle">Verifikasi untuk Store: -</p>
+            </div>
+            <div class="f003-modal-body">
+                <label for="f003VerifyCodeInput" class="f003-modal-label">Ketik Password toko untuk melanjutkan login:</label>
+                <input
+                    type="password"
+                    id="f003VerifyCodeInput"
+                    class="f003-modal-input"
+                    placeholder="Masukkan Password..."
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <div id="f003VerifyError" class="f003-modal-error">
+                    Password tidak sesuai! Masukkan Password yang benar untuk toko ini.
+                </div>
+                <div class="f003-modal-actions">
+                    <button type="button" class="f003-btn-cancel" onclick="closeF003VerifyModal()">Batal</button>
+                    <button type="button" class="f003-btn-verify" onclick="confirmF003StoreVerification()">Verifikasi &amp; Login &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="f003Toast" class="no-print f003-toast">Berhasil disalin!</div>
+
+    <!-- Price Change Toast Container -->
+    <div id="pc-toast-container" class="no-print fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <!-- Print Preview Modal -->
+  <div id="pc-print-modal" class="no-print hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">Preview Cetak Daftar Price Change</h3>
+          <p class="text-xs text-slate-500">Kolom tetap: No, SKU, Deskripsi, Qty, Rak, Harga, Ceklis &bull; 40 baris/halaman</p>
+        </div>
+        <button id="pc-btn-close-modal" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Print Options Bar -->
+      <div class="px-5 py-3 border-b border-slate-200 bg-white space-y-2.5 text-xs">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <label for="pc-print-title-input" class="font-medium text-slate-600">Judul:</label>
+            <input id="pc-print-title-input" type="text" value="DAFTAR PRICE CHANGE" class="px-2.5 py-1 border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <label class="inline-flex items-center gap-1.5 cursor-not-allowed text-slate-500 select-none" title="Pengaturan dikunci">
+            <input id="pc-opt-col-rack" type="checkbox" checked disabled class="rounded border-slate-300 text-indigo-600 opacity-75 cursor-not-allowed" />
+            Rak
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-not-allowed text-slate-500 select-none" title="Pengaturan dikunci">
+            <input id="pc-opt-col-price" type="checkbox" checked disabled class="rounded border-slate-300 text-indigo-600 opacity-75 cursor-not-allowed" />
+            Harga
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-not-allowed text-slate-500 select-none" title="Pengaturan dikunci">
+            <input id="pc-opt-col-check" type="checkbox" checked disabled class="rounded border-slate-300 text-indigo-600 opacity-75 cursor-not-allowed" />
+            Kolom Ceklis
+          </label>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+          <div class="flex items-center gap-1.5">
+            <label for="pc-opt-rows-per-page" class="font-medium text-slate-600">Baris/Hal:</label>
+            <select id="pc-opt-rows-per-page" disabled title="Pengaturan dikunci" class="px-2 py-1 border border-slate-300 rounded-lg text-xs bg-slate-100 text-slate-500 cursor-not-allowed">
+              <option value="40" selected>40 baris</option>
+            </select>
+          </div>
+          <div id="pc-page-range-controls" class="flex flex-wrap items-center gap-1.5">
+            <span class="font-medium text-slate-600">Cetak Hal:</span>
+            <input id="pc-opt-page-from" type="number" min="1" value="1" class="w-16 px-2 py-1 border border-slate-300 rounded-lg text-xs text-center font-mono-code focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <span class="text-slate-400">s/d</span>
+            <input id="pc-opt-page-to" type="number" min="1" value="1" class="w-16 px-2 py-1 border border-slate-300 rounded-lg text-xs text-center font-mono-code focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <span id="pc-opt-total-pages-label" class="text-slate-500 font-medium">(dari 1 hal)</span>
+            <button id="pc-btn-reset-page-range" type="button" class="px-2 py-1 text-[11px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition">
+              Semua Hal
+            </button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <label for="pc-opt-paper-size" class="font-medium text-slate-600">Kertas:</label>
+            <select id="pc-opt-paper-size" class="px-2 py-1 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="A4 portrait" selected>A4 Portrait</option>
+              <option value="A4 landscape">A4 Landscape</option>
+              <option value="letter portrait">Letter Portrait</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <label for="pc-opt-font-size" class="font-medium text-slate-600">Ukuran:</label>
+            <select id="pc-opt-font-size" class="px-2 py-1 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="10">Kecil (10px)</option>
+              <option value="11" selected>Normal (11px)</option>
+              <option value="12">Besar (12px)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Scroll Area -->
+      <div class="flex-1 overflow-y-auto p-5 bg-slate-100">
+        <div id="pc-preview-paper" class="bg-white border border-slate-200 shadow-sm rounded-lg p-6 max-w-3xl mx-auto">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+        <span id="pc-modal-item-summary" class="text-xs text-slate-500">0 item akan dicetak</span>
+        <div class="flex items-center gap-2">
+          <button id="pc-btn-cancel-print" type="button" class="px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition">
+            Tutup
+          </button>
+          <button id="pc-btn-do-print" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-sm transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Cetak Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actual Print Sheet (Visible ONLY during @media print) -->
+  <div id="pc-print-sheet" class="print-only"></div>
 
     <canvas id="watermarkCanvas" class="hidden"></canvas>
 
@@ -846,6 +1924,8 @@
             const pageLeaderboard = document.getElementById('pageLeaderboard');
             const pageStockBalance = document.getElementById('pageStockBalance');
             const pageKumpulanLink = document.getElementById('pageKumpulanLink');
+            const pageF003AutoLogin = document.getElementById('pageF003AutoLogin');
+            const pagePriceChange = document.getElementById('pagePriceChange');
 
             pageHome.classList.add('hidden');
             pageAbsensi.classList.add('hidden');
@@ -853,6 +1933,8 @@
             pageLeaderboard.classList.add('hidden');
             pageStockBalance.classList.add('hidden');
             if (pageKumpulanLink) pageKumpulanLink.classList.add('hidden');
+            if (pageF003AutoLogin) pageF003AutoLogin.classList.add('hidden');
+            if (pagePriceChange) pagePriceChange.classList.add('hidden');
 
             if (targetPage === 'absensi') {
                 pageAbsensi.classList.remove('hidden');
@@ -866,6 +1948,10 @@
                 pageStockBalance.classList.remove('hidden');
             } else if (targetPage === 'kumpulanLink') {
                 if (pageKumpulanLink) pageKumpulanLink.classList.remove('hidden');
+            } else if (targetPage === 'f003AutoLogin') {
+                if (pageF003AutoLogin) pageF003AutoLogin.classList.remove('hidden');
+            } else if (targetPage === 'priceChange') {
+                if (pagePriceChange) pagePriceChange.classList.remove('hidden');
             } else {
                 pageHome.classList.remove('hidden');
             }
@@ -873,7 +1959,7 @@
         }
 
         // ==========================================
-        // LOGIKA FITUR STOCK BALANCE CHECK & DUPLICATE CLEANER
+        // LOGIKA FITUR REMOVE DUPLICATE & STOCK BALANCE CHECK
         // ==========================================
         let currentStockUniqueData = [];
         let currentStockDuplicateData = [];
@@ -1327,10 +2413,10 @@ AG03-05\t9077297\t6`;
             const html = document.documentElement;
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                safeStorageSet('theme_mode', 'light');
+                safeStorageSet('theme_mode_v2', 'light');
             } else {
                 html.classList.add('dark');
-                safeStorageSet('theme_mode', 'dark');
+                safeStorageSet('theme_mode_v2', 'dark');
             }
             updateThemeUI();
         }
@@ -1362,7 +2448,7 @@ AG03-05\t9077297\t6`;
         }
 
         function initTheme() {
-            const savedTheme = safeStorageGet('theme_mode', 'dark') || 'dark';
+            const savedTheme = safeStorageGet('theme_mode_v2', 'light') || 'light';
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
@@ -1628,8 +2714,6 @@ AG03-05\t9077297\t6`;
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
             try {
-                // Gunakan text/plain;charset=utf-8 agar lolos CORS Google Apps Script tanpa preflight OPTIONS
-                // sehingga respons server (res.ok / JSON error) benar-benar bisa diverifikasi.
                 const response = await fetch(APP_SCRIPT_URL, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -1752,8 +2836,6 @@ AG03-05\t9077297\t6`;
         let processedImageData = '';
         let rawAttendanceImage = null;
         let photoCapturedAt = null;
-        // Opsional: isi dengan Google Maps Geocoding API Key Anda agar lookup langsung via Google Maps API.
-        // Jika dikosongkan, sistem otomatis menggunakan Reverse Geocoding gratis (OpenStreetMap Nominatim & BigDataCloud).
         const GOOGLE_MAPS_API_KEY = "";
 
         let currentCoords = '';
@@ -1783,7 +2865,6 @@ AG03-05\t9077297\t6`;
                 a.city || a.county || a.regency || '',
                 a.state || ''
             ].filter(Boolean);
-            // Hapus duplikat berurutan
             const uniqueParts = areaParts.filter((part, idx) => idx === 0 || part.toLowerCase() !== areaParts[idx - 1].toLowerCase());
             if (uniqueParts.length > 0) return uniqueParts.join(', ');
             return (data.display_name || '').trim();
@@ -1804,7 +2885,6 @@ AG03-05\t9077297\t6`;
                 }
             };
 
-            // 1. Google Maps Geocoding API (jika GOOGLE_MAPS_API_KEY diisi)
             if (GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY.trim()) {
                 try {
                     const gmUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=id&key=${encodeURIComponent(GOOGLE_MAPS_API_KEY.trim())}`;
@@ -1818,7 +2898,6 @@ AG03-05\t9077297\t6`;
                 }
             }
 
-            // 2. OpenStreetMap Nominatim (gratis, detail hingga nama jalan & desa/kecamatan)
             try {
                 const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=id&zoom=18&addressdetails=1`;
                 const nomData = await fetchJsonWithTimeout(nomUrl);
@@ -1828,7 +2907,6 @@ AG03-05\t9077297\t6`;
                 console.warn("Nominatim reverse geocoding gagal, mencoba BigDataCloud...", err);
             }
 
-            // 3. BigDataCloud Client Reverse Geocode (gratis, CORS-friendly)
             try {
                 const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`;
                 const bdcData = await fetchJsonWithTimeout(bdcUrl);
@@ -1982,7 +3060,6 @@ AG03-05\t9077297\t6`;
             if (geoResult && geoResult.address) {
                 setGpsStatus('valid', geoResult.address, { coords, lat, lng, source: geoResult.source });
             } else {
-                // Fallback terakhir jika layanan peta gagal dihubungi
                 setGpsStatus('valid', `Koordinat: ${coords} (Nama jalan tidak tersedia)`, { coords, lat, lng, source: 'GPS' });
             }
         }
@@ -2076,7 +3153,6 @@ AG03-05\t9077297\t6`;
                     currentLine = testLine;
                 } else {
                     if (currentLine) lines.push(currentLine);
-                    // Jika satu kata saja lebih lebar dari maxWidth, pecah per karakter
                     if (ctx.measureText(word).width > maxWidth) {
                         let chunk = '';
                         for (const ch of word) {
@@ -2176,7 +3252,6 @@ AG03-05\t9077297\t6`;
                 showAppAlert("Gagal membaca file foto. Silakan coba lagi.");
             };
             reader.readAsDataURL(file);
-            // Reset nilai input agar memilih ulang file yang sama tetap memicu onchange
             input.value = '';
         }
 
@@ -2204,7 +3279,6 @@ AG03-05\t9077297\t6`;
                 return false;
             }
 
-            // Pastikan watermark selalu sinkron dengan Store, Nama, Mode, dan GPS terbaru
             renderAttendanceWatermark();
 
             document.getElementById('hiddenToko').value = toko;
@@ -2271,6 +3345,1132 @@ AG03-05\t9077297\t6`;
             getGPSLocation();
             if (window.lucide) lucide.createIcons();
         };
+    </script>
+
+    <!-- LOGIKA MODUL 6. PRICE CHANGE CHECK AUTO -->
+    <script>
+(function () {
+      const SAMPLE_RAW_DATA = [
+        '3109262,AG01-03,14500.00,12,,30/10/2026,,9551015310926,MR.DIY MICROFIBER CLOTH 30X30CM',
+        '3109263,AG01-04,19500.00,8,,30/10/2026,,9551015310933,MR.DIY GLASS CLEANER SPRAY 500ML',
+        '3109264,AG01-05,24000.00,4,,30/10/2026,,9551015310940,MR.DIY SCRUB SPONGE PACK 6S',
+        '3109265,AG02-01,11000.00,0,,21/10/2025,,9551015310957,MR.DIY DUSTPAN SET MINI',
+        '3109266,AG02-02,32500.00,6,,30/10/2026,,9551015310964,MR.DIY FLOOR BROOM SOFT BRISTLE',
+        '9762875,BF-06,49500.00,0,,30/10/2026,,9551015522342,PONY WATER BUCKET HB',
+        '9762876,BG05-09,51000.00,0,,30/10/2026,,9551015522359,PONY STORAGE BOX HSB',
+        '9762877,BG05-11,68000.00,0,,21/10/2025,,9551015522366,PONY STORAGE BOX HSB',
+        '9762880,AG03-02,16500.00,0,,21/10/2025,,9551015522410,PONY PET BOWL (L) PB',
+        '9762881,AG03-04,4500.00,0,,26/09/2025,,9551015522427,PONY MULTIPURPOSE PE',
+        '9762952,BW05-06,49500.00,0,,28/08/2026,,9762952,NITRILE POWDER FREE',
+        '9762953,BW05-06,49500.00,0,,28/08/2026,,9762953,NITRILE POWDER FREE',
+        '9762954,BW05-06,49500.00,0,,28/08/2026,,9762954,NITRILE POWDER FREE',
+        '9764876,AW02-02,76500.00,0,,28/08/2026,,9764876,HOSE GREEN 16MM*19MM',
+        '9780171,BG03-11,7500.00,0,,30/10/2026,,9551015520522,PLASTIC PET JAR SP80',
+        '9780182,BG03-11,16000.00,5,,21/10/2025,,9551015520072,ALUMINIUM SCREW CAP',
+        '9780197,BG02-03,12000.00,0,,21/10/2025,,9551015520324,SP5070 PET JAR CRYST',
+        '9780198,BG02-03,12500.00,0,,21/10/2025,,9551015520331,SP5100 PET JAR CRYST',
+        '9780200,BG03-11,12500.00,2,,21/10/2025,,9551015520546,SP8165 PET JAR C/W P',
+        '9780229,BG03-10,8000.00,0,,21/10/2025,,9551015520508,WITH INSERT',
+        '9780243,BG02-03,7500.00,0,,31/10/2025,,9551015520515,SP8071 PET JAR C/W P',
+        '9780244,BG03-11,13500.00,3,,26/09/2025,,9551015520539,SP8019 PET JAR C/W P',
+        '9780255,BG02-04,18000.00,0,,03/07/2026,,9551015521086,MR.DIY 300ML JAR*3S',
+        '9780258,BG03-11,12500.00,0,,30/10/2026,,9551015522649,SP-C0201 FOOD CONTAI',
+        '9780259,BG03-12,16500.00,0,,30/10/2026,,9551015522656,SP-C0202 FOOD CONTAI',
+        '9780272,BG03-10,13000.00,0,,30/10/2026,,9551015522595,SP-C0101 ROUND FOOD',
+        '9780273,BG03-10,14500.00,0,,30/10/2026,,9551015522601,SP-C0102 ROUND FOOD'
+      ].join('\n');
+
+      const DEFAULT_TARGET_SKUS = [
+        '3109262', '3109263', '3109264', '3109265', '3109266',
+        '3109267', '3109268', '3109269', '3109990', '3109989',
+        '3109991', '3109992', '3109951', '3109950', '3109952',
+        '3109956', '3108506', '3108507', '3102199', '3100326',
+        '3100344', '9780182', '9780200', '9780244'
+      ].join('\n');
+
+      const STORAGE_KEY = 'mrdiy_price_change_tool_v3';
+
+      const PAGE_SIZE = 100;
+      const MAX_TEXTAREA_CHARS = 30000;
+      const MAX_STORAGE_CHARS = 180000;
+      const CHUNK_TIME_BUDGET_MS = 14;
+
+      const state = {
+        rawText: '',
+        skuText: '',
+        parsedRows: [],
+        totalRawLines: 0,
+        rawSkuSet: new Set(),
+        targetSkus: [],
+        targetSet: new Set(),
+        matchedTargetSkus: [],
+        missingTargetSkus: [],
+        searchQuery: '',
+        sortCol: null,
+        sortDir: 'asc',
+        selectedIds: new Set(),
+        qtyOverrides: {},
+        showMissingDrawer: false,
+        currentPage: 1,
+        isLargeRawMode: false,
+        isLargeSkuMode: false,
+        rawVersion: 1,
+        skuVersion: 1,
+        qtyVersion: 1,
+        lastSkuParseVersion: 0,
+        lastParseKey: '',
+        filteredCacheKey: '',
+        filteredCache: [],
+        parseJobId: 0
+      };
+
+      // DOM Elements
+      const elRawInput = document.getElementById('pc-raw-data-input');
+      const elSkuInput = document.getElementById('pc-sku-list-input');
+      const elRawDropZone = document.getElementById('pc-raw-drop-zone');
+      const elSkuDropZone = document.getElementById('pc-sku-drop-zone');
+      const elFileUpload = document.getElementById('pc-file-upload');
+      const elSkuFileUpload = document.getElementById('pc-sku-file-upload');
+      const elSkuCountBadge = document.getElementById('pc-sku-count-badge');
+      const elTableBody = document.getElementById('pc-data-table-body');
+      const elEmptyState = document.getElementById('pc-empty-state');
+      const elEmptyStateTitle = document.getElementById('pc-empty-state-title');
+      const elSearchInput = document.getElementById('pc-search-input');
+      const elSelectAll = document.getElementById('pc-select-all-checkbox');
+      const elLoadingBanner = document.getElementById('pc-loading-banner');
+      const elLoadingText = document.getElementById('pc-loading-banner-text');
+      const elLoadingBar = document.getElementById('pc-loading-progress-bar');
+      const elMismatchBanner = document.getElementById('pc-mismatch-banner');
+      const elMismatchText = document.getElementById('pc-mismatch-banner-text');
+      const elMissingDrawer = document.getElementById('pc-missing-drawer');
+      const elMissingChips = document.getElementById('pc-missing-chips');
+      const elBadgeMissing = document.getElementById('pc-badge-missing-count');
+      const elPrintModal = document.getElementById('pc-print-modal');
+      const elPreviewPaper = document.getElementById('pc-preview-paper');
+      const elPrintSheet = document.getElementById('pc-print-sheet');
+      const elPrintTitle = document.getElementById('pc-print-title-input');
+      const elOptRack = document.getElementById('pc-opt-col-rack');
+      const elOptPrice = document.getElementById('pc-opt-col-price');
+      const elOptCheck = document.getElementById('pc-opt-col-check');
+      const elModalSummary = document.getElementById('pc-modal-item-summary');
+      const elOptRowsPerPage = document.getElementById('pc-opt-rows-per-page');
+      const elOptPageFrom = document.getElementById('pc-opt-page-from');
+      const elOptPageTo = document.getElementById('pc-opt-page-to');
+      const elTotalPagesLabel = document.getElementById('pc-opt-total-pages-label');
+      const elPageRangeControls = document.getElementById('pc-page-range-controls');
+      const elOptPaperSize = document.getElementById('pc-opt-paper-size');
+      const elOptFontSize = document.getElementById('pc-opt-font-size');
+      const elDynamicPrintStyle = document.getElementById('pc-dynamic-print-style');
+      const elPaginationBar = document.getElementById('pc-pagination-bar');
+      const elPaginationInfo = document.getElementById('pc-pagination-info');
+      const elPaginationPageLabel = document.getElementById('pc-pagination-page-label');
+      const elBtnPrevPage = document.getElementById('pc-btn-prev-page');
+      const elBtnNextPage = document.getElementById('pc-btn-next-page');
+      const elKpiTotalRaw = document.getElementById('pc-kpi-total-raw');
+      const elKpiMatched = document.getElementById('pc-kpi-matched');
+      const elKpiTargetTotal = document.getElementById('pc-kpi-target-total');
+      const elKpiMissingNote = document.getElementById('pc-kpi-missing-note');
+      const elKpiTotalQty = document.getElementById('pc-kpi-total-qty');
+      const elKpiNonzeroQty = document.getElementById('pc-kpi-nonzero-qty');
+      const elKpiSelected = document.getElementById('pc-kpi-selected');
+
+      function debounce(fn, delay) {
+        let timer = null;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+      }
+
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('pc-toast-container');
+        const colors = {
+          info: 'bg-slate-900 text-white',
+          success: 'bg-emerald-600 text-white',
+          warn: 'bg-amber-600 text-white'
+        };
+        const toast = document.createElement('div');
+        toast.className = `${colors[type] || colors.info} px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-medium transition-opacity duration-300`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => toast.remove(), 300);
+        }, 2600);
+      }
+
+      let saveTimer = null;
+      function saveState() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          try {
+            const payload = {};
+            if (state.skuText.length <= MAX_STORAGE_CHARS) {
+              payload.skuText = state.skuText;
+            }
+            if (state.rawText.length <= MAX_STORAGE_CHARS) {
+              payload.rawText = state.rawText;
+              payload.qtyOverrides = state.qtyOverrides;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          } catch (e) {
+            // Ignore storage restrictions
+          }
+        }, 80);
+      }
+
+      function loadState() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (typeof parsed.rawText === 'string' && parsed.rawText.trim()) {
+              state.rawText = parsed.rawText;
+            }
+            if (typeof parsed.skuText === 'string' && parsed.skuText.trim()) {
+              state.skuText = parsed.skuText;
+            }
+            if (parsed.qtyOverrides && typeof parsed.qtyOverrides === 'object') {
+              state.qtyOverrides = parsed.qtyOverrides;
+            }
+          }
+        } catch (e) {
+          // Ignore storage restrictions
+        }
+      }
+
+      function syncRawTextareaDisplay() {
+        if (state.rawText.length > MAX_TEXTAREA_CHARS) {
+          state.isLargeRawMode = true;
+          const preview = state.rawText.slice(0, 2200);
+          const lastNl = preview.lastIndexOf('\n');
+          elRawInput.value = (lastNl > 0 ? preview.slice(0, lastNl) : preview) +
+            '\n\n[... Mode Cepat: ' + (state.rawText.length / 1024).toFixed(0) + ' KB dimuat di memori agar bebas lag. Klik Hapus atau tempel/upload baru untuk mengganti ...]';
+          elRawInput.readOnly = true;
+        } else {
+          state.isLargeRawMode = false;
+          elRawInput.readOnly = false;
+          elRawInput.value = state.rawText;
+        }
+      }
+
+      function syncSkuTextareaDisplay() {
+        if (state.skuText.length > MAX_TEXTAREA_CHARS) {
+          state.isLargeSkuMode = true;
+          const preview = state.skuText.slice(0, 2200);
+          const lastNl = preview.lastIndexOf('\n');
+          elSkuInput.value = (lastNl > 0 ? preview.slice(0, lastNl) : preview) +
+            '\n\n[... Mode Cepat: ' + (state.skuText.length / 1024).toFixed(0) + ' KB SKU dimuat di memori agar bebas lag. Klik Hapus atau tempel/upload baru untuk mengganti ...]';
+          elSkuInput.readOnly = true;
+        } else {
+          state.isLargeSkuMode = false;
+          elSkuInput.readOnly = false;
+          elSkuInput.value = state.skuText;
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatRupiah(num) {
+        if (isNaN(num)) return '-';
+        return 'Rp ' + Number(num).toLocaleString('id-ID');
+      }
+
+      function detectDelimiterCode(text) {
+        const sampleEnd = Math.min(text.length, 4096);
+        let tabs = 0;
+        let semis = 0;
+        let commas = 0;
+        let lines = 0;
+        for (let i = 0; i < sampleEnd && lines < 6; i++) {
+          const code = text.charCodeAt(i);
+          if (code === 10) lines++;
+          else if (code === 9) tabs++;
+          else if (code === 59) semis++;
+          else if (code === 44) commas++;
+        }
+        if (tabs > 0 && tabs >= commas && tabs >= semis) return 9;
+        if (semis > commas) return 59;
+        return 44;
+      }
+
+      function cleanCell(str) {
+        const trimmed = (str || '').trim();
+        if (trimmed.length >= 2 && trimmed.charCodeAt(0) === 34 && trimmed.charCodeAt(trimmed.length - 1) === 34) {
+          return trimmed.slice(1, -1).replace(/""/g, '"').trim();
+        }
+        return trimmed;
+      }
+
+      function splitDelimitedLine(line, delimiter) {
+        if (line.indexOf('"') === -1) {
+          return line.split(delimiter);
+        }
+        const parts = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (ch === delimiter && !inQuotes) {
+            parts.push(cur);
+            cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        parts.push(cur);
+        return parts;
+      }
+
+      function parseLineParts(line, idx, delimiter) {
+        const parts = splitDelimitedLine(line, delimiter);
+        if (parts.length < 2) return null;
+        const sku = cleanCell(parts[0]);
+        if (!sku) return null;
+        const rack = cleanCell(parts[1]);
+        const priceStr = cleanCell(parts[2]);
+        const priceVal = parseFloat(priceStr.indexOf(',') !== -1 ? priceStr.replace(',', '.') : priceStr);
+        const qtyVal = parseInt(cleanCell(parts[3]), 10);
+        const dateStr = cleanCell(parts[5]);
+        const barcode = cleanCell(parts[7]);
+        const desc = parts.length > 8
+          ? cleanCell(parts.slice(8).join(delimiter))
+          : cleanCell(parts[parts.length - 1]);
+        return {
+          id: `${sku}__${idx}`,
+          sku,
+          rack: rack || '-',
+          price: isNaN(priceVal) ? 0 : priceVal,
+          qty: isNaN(qtyVal) ? 0 : qtyVal,
+          date: dateStr || '-',
+          barcode: barcode || '-',
+          desc: desc || '-',
+          _searchText: `${sku} ${desc} ${rack} ${barcode}`.toLowerCase()
+        };
+      }
+
+      // Single-pass zero-regex charCode scanner for tens of thousands of target SKUs
+      function parseTargetSkusFast(text) {
+        const len = text.length;
+        const seen = new Set();
+        const unique = [];
+        let start = -1;
+        for (let i = 0; i <= len; i++) {
+          const code = i < len ? text.charCodeAt(i) : 10;
+          const isSep = code <= 32 || code === 44 || code === 59 || code === 124;
+          if (isSep) {
+            if (start !== -1) {
+              let s = start;
+              let e = i;
+              if (e - s >= 2 && text.charCodeAt(s) === 34 && text.charCodeAt(e - 1) === 34) {
+                s++;
+                e--;
+              }
+              if (e > s) {
+                const token = text.slice(s, e);
+                if (!seen.has(token)) {
+                  seen.add(token);
+                  unique.push(token);
+                }
+              }
+              start = -1;
+            }
+          } else if (start === -1) {
+            start = i;
+          }
+        }
+        return { unique, seen };
+      }
+
+      function ensureTargetSkusParsed() {
+        if (state.lastSkuParseVersion === state.skuVersion) return;
+        const { unique, seen } = parseTargetSkusFast(state.skuText);
+        state.targetSkus = unique;
+        state.targetSet = seen;
+        state.lastSkuParseVersion = state.skuVersion;
+      }
+
+      function setLoadingState(visible, text = '', pct = 0) {
+        if (visible) {
+          elLoadingBanner.classList.remove('hidden');
+          elLoadingText.textContent = text;
+          elLoadingBar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+        } else {
+          elLoadingBanner.classList.add('hidden');
+        }
+      }
+
+      function finalizeMatchLists() {
+        const matched = [];
+        const missing = [];
+        const rawSet = state.rawSkuSet;
+        const targets = state.targetSkus;
+        for (let i = 0; i < targets.length; i++) {
+          const s = targets[i];
+          if (rawSet.has(s)) matched.push(s);
+          else missing.push(s);
+        }
+        state.matchedTargetSkus = matched;
+        state.missingTargetSkus = missing;
+      }
+
+      // Non-blocking chunked single-pass scanner: finishes small/medium data synchronously in <14ms,
+      // and yields smoothly to the browser for huge 100k+ row datasets without freezing the UI.
+      function parseDataAsync(autoSelect = false, onDone = null) {
+        ensureTargetSkusParsed();
+        const parseKey = `${state.rawVersion}|${state.skuVersion}`;
+        if (parseKey === state.lastParseKey) {
+          renderUI(autoSelect, true);
+          if (onDone) onDone(0);
+          return;
+        }
+
+        const jobId = ++state.parseJobId;
+        const text = state.rawText;
+        const len = text.length;
+        const delimCode = detectDelimiterCode(text);
+        const delimiter = String.fromCharCode(delimCode);
+        const targetSet = state.targetSet;
+        const hasTargets = targetSet.size > 0;
+        const rows = [];
+        const rawSkuSet = new Set();
+        let totalLines = 0;
+        let pos = 0;
+        const t0 = performance.now();
+
+        function processChunk() {
+          if (jobId !== state.parseJobId) return;
+          const chunkStart = performance.now();
+          let iter = 0;
+
+          while (pos < len) {
+            let nl = text.indexOf('\n', pos);
+            if (nl === -1) nl = len;
+            let end = nl;
+            if (end > pos && text.charCodeAt(end - 1) === 13) end--;
+
+            if (end > pos) {
+              const delimIdx = text.indexOf(delimiter, pos);
+              if (delimIdx > pos && delimIdx < end) {
+                let s = pos;
+                let e = delimIdx;
+                while (s < e && text.charCodeAt(s) <= 32) s++;
+                while (e > s && text.charCodeAt(e - 1) <= 32) e--;
+                if (e - s >= 2 && text.charCodeAt(s) === 34 && text.charCodeAt(e - 1) === 34) {
+                  s++;
+                  e--;
+                  while (s < e && text.charCodeAt(s) <= 32) s++;
+                  while (e > s && text.charCodeAt(e - 1) <= 32) e--;
+                }
+                if (e > s) {
+                  totalLines++;
+                  if (hasTargets) {
+                    const sku = text.slice(s, e);
+                    if (targetSet.has(sku)) {
+                      rawSkuSet.add(sku);
+                      const row = parseLineParts(text.slice(pos, end), totalLines - 1, delimiter);
+                      if (row) rows.push(row);
+                    }
+                  }
+                }
+              }
+            }
+            pos = nl + 1;
+            iter++;
+            if ((iter & 4095) === 0 && (performance.now() - chunkStart) >= CHUNK_TIME_BUDGET_MS) {
+              const pct = Math.round((pos / len) * 100);
+              setLoadingState(true, `Memindai ${totalLines.toLocaleString('id-ID')} baris... (${pct}%)`, pct);
+              setTimeout(processChunk, 0);
+              return;
+            }
+          }
+
+          state.parsedRows = rows;
+          state.totalRawLines = totalLines;
+          state.rawSkuSet = rawSkuSet;
+          state.lastParseKey = parseKey;
+          state.filteredCacheKey = '';
+          finalizeMatchLists();
+          setLoadingState(false);
+
+          const elapsedMs = Math.max(1, Math.round(performance.now() - t0));
+          renderUI(autoSelect, true);
+          if (onDone) onDone(elapsedMs);
+        }
+
+        processChunk();
+      }
+
+      function getEffectiveQty(row) {
+        if (Object.prototype.hasOwnProperty.call(state.qtyOverrides, row.id)) {
+          return state.qtyOverrides[row.id];
+        }
+        return row.qty;
+      }
+
+      function getFilteredRows() {
+        const q = state.searchQuery.trim().toLowerCase();
+        const cacheKey = `${state.lastParseKey}|${q}|${state.sortCol || ''}|${state.sortDir}|${state.qtyVersion}`;
+        if (cacheKey === state.filteredCacheKey) {
+          return state.filteredCache;
+        }
+
+        const src = state.parsedRows;
+        const list = [];
+        for (let i = 0; i < src.length; i++) {
+          const r = src[i];
+          if (getEffectiveQty(r) <= 0) continue;
+          if (q && r._searchText.indexOf(q) === -1) continue;
+          list.push(r);
+        }
+
+        if (state.sortCol) {
+          const dir = state.sortDir === 'asc' ? 1 : -1;
+          const col = state.sortCol;
+          list.sort((a, b) => {
+            if (col === 'qty') return (getEffectiveQty(a) - getEffectiveQty(b)) * dir;
+            if (col === 'price') return (a.price - b.price) * dir;
+            const valA = String(a[col] || '');
+            const valB = String(b[col] || '');
+            return valA.localeCompare(valB, 'id') * dir;
+          });
+        }
+
+        state.filteredCacheKey = cacheKey;
+        state.filteredCache = list;
+        return list;
+      }
+
+      function selectAllVisible(rows) {
+        const set = new Set();
+        for (let i = 0; i < rows.length; i++) {
+          set.add(rows[i].id);
+        }
+        state.selectedIds = set;
+      }
+
+      function updateSelectionSummary(filtered) {
+        let selectedCount = 0;
+        const sel = state.selectedIds;
+        for (let i = 0; i < filtered.length; i++) {
+          if (sel.has(filtered[i].id)) selectedCount++;
+        }
+        elKpiSelected.textContent = selectedCount.toLocaleString('id-ID');
+        elSelectAll.checked = filtered.length > 0 && selectedCount === filtered.length;
+      }
+
+      function renderUI(autoSelect = false, resetPage = false) {
+        if (resetPage) state.currentPage = 1;
+
+        const matchedTargetSkus = state.matchedTargetSkus;
+        const missingTargetSkus = state.missingTargetSkus;
+
+        if (state.targetSkus.length > 0 && matchedTargetSkus.length === 0 && state.totalRawLines > 0) {
+          elMismatchBanner.classList.remove('hidden');
+          elMismatchText.textContent = `0 dari ${state.targetSkus.length} SKU target ditemukan di tarikan data saat ini. Pastikan Anda menempel/upload tarikan data yang berisi SKU tersebut.`;
+        } else {
+          elMismatchBanner.classList.add('hidden');
+        }
+
+        const filtered = getFilteredRows();
+        if (autoSelect) {
+          selectAllVisible(filtered);
+        }
+
+        // Update KPIs
+        elKpiTotalRaw.textContent = state.totalRawLines.toLocaleString('id-ID');
+        elKpiMatched.textContent = matchedTargetSkus.length.toLocaleString('id-ID');
+        const targetCountFormatted = state.targetSkus.length.toLocaleString('id-ID');
+        elKpiTargetTotal.textContent = `/ ${targetCountFormatted} SKU`;
+        elSkuCountBadge.textContent = `${targetCountFormatted} SKU`;
+        elKpiMissingNote.textContent = `${missingTargetSkus.length.toLocaleString('id-ID')} belum ditemukan`;
+
+        let totalQty = 0;
+        let positiveCount = 0;
+        let selectedCount = 0;
+        const sel = state.selectedIds;
+        for (let i = 0; i < filtered.length; i++) {
+          const r = filtered[i];
+          const q = getEffectiveQty(r);
+          totalQty += q;
+          if (q > 0) positiveCount++;
+          if (sel.has(r.id)) selectedCount++;
+        }
+        elKpiTotalQty.textContent = totalQty.toLocaleString('id-ID');
+        elKpiNonzeroQty.textContent = `${positiveCount.toLocaleString('id-ID')} item stok > 0`;
+        elKpiSelected.textContent = selectedCount.toLocaleString('id-ID');
+
+        // Missing SKU drawer badge & chips
+        elBadgeMissing.textContent = missingTargetSkus.length.toLocaleString('id-ID');
+        elBadgeMissing.className = missingTargetSkus.length > 0
+          ? 'px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800'
+          : 'px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800';
+
+        if (state.showMissingDrawer) {
+          const MAX_CHIPS = 200;
+          const ordered = [...missingTargetSkus, ...matchedTargetSkus];
+          const shown = ordered.slice(0, MAX_CHIPS);
+          const chipsHtml = shown.map(sku => {
+            const found = state.rawSkuSet.has(sku);
+            return `<span class="font-mono-code text-[11px] px-2 py-0.5 rounded-md border ${
+              found
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-amber-50 border-amber-200 text-amber-800'
+            }">${escapeHtml(sku)} ${found ? '✓' : '✕'}</span>`;
+          }).join('');
+          const extraNote = ordered.length > MAX_CHIPS
+            ? `<span class="text-[11px] text-slate-500 px-2 py-0.5">+${(ordered.length - MAX_CHIPS).toLocaleString('id-ID')} SKU lainnya</span>`
+            : '';
+          elMissingChips.innerHTML = (chipsHtml + extraNote) || '<span class="text-xs text-slate-500">Belum ada list SKU target.</span>';
+        }
+
+        // Sort indicators
+        document.querySelectorAll('#pagePriceChange .pc-sort-ind').forEach(el => {
+          const col = el.getAttribute('data-col');
+          el.textContent = state.sortCol === col ? (state.sortDir === 'asc' ? '▲' : '▼') : '';
+        });
+
+        // Empty State
+        if (filtered.length === 0) {
+          elTableBody.innerHTML = '';
+          elEmptyStateTitle.textContent = 'Tidak ada data dengan Qty > 0 yang cocok saat ini';
+          elEmptyState.classList.remove('hidden');
+          elPaginationBar.classList.add('hidden');
+          elSelectAll.checked = false;
+          return;
+        }
+
+        elEmptyState.classList.add('hidden');
+        elSelectAll.checked = selectedCount === filtered.length;
+
+        // Paginate DOM rendering (max 100 rows per page for instant UI)
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+        if (state.currentPage > totalPages) state.currentPage = totalPages;
+        const startIdx = (state.currentPage - 1) * PAGE_SIZE;
+        const endIdx = Math.min(filtered.length, startIdx + PAGE_SIZE);
+        const pageRows = filtered.slice(startIdx, endIdx);
+
+        if (filtered.length > PAGE_SIZE) {
+          elPaginationBar.classList.remove('hidden');
+          elPaginationInfo.textContent = `Menampilkan ${startIdx + 1}–${endIdx} dari ${filtered.length.toLocaleString('id-ID')} item`;
+          elPaginationPageLabel.textContent = `Hal ${state.currentPage} / ${totalPages}`;
+          elBtnPrevPage.disabled = state.currentPage <= 1;
+          elBtnNextPage.disabled = state.currentPage >= totalPages;
+        } else {
+          elPaginationBar.classList.add('hidden');
+        }
+
+        const parts = new Array(pageRows.length);
+        for (let idx = 0; idx < pageRows.length; idx++) {
+          const row = pageRows[idx];
+          const isSelected = sel.has(row.id);
+          const qty = getEffectiveQty(row);
+          const rowNum = startIdx + idx + 1;
+          const idEsc = escapeHtml(row.id);
+          parts[idx] = `
+            <tr class="hover:bg-indigo-50/40 transition ${isSelected ? 'bg-indigo-50/20' : ''}">
+              <td class="py-2.5 pl-4 pr-2">
+                <input type="checkbox" data-row-id="${idEsc}" class="pc-row-checkbox rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" ${isSelected ? 'checked' : ''} />
+              </td>
+              <td class="py-2.5 px-3 text-slate-500 font-medium tabular-nums">${rowNum}</td>
+              <td class="py-2.5 px-3 font-mono-code font-medium text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>${escapeHtml(row.sku)}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-sans font-semibold bg-indigo-100 text-indigo-700 rounded">Target</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-slate-800 font-medium">${escapeHtml(row.desc)}</td>
+              <td class="py-2.5 px-3 text-right">
+                <input type="number" min="0" data-qty-id="${idEsc}" value="${qty}" class="pc-qty-input w-16 text-right font-mono-code text-xs px-2 py-1 rounded-lg border ${
+                  qty > 0 ? 'border-emerald-300 bg-emerald-50 text-emerald-800 font-semibold' : 'border-slate-200 bg-white text-slate-600'
+                } focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </td>
+              <td class="py-2.5 px-3 font-mono-code text-xs text-slate-600">${escapeHtml(row.rack)}</td>
+              <td class="py-2.5 px-3 text-right tabular-nums text-slate-700">${formatRupiah(row.price)}</td>
+              <td class="py-2.5 px-3 pr-4 text-xs text-slate-500 tabular-nums">${escapeHtml(row.date)}</td>
+            </tr>`;
+        }
+        elTableBody.innerHTML = parts.join('');
+      }
+
+      function recomputeAndRender(autoSelect = false, onDone = null) {
+        parseDataAsync(autoSelect, onDone);
+      }
+
+      function getItemsForPrint() {
+        const filtered = getFilteredRows();
+        const selected = filtered.filter(r => state.selectedIds.has(r.id));
+        return selected.length > 0 ? selected : filtered;
+      }
+
+      function updateDynamicPrintCss() {
+        const paper = elOptPaperSize.value || 'A4 portrait';
+        const fontSize = parseInt(elOptFontSize.value || '11', 10);
+        elDynamicPrintStyle.textContent = `@media print { @page { size: ${paper}; margin: 10mm; } table.pc-print-table { font-size: ${fontSize}px !important; } }`;
+      }
+
+      function getPrintPageConfig(totalItems) {
+        const rowsPerPage = 40;
+        const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
+        let pageFrom = parseInt(elOptPageFrom.value || '1', 10);
+        let pageTo = parseInt(elOptPageTo.value || String(totalPages), 10);
+        if (isNaN(pageFrom) || pageFrom < 1) pageFrom = 1;
+        if (pageFrom > totalPages) pageFrom = totalPages;
+        if (isNaN(pageTo) || pageTo < pageFrom) pageTo = pageFrom;
+        if (pageTo > totalPages) pageTo = totalPages;
+        return { rowsPerPage, totalPages, pageFrom, pageTo };
+      }
+
+      function syncPageRangeInputs(resetToAll = false) {
+        const items = getItemsForPrint();
+        const rowsPerPage = 40;
+        elPageRangeControls.classList.remove('opacity-50', 'pointer-events-none');
+        const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
+        elOptPageFrom.max = totalPages;
+        elOptPageTo.max = totalPages;
+        if (resetToAll) {
+          elOptPageFrom.value = '1';
+          elOptPageTo.value = String(totalPages);
+        } else {
+          const cfg = getPrintPageConfig(items.length);
+          elOptPageFrom.value = String(cfg.pageFrom);
+          elOptPageTo.value = String(cfg.pageTo);
+        }
+        elTotalPagesLabel.textContent = `(dari ${totalPages.toLocaleString('id-ID')} hal)`;
+      }
+
+      function buildPrintTableHeader(showRack, showPrice, showCheck, fontSize) {
+        const thStyle = `border-top:1px solid #cbd5e1; border-bottom:1.5px solid #94a3b8; padding:6px 8px; background:#f8fafc; color:#475569; font-size:${Math.max(9, fontSize - 1)}px; text-transform:uppercase; letter-spacing:0.04em;`;
+        return `
+          <thead>
+            <tr>
+              <th style="${thStyle} text-align:center; width:38px;">No.</th>
+              <th style="${thStyle} text-align:left; width:96px;">SKU</th>
+              <th style="${thStyle} text-align:left;">Deskripsi</th>
+              <th style="${thStyle} text-align:right; width:60px;">Qty</th>
+              ${showRack ? `<th style="${thStyle} text-align:left; width:78px;">Rak</th>` : ''}
+              ${showPrice ? `<th style="${thStyle} text-align:right; width:92px;">Harga</th>` : ''}
+              ${showCheck ? `<th style="${thStyle} text-align:center; width:52px;">Cek</th>` : ''}
+            </tr>
+          </thead>
+        `;
+      }
+
+      function buildPrintRowHtml(r, globalIdx, showRack, showPrice, showCheck) {
+        const qty = getEffectiveQty(r);
+        const rowBg = globalIdx % 2 === 1 ? 'background:#f8fafc;' : 'background:#ffffff;';
+        return `
+          <tr style="${rowBg}">
+            <td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; text-align:center; color:#64748b;">${globalIdx + 1}</td>
+            <td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; font-family:'JetBrains Mono', monospace; font-weight:600; color:#0f172a;">${escapeHtml(r.sku)}</td>
+            <td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; font-weight:500; color:#1e293b;">${escapeHtml(r.desc)}</td>
+            <td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; text-align:right; font-family:'JetBrains Mono', monospace; font-weight:700; color:#0f172a;">${qty}</td>
+            ${showRack ? `<td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; font-family:'JetBrains Mono', monospace; color:#475569;">${escapeHtml(r.rack)}</td>` : ''}
+            ${showPrice ? `<td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; text-align:right; color:#334155;">${formatRupiah(r.price)}</td>` : ''}
+            ${showCheck ? `<td style="border-bottom:1px solid #e2e8f0; padding:5px 8px; text-align:center; color:#64748b;">[ &nbsp; ]</td>` : ''}
+          </tr>
+        `;
+      }
+
+      function buildPrintHtml(items, maxPreviewRows = null) {
+        const title = (elPrintTitle.value || 'DAFTAR PRICE CHANGE').trim();
+        const showRack = true;
+        const showPrice = true;
+        const showCheck = true;
+        const fontSize = parseInt(elOptFontSize.value || '11', 10);
+        const cfg = getPrintPageConfig(items.length);
+
+        const now = new Date();
+        const dateLabel = now.toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        const startItemIdx = (cfg.pageFrom - 1) * cfg.rowsPerPage;
+        const endItemIdx = Math.min(items.length, cfg.pageTo * cfg.rowsPerPage);
+        const selectedSlice = items.slice(startItemIdx, endItemIdx);
+
+        let renderedCount = 0;
+        const pagesArr = [];
+        let wasTruncated = false;
+
+        for (let p = cfg.pageFrom; p <= cfg.pageTo; p++) {
+          const pStart = (p - 1) * cfg.rowsPerPage;
+          const pEnd = Math.min(items.length, p * cfg.rowsPerPage);
+          const pageItems = items.slice(pStart, pEnd);
+          if (pageItems.length === 0) continue;
+
+          if (maxPreviewRows && renderedCount >= maxPreviewRows) {
+            wasTruncated = true;
+            break;
+          }
+
+          let pageQty = 0;
+          const rowsArr = new Array(pageItems.length);
+          for (let i = 0; i < pageItems.length; i++) {
+            pageQty += getEffectiveQty(pageItems[i]);
+            rowsArr[i] = buildPrintRowHtml(pageItems[i], pStart + i, showRack, showPrice, showCheck);
+          }
+          renderedCount += pageItems.length;
+
+          const isLastPage = p === cfg.pageTo;
+          const pageBreakStyle = !isLastPage ? 'page-break-after:always; break-after:page;' : '';
+          const previewDivider = !isLastPage && maxPreviewRows ? 'border-bottom:2px dashed #cbd5e1; padding-bottom:18px; margin-bottom:18px;' : '';
+
+          pagesArr.push(`
+            <div style="color:#0f172a; ${pageBreakStyle} ${previewDivider}">
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #0f172a; padding-bottom:6px; margin-bottom:8px;">
+                <div>
+                  <h1 style="font-size:15px; font-weight:700; margin:0;">${escapeHtml(title)}</h1>
+                  <p style="font-size:10px; color:#64748b; margin:2px 0 0 0;">Dicetak: ${escapeHtml(dateLabel)} &bull; No. ${pStart + 1}–${pEnd}</p>
+                </div>
+                <div style="text-align:right; font-size:10px; color:#334155;">
+                  <div><strong>Hal ${p} / ${cfg.totalPages}</strong> (${pageItems.length} item)</div>
+                  <div><strong>Qty Hal ini:</strong> ${pageQty.toLocaleString('id-ID')}</div>
+                </div>
+              </div>
+              <table class="pc-print-table" style="width:100%; border-collapse:collapse; font-size:${fontSize}px;">
+                ${buildPrintTableHeader(showRack, showPrice, showCheck, fontSize)}
+                <tbody>${rowsArr.join('')}</tbody>
+              </table>
+            </div>
+          `);
+        }
+
+        const truncatedNote = wasTruncated
+          ? `<div style="margin-top:10px; padding:8px 12px; background:#f1f5f9; border-radius:8px; font-size:11px; color:#475569; text-align:center;">Preview menampilkan ${renderedCount.toLocaleString('id-ID')} dari ${selectedSlice.length.toLocaleString('id-ID')} item (Hal ${cfg.pageFrom}–${cfg.pageTo}) agar tetap ringan. Seluruh Hal ${cfg.pageFrom}–${cfg.pageTo} akan tercetak saat klik <strong>Cetak Sekarang</strong>.</div>`
+          : '';
+
+        return pagesArr.join('') + truncatedNote;
+      }
+
+      function renderPrintPreview() {
+        updateDynamicPrintCss();
+        const items = getItemsForPrint();
+        const cfg = getPrintPageConfig(items.length);
+        elPreviewPaper.innerHTML = buildPrintHtml(items, 200);
+        const startItem = (cfg.pageFrom - 1) * cfg.rowsPerPage + 1;
+        const endItem = Math.min(items.length, cfg.pageTo * cfg.rowsPerPage);
+        const count = Math.max(0, endItem - startItem + 1);
+        elModalSummary.textContent = `Hal ${cfg.pageFrom}–${cfg.pageTo} (${count.toLocaleString('id-ID')} item) siap dicetak`;
+      }
+
+      function escapeCsvCell(val, sep) {
+        const str = String(val == null ? '' : val);
+        if (str.includes(sep) || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      }
+
+      function applyRawData(text, sourceLabel = '') {
+        state.rawText = text;
+        state.qtyOverrides = {};
+        state.rawVersion += 1;
+        syncRawTextareaDisplay();
+        saveState();
+        recomputeAndRender(true, (ms) => {
+          if (sourceLabel) {
+            showToast(`${sourceLabel}: ${state.totalRawLines.toLocaleString('id-ID')} baris dimuat (${ms} ms)`, 'success');
+          }
+        });
+      }
+
+      function applySkuData(text, sourceLabel = '') {
+        state.skuText = text;
+        state.skuVersion += 1;
+        syncSkuTextareaDisplay();
+        saveState();
+        recomputeAndRender(true, (ms) => {
+          if (sourceLabel) {
+            showToast(`${sourceLabel}: ${state.targetSkus.length.toLocaleString('id-ID')} SKU dimuat (${ms} ms)`, 'success');
+          }
+        });
+      }
+
+      function loadFileFast(file, onText) {
+        if (!file) return;
+        setLoadingState(true, `Membaca "${file.name}" (${(file.size / 1024).toFixed(0)} KB)...`, 15);
+        if (typeof file.text === 'function') {
+          file.text().then(text => onText(text)).catch(() => {
+            setLoadingState(false);
+            showToast('Gagal membaca file', 'warn');
+          });
+        } else {
+          const reader = new FileReader();
+          reader.onload = (ev) => onText(String(ev.target.result || ''));
+          reader.onerror = () => {
+            setLoadingState(false);
+            showToast('Gagal membaca file', 'warn');
+          };
+          reader.readAsText(file);
+        }
+      }
+
+      // Intercept large paste directly into memory so textarea never freezes browser layout
+      elRawInput.addEventListener('paste', (e) => {
+        const pasted = (e.clipboardData || window.clipboardData)?.getData('text');
+        if (pasted && (pasted.length > MAX_TEXTAREA_CHARS || state.isLargeRawMode)) {
+          e.preventDefault();
+          applyRawData(pasted, 'Tempel data cepat');
+        }
+      });
+
+      elSkuInput.addEventListener('paste', (e) => {
+        const pasted = (e.clipboardData || window.clipboardData)?.getData('text');
+        if (pasted && (pasted.length > MAX_TEXTAREA_CHARS || state.isLargeSkuMode)) {
+          e.preventDefault();
+          applySkuData(pasted, 'Tempel SKU cepat');
+        }
+      });
+
+      // Drag & drop support on both panels
+      function setupDropZone(zoneEl, handler) {
+        zoneEl.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zoneEl.classList.add('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
+        });
+        zoneEl.addEventListener('dragleave', () => {
+          zoneEl.classList.remove('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
+        });
+        zoneEl.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zoneEl.classList.remove('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
+          const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (file) handler(file);
+        });
+      }
+
+      setupDropZone(elRawDropZone, (file) => {
+        loadFileFast(file, (text) => applyRawData(text, `File "${file.name}"`));
+      });
+      setupDropZone(elSkuDropZone, (file) => {
+        loadFileFast(file, (text) => applySkuData(text, `SKU "${file.name}"`));
+      });
+
+      // Event Listeners (Debounced for manual typing)
+      const handleRawInput = debounce(() => {
+        if (state.isLargeRawMode) return;
+        applyRawData(elRawInput.value);
+      }, 160);
+
+      const handleSkuInput = debounce(() => {
+        if (state.isLargeSkuMode) return;
+        applySkuData(elSkuInput.value);
+      }, 160);
+
+      elSkuFileUpload.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        loadFileFast(file, (text) => applySkuData(text, `SKU "${file.name}"`));
+        e.target.value = '';
+      });
+
+      const handleSearchInput = debounce(() => {
+        state.searchQuery = elSearchInput.value;
+        renderUI(false, true);
+      }, 120);
+
+      elRawInput.addEventListener('input', handleRawInput);
+      elSkuInput.addEventListener('input', handleSkuInput);
+      elSearchInput.addEventListener('input', handleSearchInput);
+
+      elFileUpload.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        loadFileFast(file, (text) => applyRawData(text, `File "${file.name}"`));
+        e.target.value = '';
+      });
+
+      document.getElementById('pc-btn-load-sample').addEventListener('click', () => {
+        applyRawData(SAMPLE_RAW_DATA, 'Contoh data');
+      });
+
+      document.getElementById('pc-btn-clear-raw').addEventListener('click', () => {
+        applyRawData('');
+      });
+
+      document.getElementById('pc-btn-load-default-skus').addEventListener('click', () => {
+        applySkuData(DEFAULT_TARGET_SKUS, 'SKU default');
+      });
+
+      document.getElementById('pc-btn-clear-skus').addEventListener('click', () => {
+        applySkuData('');
+      });
+
+      elBtnPrevPage.addEventListener('click', () => {
+        if (state.currentPage > 1) {
+          state.currentPage -= 1;
+          renderUI(false, false);
+        }
+      });
+
+      elBtnNextPage.addEventListener('click', () => {
+        state.currentPage += 1;
+        renderUI(false, false);
+      });
+
+      document.getElementById('pc-btn-toggle-missing').addEventListener('click', () => {
+        state.showMissingDrawer = !state.showMissingDrawer;
+        elMissingDrawer.classList.toggle('hidden', !state.showMissingDrawer);
+        if (state.showMissingDrawer) renderUI(false, false);
+      });
+
+      document.getElementById('pc-btn-close-missing').addEventListener('click', () => {
+        state.showMissingDrawer = false;
+        elMissingDrawer.classList.add('hidden');
+      });
+
+      elSelectAll.addEventListener('change', () => {
+        const filtered = getFilteredRows();
+        if (elSelectAll.checked) {
+          for (let i = 0; i < filtered.length; i++) state.selectedIds.add(filtered[i].id);
+        } else {
+          for (let i = 0; i < filtered.length; i++) state.selectedIds.delete(filtered[i].id);
+        }
+        renderUI(false, false);
+      });
+
+      // Delegated events inside table body (O(1) DOM update for single checkbox toggle)
+      elTableBody.addEventListener('change', (e) => {
+        const target = e.target;
+        if (target.classList.contains('pc-row-checkbox')) {
+          const id = target.getAttribute('data-row-id');
+          if (target.checked) state.selectedIds.add(id);
+          else state.selectedIds.delete(id);
+          const tr = target.closest('tr');
+          if (tr) tr.classList.toggle('bg-indigo-50/20', target.checked);
+          updateSelectionSummary(getFilteredRows());
+        } else if (target.classList.contains('pc-qty-input')) {
+          const id = target.getAttribute('data-qty-id');
+          const val = parseInt(target.value, 10);
+          state.qtyOverrides[id] = isNaN(val) || val < 0 ? 0 : val;
+          state.qtyVersion += 1;
+          saveState();
+          renderUI(false, false);
+        }
+      });
+
+      // Column sorting
+      document.querySelectorAll('#pagePriceChange th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-sort');
+          if (state.sortCol === col) {
+            state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+          } else {
+            state.sortCol = col;
+            state.sortDir = 'asc';
+          }
+          renderUI(false, true);
+        });
+      });
+
+      // Print Modal
+      document.getElementById('pc-btn-open-print').addEventListener('click', () => {
+        const items = getItemsForPrint();
+        if (items.length === 0) {
+          showToast('Tidak ada data untuk dicetak', 'warn');
+          return;
+        }
+        syncPageRangeInputs(true);
+        renderPrintPreview();
+        elPrintModal.classList.remove('hidden');
+      });
+
+      document.getElementById('pc-btn-close-modal').addEventListener('click', () => {
+        elPrintModal.classList.add('hidden');
+      });
+      document.getElementById('pc-btn-cancel-print').addEventListener('click', () => {
+        elPrintModal.classList.add('hidden');
+      });
+
+      [elPrintTitle, elOptRack, elOptPrice, elOptCheck, elOptPaperSize, elOptFontSize].forEach(el => {
+        el.addEventListener('input', renderPrintPreview);
+        el.addEventListener('change', renderPrintPreview);
+      });
+
+      elOptRowsPerPage.addEventListener('change', () => {
+        syncPageRangeInputs(true);
+        renderPrintPreview();
+      });
+
+      [elOptPageFrom, elOptPageTo].forEach(el => {
+        el.addEventListener('change', () => {
+          syncPageRangeInputs(false);
+          renderPrintPreview();
+        });
+      });
+
+      document.getElementById('pc-btn-reset-page-range').addEventListener('click', () => {
+        syncPageRangeInputs(true);
+        renderPrintPreview();
+      });
+
+      document.getElementById('pc-btn-do-print').addEventListener('click', () => {
+        updateDynamicPrintCss();
+        const items = getItemsForPrint();
+        elPrintSheet.innerHTML = buildPrintHtml(items, null);
+        window.print();
+      });
+
+      window.addEventListener('afterprint', () => {
+        elPrintSheet.innerHTML = '';
+      });
+
+      // Export CSV (UTF-8 BOM + semicolon separator for Excel Indonesia compatibility)
+      document.getElementById('pc-btn-export-csv').addEventListener('click', () => {
+        const items = getItemsForPrint();
+        if (items.length === 0) {
+          showToast('Tidak ada data untuk diexport', 'warn');
+          return;
+        }
+        const sep = ';';
+        const header = ['No', 'SKU', 'Deskripsi', 'Qty', 'Rak', 'Harga'];
+        const csvLines = new Array(items.length + 1);
+        csvLines[0] = header.join(sep);
+        for (let idx = 0; idx < items.length; idx++) {
+          const r = items[idx];
+          csvLines[idx + 1] = [
+            idx + 1,
+            escapeCsvCell(r.sku, sep),
+            escapeCsvCell(r.desc, sep),
+            getEffectiveQty(r),
+            escapeCsvCell(r.rack, sep),
+            r.price
+          ].join(sep);
+        }
+        const blob = new Blob(['\uFEFF' + csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'price-change-list.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast(`Berhasil export ${items.length.toLocaleString('id-ID')} item ke CSV (Excel ID)`, 'success');
+      });
+
+      // Init
+      loadState();
+      syncRawTextareaDisplay();
+      syncSkuTextareaDisplay();
+      recomputeAndRender(true);
+    })();
     </script>
 </body>
 </html>
