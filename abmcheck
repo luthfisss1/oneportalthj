@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MR.DIY Audit Auto-Fill Launcher — XKLR • XCMG • XCIH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            diy: {
+              yellow: '#FDC607',
+              yellowHover: '#E5B200',
+              yellowSoft: '#FEF9E1',
+              dark: '#111827'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .store-card { transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease; }
+    .store-card:hover { transform: translateY(-2px); }
+    .store-card.active {
+      border-color: #FDC607;
+      box-shadow: 0 0 0 3px rgba(253, 198, 7, 0.35), 0 10px 25px -8px rgba(17, 24, 39, 0.14);
+    }
+    .form-card { transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+    .form-card:hover { transform: translateY(-1px); border-color: #FDC607; }
+    .code-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+    .code-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 999px; }
+    .code-scroll::-webkit-scrollbar-track { background: #0f172a; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b-2 border-diy-yellow shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-diy-yellow text-slate-950 flex items-center justify-center shadow-sm shrink-0">
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight truncate">MR.DIY Audit Auto-Fill</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">3 Store Selector • Auto-Isi &amp; Auto-Next Halaman 1 GForm</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-diy-yellowSoft dark:bg-amber-950/50 border border-diy-yellow/60 text-xs font-semibold text-slate-900 dark:text-amber-200">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600 dark:text-diy-yellow"></i>
+          <span id="wibClock">--:--:-- WIB</span>
+        </div>
+        <button id="btnOpenScriptModal" type="button" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 dark:bg-diy-yellow text-white dark:text-slate-950 text-xs font-bold hover:opacity-90 transition cursor-pointer">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span class="hidden xs:inline">Script Auto-Next</span>
+          <span class="xs:hidden">Script</span>
+        </button>
+        <button id="btnToggleTheme" type="button" aria-label="Ganti Tema" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-diy-yellow transition cursor-pointer">
+          <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <!-- Step 1: 3 Store Buttons -->
+    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-diy-yellow text-slate-950 text-xs font-extrabold flex items-center justify-center">1</span>
+          <h2 class="text-sm sm:text-base font-bold">Pilih Store (3 Tombol Store)</h2>
+        </div>
+        <span id="activeStoreBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i>
+          Aktif: XKLR (JW5003)
+        </span>
+      </div>
+
+      <div id="storeButtonsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Step 2: Auditor & Realtime Audit Date -->
+    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-diy-yellow text-slate-950 text-xs font-extrabold flex items-center justify-center">2</span>
+          <h2 class="text-sm sm:text-base font-bold">Data Pengisian Otomatis</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer select-none">
+            <input id="chkAutoNext" type="checkbox" checked class="w-4 h-4 accent-amber-500 rounded cursor-pointer" />
+            <span>Otomatis Klik Next (Hal. 1)</span>
+          </label>
+          <button id="btnResetDefaults" type="button" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:text-slate-400 dark:hover:text-diy-yellow underline cursor-pointer">
+            Reset Default
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+          <label for="inpEmail" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Email</label>
+          <input id="inpEmail" type="email" class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-diy-yellow" />
+        </div>
+        <div>
+          <label for="inpFullName" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nama Lengkap</label>
+          <input id="inpFullName" type="text" class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-diy-yellow" />
+        </div>
+        <div>
+          <label for="inpNik" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">NIK Karyawan</label>
+          <input id="inpNik" type="text" class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-diy-yellow" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="inpAuditDate" class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Tanggal Audit</label>
+            <button id="btnSyncToday" type="button" class="text-[11px] font-bold text-amber-600 dark:text-diy-yellow hover:underline cursor-pointer">Realtime Hari Ini</button>
+          </div>
+          <input id="inpAuditDate" type="date" class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-diy-yellow" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: Day 1 & Day 2 Google Forms -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- DAY 1 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-diy-yellow text-slate-950 text-xs font-extrabold">DAY 1</span>
+            <h2 class="text-sm sm:text-base font-bold">Audit Hari Pertama (3 Form)</h2>
+          </div>
+          <button id="btnOpenDay1All" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold hover:bg-amber-500 hover:text-slate-950 transition cursor-pointer">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            Buka Semua Day 1
+          </button>
+        </div>
+        <div id="day1List" class="space-y-2.5 flex-1">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-diy-yellow text-white dark:text-slate-950 text-xs font-extrabold">DAY 2</span>
+            <h2 class="text-sm sm:text-base font-bold">Audit Hari Kedua (2 Form)</h2>
+          </div>
+          <button id="btnOpenDay2All" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold hover:bg-amber-500 hover:text-slate-950 transition cursor-pointer">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            Buka Semua Day 2
+          </button>
+        </div>
+        <div id="day2List" class="space-y-2.5 flex-1">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Companion Script Banner -->
+    <section class="bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-diy-yellow/70 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-diy-yellow text-slate-950 flex items-center justify-center shrink-0 mt-0.5">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-amber-100">Aktifkan Mesin Auto-Fill &amp; Auto-Klik Next di Google Form</h3>
+          <p class="text-xs text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
+            Pasang <strong>Tampermonkey Userscript</strong> sekali saja agar setiap Google Form yang dibuka langsung terisi otomatis (Email, Nama, NIK, Store Code, Store Name, Tanggal Realtime) dan langsung klik <strong>Berikutnya / Next</strong> di halaman 1. Juga memunculkan <strong>3 tombol store melayang</strong> langsung di dalam Google Form.
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
+        <button id="btnDownloadScriptQuick" type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-diy-yellow hover:bg-diy-yellowHover text-slate-950 text-xs font-extrabold transition cursor-pointer">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          Download .user.js
+        </button>
+        <button id="btnCopyScriptQuick" type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold hover:opacity-90 transition cursor-pointer">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          Copy Script
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Userscript & Setup Modal -->
+  <div id="scriptModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-diy-yellow text-slate-950 flex items-center justify-center">
+            <i data-lucide="code-2" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold">Tampermonkey Userscript (Auto-Fill + Auto-Next)</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Kompatibel dengan Chrome, Edge, dan Kiwi/Lemur Browser Android</p>
+          </div>
+        </div>
+        <button id="btnCloseScriptModal" type="button" aria-label="Tutup" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-4">
+        <ol class="text-xs sm:text-sm space-y-1.5 text-slate-700 dark:text-slate-300 list-decimal list-inside bg-slate-50 dark:bg-slate-800/70 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700">
+          <li>Install ekstensi <strong>Tampermonkey</strong> di Chrome/Edge (atau Kiwi/Edge Android).</li>
+          <li>Klik ikon Tampermonkey &rarr; <strong>Create a new script</strong>, hapus isi default, lalu paste kode di bawah (atau drag file <code>mrdiy-audit-autofill.user.js</code> ke tab Chrome).</li>
+          <li>Tekan <strong>Ctrl + S</strong> untuk simpan. Selesai! Sekarang buka GForm dari launcher ini atau klik <strong>3 tombol store</strong> yang muncul otomatis di pojok kanan atas GForm.</li>
+        </ol>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btnCopyScriptModal" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-diy-yellow hover:bg-diy-yellowHover text-slate-950 text-xs font-extrabold cursor-pointer">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            Copy Userscript
+          </button>
+          <button id="btnDownloadScriptModal" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold hover:opacity-90 cursor-pointer">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Download mrdiy-audit-autofill.user.js
+          </button>
+          <button id="btnCopyBookmarklet" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-bold hover:border-diy-yellow cursor-pointer">
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
+            Copy Bookmarklet (Alternatif Tanpa Ekstensi)
+          </button>
+        </div>
+
+        <pre id="scriptPreview" class="code-scroll text-[11px] leading-relaxed bg-slate-950 text-emerald-300 p-4 rounded-xl overflow-x-auto max-h-72 border border-slate-800 font-mono"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-diy-yellow text-white dark:text-slate-950 text-xs font-bold shadow-xl">
+    <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
+    <span id="toastText">Berhasil</span>
+  </div>
+
+  <script>
+    (function () {
+      const STORES = [
+        { code: 'JW5003', name: 'XKLR', badge: 'Store 1' },
+        { code: 'JW1023', name: 'XCMG', badge: 'Store 2' },
+        { code: 'JW1032', name: 'XCIH', badge: 'Store 3' }
+      ];
+
+      const DEFAULTS = {
+        email: 'mohammad.syafiuddin@mrdiy.com',
+        fullName: 'Mohammad Luthfi Syafi\u2019uddin',
+        nik: '32601004',
+        selectedStoreCode: 'JW5003',
+        autoNext: true
+      };
+
+      const AUDIT_FORMS = [
+        { id: 'cash', day: 1, title: 'Cash Management', icon: 'banknote', url: 'https://forms.gle/eUoUTGWS1vcFVYnG6' },
+        { id: 'compliance', day: 1, title: 'Compliance', icon: 'shield-check', url: 'https://forms.gle/N9x46TAUQna5m9Eq6' },
+        { id: 'documentation', day: 1, title: 'Documentation', icon: 'file-text', url: 'https://forms.gle/TpRoQhrvYtCDHTyW6' },
+        { id: 'stock', day: 2, title: 'Stock Management', icon: 'package-check', url: 'https://forms.gle/WYu3cvAGzkenrcLG6' },
+        { id: 'ops', day: 2, title: 'Store Operations', icon: 'store', url: 'https://forms.gle/5XYAms4KKkjokUhg6' }
+      ];
+
+      const STORAGE_KEY = 'mrdiy_audit_launcher_v1';
+
+      function getTodayWIB() {
+        try {
+          const fmt = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Jakarta',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+          return fmt.format(new Date());
+        } catch (e) {
+          const d = new Date();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return d.getFullYear() + '-' + m + '-' + day;
+        }
+      }
+
+      function loadState() {
+        let saved = {};
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) saved = JSON.parse(raw);
+        } catch (e) {}
+        return {
+          email: saved.email || DEFAULTS.email,
+          fullName: saved.fullName || DEFAULTS.fullName,
+          nik: saved.nik || DEFAULTS.nik,
+          selectedStoreCode: STORES.some(s => s.code === saved.selectedStoreCode) ? saved.selectedStoreCode : DEFAULTS.selectedStoreCode,
+          autoNext: typeof saved.autoNext === 'boolean' ? saved.autoNext : DEFAULTS.autoNext,
+          auditDate: getTodayWIB(),
+          theme: saved.theme || 'light'
+        };
+      }
+
+      let state = loadState();
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            email: state.email,
+            fullName: state.fullName,
+            nik: state.nik,
+            selectedStoreCode: state.selectedStoreCode,
+            autoNext: state.autoNext,
+            theme: state.theme
+          }));
+        } catch (e) {}
+      }
+
+      function getActiveStore() {
+        return STORES.find(s => s.code === state.selectedStoreCode) || STORES[0];
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        const txt = document.getElementById('toastText');
+        txt.textContent = msg;
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.add('hidden');
+          el.classList.remove('flex');
+        }, 2800);
+      }
+
+      function copyText(text, label) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast(label + ' berhasil disalin');
+          }).catch(() => fallbackCopy(text, label));
+        } else {
+          fallbackCopy(text, label);
+        }
+      }
+
+      function fallbackCopy(text, label) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(label + ' berhasil disalin');
+        } catch (e) {
+          showToast('Gagal menyalin otomatis, silakan salin manual');
+        }
+        document.body.removeChild(ta);
+      }
+
+      function buildAutoFillUrl(baseUrl) {
+        const store = getActiveStore();
+        const payload = {
+          sc: store.code,
+          sn: store.name,
+          em: state.email.trim(),
+          nm: state.fullName.trim(),
+          nk: state.nik.trim(),
+          dt: state.auditDate || getTodayWIB(),
+          an: state.autoNext ? 1 : 0
+        };
+        return baseUrl + '#mrdiy_auto=' + encodeURIComponent(JSON.stringify(payload));
+      }
+
+      function generateUserscript() {
+        const cfgEmail = JSON.stringify(state.email.trim());
+        const cfgName = JSON.stringify(state.fullName.trim());
+        const cfgNik = JSON.stringify(state.nik.trim());
+        const cfgAutoNext = state.autoNext ? 'true' : 'false';
+
+        return [
+          '// ==UserScript==',
+          '// @name         MR.DIY Audit GForm Auto-Fill & Auto-Next (XKLR / XCMG / XCIH)',
+          '// @namespace    https://mrdiy.audit.autofill',
+          '// @version      1.1.0',
+          '// @description  3 tombol store (XKLR JW5003, XCMG JW1023, XCIH JW1032) + isi otomatis & klik Next halaman 1 Google Form Audit (TrustedTypes safe)',
+          '// @match        https://docs.google.com/forms/*',
+          '// @grant        none',
+          '// @run-at       document-idle',
+          '// ==/UserScript==',
+          '',
+          '(function () {',
+          '  "use strict";',
+          '',
+          '  const STORES = [',
+          '    { code: "JW5003", name: "XKLR" },',
+          '    { code: "JW1023", name: "XCMG" },',
+          '    { code: "JW1032", name: "XCIH" }',
+          '  ];',
+          '',
+          '  const DEFAULT_AUDITOR = {',
+          '    em: ' + cfgEmail + ',',
+          '    nm: ' + cfgName + ',',
+          '    nk: ' + cfgNik + ',',
+          '    an: ' + cfgAutoNext,
+          '  };',
+          '',
+          '  function getTodayWIB() {',
+          '    try {',
+          '      return new Intl.DateTimeFormat("en-CA", {',
+          '        timeZone: "Asia/Jakarta",',
+          '        year: "numeric",',
+          '        month: "2-digit",',
+          '        day: "2-digit"',
+          '      }).format(new Date());',
+          '    } catch (e) {',
+          '      const d = new Date();',
+          '      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");',
+          '    }',
+          '  }',
+          '',
+          '  function setNativeValue(el, value) {',
+          '    if (!el) return;',
+          '    try { el.focus(); } catch (e) {}',
+          '    const proto = el.tagName === "TEXTAREA" ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;',
+          '    const desc = Object.getOwnPropertyDescriptor(proto, "value");',
+          '    if (desc && desc.set) {',
+          '      desc.set.call(el, value);',
+          '    } else {',
+          '      el.value = value;',
+          '    }',
+          '    el.dispatchEvent(new Event("input", { bubbles: true }));',
+          '    el.dispatchEvent(new Event("change", { bubbles: true }));',
+          '    el.dispatchEvent(new Event("blur", { bubbles: true }));',
+          '    try { el.blur(); } catch (e) {}',
+          '  }',
+          '',
+          '  function normalize(str) {',
+          '    return (str || "").toLowerCase().replace(/\\s+/g, " ").trim();',
+          '  }',
+          '',
+          '  function getQuestionLabel(item) {',
+          '    const heading = item.querySelector("[role=\\"heading\\"], .M7eMe");',
+          '    if (heading) return normalize(heading.textContent);',
+          '    const input = item.querySelector("input, textarea, [role=\\"listbox\\"]");',
+          '    return normalize(input ? input.getAttribute("aria-label") : item.textContent);',
+          '  }',
+          '',
+          '  function selectDropdown(listbox, targetVal) {',
+          '    return new Promise((resolve) => {',
+          '      const want = normalize(targetVal);',
+          '      listbox.click();',
+          '      setTimeout(() => {',
+          '        const options = Array.from(document.querySelectorAll("div[role=\\"option\\"]"));',
+          '        let match = options.find(o => normalize(o.textContent) === want);',
+          '        if (!match) match = options.find(o => normalize(o.textContent).includes(want));',
+          '        if (match) match.click();',
+          '        setTimeout(() => resolve(Boolean(match)), 220);',
+          '      }, 280);',
+          '    });',
+          '  }',
+          '',
+          '  function selectRadio(item, targetVal) {',
+          '    const want = normalize(targetVal);',
+          '    const radios = Array.from(item.querySelectorAll("div[role=\\"radio\\"]"));',
+          '    let match = radios.find(r => normalize(r.getAttribute("data-value") || r.getAttribute("aria-label") || r.textContent) === want);',
+          '    if (!match) match = radios.find(r => normalize(r.getAttribute("data-value") || r.getAttribute("aria-label") || r.textContent).includes(want));',
+          '    if (match) {',
+          '      match.click();',
+          '      return true;',
+          '    }',
+          '    return false;',
+          '  }',
+          '',
+          '  async function fillItem(item, value, isDate) {',
+          '    if (isDate) {',
+          '      const dateInput = item.querySelector("input[type=\\"date\\"]");',
+          '      if (dateInput) {',
+          '        setNativeValue(dateInput, value);',
+          '        return true;',
+          '      }',
+          '      const parts = value.split("-");',
+          '      const dayInp = item.querySelector("input[aria-label*=\\"Day\\" i], input[aria-label*=\\"Hari\\" i], input[aria-label*=\\"Tanggal\\" i]");',
+          '      const monInp = item.querySelector("input[aria-label*=\\"Month\\" i], input[aria-label*=\\"Bulan\\" i]");',
+          '      const yrInp = item.querySelector("input[aria-label*=\\"Year\\" i], input[aria-label*=\\"Tahun\\" i]");',
+          '      if (dayInp && monInp && yrInp && parts.length === 3) {',
+          '        setNativeValue(dayInp, parts[2]);',
+          '        setNativeValue(monInp, parts[1]);',
+          '        setNativeValue(yrInp, parts[0]);',
+          '        return true;',
+          '      }',
+          '    }',
+          '    const textInput = item.querySelector("input[type=\\"text\\"], input[type=\\"email\\"], input[type=\\"number\\"], input:not([type]), textarea");',
+          '    if (textInput && textInput.type !== "hidden") {',
+          '      setNativeValue(textInput, value);',
+          '      return true;',
+          '    }',
+          '    const listbox = item.querySelector("div[role=\\"listbox\\"]");',
+          '    if (listbox) {',
+          '      return await selectDropdown(listbox, value);',
+          '    }',
+          '    if (item.querySelector("div[role=\\"radio\\"]")) {',
+          '      return selectRadio(item, value);',
+          '    }',
+          '    return false;',
+          '  }',
+          '',
+          '  function checkRecordEmailBox() {',
+          '    const boxes = Array.from(document.querySelectorAll("div[role=\\"checkbox\\"]"));',
+          '    for (const box of boxes) {',
+          '      const lbl = normalize(box.getAttribute("aria-label") || (box.closest("label, div") ? box.closest("label, div").textContent : ""));',
+          '      if ((lbl.includes("email") || lbl.includes("catat") || lbl.includes("record")) && box.getAttribute("aria-checked") === "false") {',
+          '        box.click();',
+          '      }',
+          '    }',
+          '  }',
+          '',
+          '  function isFirstPage() {',
+          '    const btns = Array.from(document.querySelectorAll("div[role=\\"button\\"], button"));',
+          '    const hasBack = btns.some(b => {',
+          '      const t = normalize(b.textContent);',
+          '      return t === "back" || t === "kembali";',
+          '    });',
+          '    return !hasBack;',
+          '  }',
+          '',
+          '  function clickNextButton() {',
+          '    if (!isFirstPage()) return false;',
+          '    const btns = Array.from(document.querySelectorAll("div[role=\\"button\\"], button"));',
+          '    const nextBtn = btns.find(b => {',
+          '      const t = normalize(b.textContent);',
+          '      return t === "next" || t === "berikutnya";',
+          '    });',
+          '    if (nextBtn) {',
+          '      nextBtn.click();',
+          '      return true;',
+          '    }',
+          '    return false;',
+          '  }',
+          '',
+          '  async function runAutoFill(payload, triggerNext) {',
+          '    const data = {',
+          '      sc: payload.sc,',
+          '      sn: payload.sn,',
+          '      em: payload.em || DEFAULT_AUDITOR.em,',
+          '      nm: payload.nm || DEFAULT_AUDITOR.nm,',
+          '      nk: payload.nk || DEFAULT_AUDITOR.nk,',
+          '      dt: payload.dt || getTodayWIB()',
+          '    };',
+          '',
+          '    checkRecordEmailBox();',
+          '',
+          '    // Isi semua input type=email (baik di header maupun di dalam listitem)',
+          '    document.querySelectorAll("input[type=\\"email\\"]").forEach((emEl) => {',
+          '      setNativeValue(emEl, data.em);',
+          '    });',
+          '',
+          '    const items = Array.from(document.querySelectorAll("div[role=\\"listitem\\"]"));',
+          '    let filledCount = 0;',
+          '',
+          '    for (const item of items) {',
+          '      const label = getQuestionLabel(item);',
+          '      const hasEmailInput = Boolean(item.querySelector("input[type=\\"email\\"]"));',
+          '      const hasDateInput = Boolean(item.querySelector("input[type=\\"date\\"]"));',
+          '',
+          '      if (label.includes("store code") || label.includes("kode toko") || label.includes("kode store") || label.includes("store id")) {',
+          '        if (await fillItem(item, data.sc, false)) filledCount++;',
+          '      } else if (label.includes("store name") || label.includes("nama toko") || label.includes("nama store") || label.includes("outlet") || (label.includes("store") && !label.includes("code"))) {',
+          '        if (await fillItem(item, data.sn, false)) filledCount++;',
+          '      } else if (label.includes("nik") || label.includes("employee id") || label.includes("id karyawan") || label.includes("nomor induk")) {',
+          '        if (await fillItem(item, data.nk, false)) filledCount++;',
+          '      } else if (hasEmailInput || label.includes("email") || label.includes("e-mail")) {',
+          '        if (await fillItem(item, data.em, false)) filledCount++;',
+          '      } else if (hasDateInput || label.includes("tanggal") || label.includes("tgl") || label.includes("date")) {',
+          '        if (await fillItem(item, data.dt, true)) filledCount++;',
+          '      } else if (label.includes("nama lengkap") || label.includes("full name") || label.includes("auditor") || (label.includes("nama") && !label.includes("toko") && !label.includes("store"))) {',
+          '        if (await fillItem(item, data.nm, false)) filledCount++;',
+          '      }',
+          '    }',
+          '',
+          '    if (triggerNext && isFirstPage()) {',
+          '      setTimeout(() => {',
+          '        clickNextButton();',
+          '      }, 450);',
+          '    }',
+          '    return filledCount;',
+          '  }',
+          '',
+          '  function injectFloatingPanel() {',
+          '    if (document.getElementById("mrdiy-autofill-panel")) return;',
+          '    const wrap = document.createElement("div");',
+          '    wrap.id = "mrdiy-autofill-panel";',
+          '    wrap.style.cssText = "position:fixed;top:14px;right:14px;z-index:99999;background:#111827;color:#fff;padding:10px 12px;border-radius:14px;border:2px solid #FDC607;box-shadow:0 12px 30px rgba(0,0,0,0.35);font-family:Inter,Arial,sans-serif;min-width:210px;";',
+          '',
+          '    const header = document.createElement("div");',
+          '    header.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;";',
+          '    const titleSpan = document.createElement("span");',
+          '    titleSpan.textContent = "MR.DIY AUTO-FILL";',
+          '    titleSpan.style.cssText = "font-size:11px;font-weight:800;color:#FDC607;letter-spacing:0.3px;";',
+          '    header.appendChild(titleSpan);',
+          '',
+          '    const minBtn = document.createElement("button");',
+          '    minBtn.type = "button";',
+          '    minBtn.textContent = "—";',
+          '    minBtn.style.cssText = "background:#1f2937;color:#e5e7eb;border:none;border-radius:6px;padding:1px 7px;cursor:pointer;font-size:11px;font-weight:700;";',
+          '    header.appendChild(minBtn);',
+          '',
+          '    const body = document.createElement("div");',
+          '    body.style.cssText = "display:flex;flex-direction:column;gap:6px;";',
+          '',
+          '    let autoNextOn = DEFAULT_AUDITOR.an;',
+          '',
+          '    STORES.forEach((st) => {',
+          '      const btn = document.createElement("button");',
+          '      btn.type = "button";',
+          '      btn.textContent = st.name + "  (" + st.code + ")";',
+          '      btn.style.cssText = "background:#FDC607;color:#111827;border:none;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;text-align:left;";',
+          '      btn.addEventListener("click", () => {',
+          '        runAutoFill({ sc: st.code, sn: st.name }, autoNextOn);',
+          '      });',
+          '      body.appendChild(btn);',
+          '    });',
+          '',
+          '    const chkWrap = document.createElement("label");',
+          '    chkWrap.style.cssText = "display:flex;align-items:center;gap:6px;font-size:11px;color:#cbd5e1;margin-top:2px;cursor:pointer;";',
+          '    const chk = document.createElement("input");',
+          '    chk.type = "checkbox";',
+          '    chk.checked = autoNextOn;',
+          '    chk.addEventListener("change", () => { autoNextOn = chk.checked; });',
+          '    chkWrap.appendChild(chk);',
+          '    chkWrap.appendChild(document.createTextNode("Otomatis klik Next (Hal. 1)"));',
+          '    body.appendChild(chkWrap);',
+          '',
+          '    minBtn.addEventListener("click", () => {',
+          '      const hidden = body.style.display === "none";',
+          '      body.style.display = hidden ? "flex" : "none";',
+          '      minBtn.textContent = hidden ? "—" : "+";',
+          '    });',
+          '',
+          '    wrap.appendChild(header);',
+          '    wrap.appendChild(body);',
+          '    document.body.appendChild(wrap);',
+          '  }',
+          '',
+          '  function waitForFormInputs(cb, maxTries) {',
+          '    let tries = 0;',
+          '    const timer = setInterval(() => {',
+          '      tries++;',
+          '      const ready = document.querySelector("div[role=\\"listitem\\"] input, input[type=\\"email\\"], div[role=\\"listbox\\"]");',
+          '      if (ready || tries >= (maxTries || 25)) {',
+          '        clearInterval(timer);',
+          '        cb();',
+          '      }',
+          '    }, 250);',
+          '  }',
+          '',
+          '  function checkHashPayload() {',
+          '    const hash = window.location.hash || "";',
+          '    const idx = hash.indexOf("mrdiy_auto=");',
+          '    if (idx === -1) return;',
+          '    try {',
+          '      const raw = decodeURIComponent(hash.slice(idx + "mrdiy_auto=".length));',
+          '      const payload = JSON.parse(raw);',
+          '      if (payload && payload.sc && payload.sn) {',
+          '        waitForFormInputs(() => {',
+          '          runAutoFill(payload, Boolean(payload.an));',
+          '        }, 25);',
+          '      }',
+          '    } catch (e) {}',
+          '  }',
+          '',
+          '  try { injectFloatingPanel(); } catch (e) {}',
+          '  checkHashPayload();',
+          '})();'
+        ].join('\n');
+      }
+
+      function generateBookmarklet() {
+        const store = getActiveStore();
+        const em = JSON.stringify(state.email.trim());
+        const nm = JSON.stringify(state.fullName.trim());
+        const nk = JSON.stringify(state.nik.trim());
+        const sc = JSON.stringify(store.code);
+        const sn = JSON.stringify(store.name);
+        const dt = JSON.stringify(state.auditDate || getTodayWIB());
+        const an = state.autoNext ? 'true' : 'false';
+
+        return 'javascript:(async()=>{const d={sc:' + sc + ',sn:' + sn + ',em:' + em + ',nm:' + nm + ',nk:' + nk + ',dt:' + dt + '};const sv=(e,v)=>{const p=e.tagName==="TEXTAREA"?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;const s=Object.getOwnPropertyDescriptor(p,"value")?.set;s?s.call(e,v):e.value=v;["input","change","blur"].forEach(t=>e.dispatchEvent(new Event(t,{bubbles:true})));};const norm=s=>(s||"").toLowerCase().replace(/\\s+/g," ").trim();document.querySelectorAll("div[role=\\"checkbox\\"]").forEach(b=>{const l=norm(b.getAttribute("aria-label")||b.parentElement?.textContent);if((l.includes("email")||l.includes("catat")||l.includes("record"))&&b.getAttribute("aria-checked")==="false")b.click();});const te=document.querySelector("input[type=\\"email\\"]");if(te&&!te.closest("div[role=\\"listitem\\"]"))sv(te,d.em);for(const it of document.querySelectorAll("div[role=\\"listitem\\"]")){const lb=norm(it.querySelector("[role=\\"heading\\"],.M7eMe")?.textContent||"");const ti=it.querySelector("input[type=\\"text\\"],input[type=\\"email\\"],input[type=\\"number\\"],input:not([type]),textarea");const di=it.querySelector("input[type=\\"date\\"]");let val=null;if(lb.includes("store code")||lb.includes("kode toko")||lb.includes("kode store"))val=d.sc;else if(lb.includes("store name")||lb.includes("nama toko")||lb.includes("nama store"))val=d.sn;else if(lb.includes("nik")||lb.includes("karyawan"))val=d.nk;else if(it.querySelector("input[type=\\"email\\"]")||lb.includes("email"))val=d.em;else if(di||lb.includes("tanggal")||lb.includes("date")){if(di){sv(di,d.dt);continue;}val=d.dt;}else if(lb.includes("nama")&&!lb.includes("toko")&&!lb.includes("store"))val=d.nm;if(val&&ti)sv(ti,val);}if(' + an + '){setTimeout(()=>{const bs=[...document.querySelectorAll("div[role=\\"button\\"],button")];if(!bs.some(b=>["back","kembali"].includes(norm(b.textContent)))){const n=bs.find(b=>["next","berikutnya"].includes(norm(b.textContent)));if(n)n.click();}},400);}})();';
+      }
+
+      function downloadUserscript() {
+        const content = generateUserscript();
+        const blob = new Blob([content], { type: 'application/javascript;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mrdiy-audit-autofill.user.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast('File mrdiy-audit-autofill.user.js diunduh');
+      }
+
+      function renderStores() {
+        const grid = document.getElementById('storeButtonsGrid');
+        const active = getActiveStore();
+        document.getElementById('activeStoreBadge').innerHTML =
+          '<i data-lucide="store" class="w-3.5 h-3.5"></i> Aktif: ' + active.name + ' (' + active.code + ')';
+
+        grid.innerHTML = STORES.map(s => {
+          const isActive = s.code === state.selectedStoreCode;
+          return `
+            <button type="button" data-store-code="${s.code}" class="store-card ${isActive ? 'active bg-diy-yellowSoft dark:bg-amber-950/40' : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700'} text-left p-4 rounded-2xl border-2 cursor-pointer flex items-center justify-between gap-3">
+              <div>
+                <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isActive ? 'bg-diy-yellow text-slate-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'} mb-1.5">${s.badge}</span>
+                <div class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">${s.name}</div>
+                <div class="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 mt-0.5">Code: ${s.code}</div>
+              </div>
+              <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${isActive ? 'bg-diy-yellow text-slate-950' : 'bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-700'}">
+                <i data-lucide="${isActive ? 'check' : 'building-2'}" class="w-4 h-4"></i>
+              </div>
+            </button>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('[data-store-code]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.selectedStoreCode = btn.getAttribute('data-store-code');
+            saveState();
+            renderStores();
+            renderForms();
+            const st = getActiveStore();
+            showToast('Store dipilih: ' + st.name + ' (' + st.code + ')');
+          });
+        });
+
+        lucide.createIcons();
+      }
+
+      function renderForms() {
+        const active = getActiveStore();
+        const day1El = document.getElementById('day1List');
+        const day2El = document.getElementById('day2List');
+
+        function cardHtml(form) {
+          const href = buildAutoFillUrl(form.url);
+          return `
+            <div class="form-card rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 p-3.5 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-amber-600 dark:text-diy-yellow shrink-0">
+                  <i data-lucide="${form.icon}" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-bold truncate">${form.title}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${active.name} (${active.code}) • ${state.auditDate}</div>
+                </div>
+              </div>
+              <a href="${href}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-diy-yellow hover:bg-diy-yellowHover text-slate-950 text-xs font-extrabold shrink-0 transition">
+                <span>Buka Form</span>
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+              </a>
+            </div>
+          `;
+        }
+
+        day1El.innerHTML = AUDIT_FORMS.filter(f => f.day === 1).map(cardHtml).join('');
+        day2El.innerHTML = AUDIT_FORMS.filter(f => f.day === 2).map(cardHtml).join('');
+        lucide.createIcons();
+      }
+
+      function openDayBatch(dayNum) {
+        const forms = AUDIT_FORMS.filter(f => f.day === dayNum);
+        let opened = 0;
+        forms.forEach(f => {
+          const win = window.open(buildAutoFillUrl(f.url), '_blank', 'noopener,noreferrer');
+          if (win) opened++;
+        });
+        const st = getActiveStore();
+        if (opened < forms.length) {
+          showToast('Izinkan pop-up browser agar semua tab Day ' + dayNum + ' terbuka');
+        } else {
+          showToast('Membuka ' + forms.length + ' form Day ' + dayNum + ' untuk ' + st.name);
+        }
+      }
+
+      function applyTheme() {
+        const html = document.documentElement;
+        const icon = document.getElementById('themeIcon');
+        if (state.theme === 'dark') {
+          html.classList.add('dark');
+          icon.setAttribute('data-lucide', 'sun');
+        } else {
+          html.classList.remove('dark');
+          icon.setAttribute('data-lucide', 'moon');
+        }
+        lucide.createIcons();
+      }
+
+      function updateClock() {
+        const el = document.getElementById('wibClock');
+        if (!el) return;
+        try {
+          const t = new Intl.DateTimeFormat('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }).format(new Date());
+          el.textContent = t.replace(/\./g, ':') + ' WIB';
+        } catch (e) {
+          el.textContent = new Date().toLocaleTimeString('id-ID') + ' WIB';
+        }
+      }
+
+      function bindInputs() {
+        const inpEmail = document.getElementById('inpEmail');
+        const inpFullName = document.getElementById('inpFullName');
+        const inpNik = document.getElementById('inpNik');
+        const inpAuditDate = document.getElementById('inpAuditDate');
+        const chkAutoNext = document.getElementById('chkAutoNext');
+
+        inpEmail.value = state.email;
+        inpFullName.value = state.fullName;
+        inpNik.value = state.nik;
+        inpAuditDate.value = state.auditDate;
+        chkAutoNext.checked = state.autoNext;
+
+        inpEmail.addEventListener('input', () => { state.email = inpEmail.value; saveState(); renderForms(); });
+        inpFullName.addEventListener('input', () => { state.fullName = inpFullName.value; saveState(); renderForms(); });
+        inpNik.addEventListener('input', () => { state.nik = inpNik.value; saveState(); renderForms(); });
+        inpAuditDate.addEventListener('change', () => { state.auditDate = inpAuditDate.value || getTodayWIB(); renderForms(); });
+        chkAutoNext.addEventListener('change', () => { state.autoNext = chkAutoNext.checked; saveState(); renderForms(); });
+
+        document.getElementById('btnSyncToday').addEventListener('click', () => {
+          state.auditDate = getTodayWIB();
+          inpAuditDate.value = state.auditDate;
+          renderForms();
+          showToast('Tanggal disinkronkan ke hari ini (' + state.auditDate + ')');
+        });
+
+        document.getElementById('btnResetDefaults').addEventListener('click', () => {
+          state.email = DEFAULTS.email;
+          state.fullName = DEFAULTS.fullName;
+          state.nik = DEFAULTS.nik;
+          state.autoNext = DEFAULTS.autoNext;
+          state.auditDate = getTodayWIB();
+          inpEmail.value = state.email;
+          inpFullName.value = state.fullName;
+          inpNik.value = state.nik;
+          inpAuditDate.value = state.auditDate;
+          chkAutoNext.checked = state.autoNext;
+          saveState();
+          renderForms();
+          showToast('Data dikembalikan ke default');
+        });
+
+        document.getElementById('btnOpenDay1All').addEventListener('click', () => openDayBatch(1));
+        document.getElementById('btnOpenDay2All').addEventListener('click', () => openDayBatch(2));
+
+        document.getElementById('btnToggleTheme').addEventListener('click', () => {
+          state.theme = state.theme === 'dark' ? 'light' : 'dark';
+          saveState();
+          applyTheme();
+        });
+
+        const modal = document.getElementById('scriptModal');
+        function openModal() {
+          document.getElementById('scriptPreview').textContent = generateUserscript();
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        }
+        function closeModal() {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+
+        document.getElementById('btnOpenScriptModal').addEventListener('click', openModal);
+        document.getElementById('btnCloseScriptModal').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        document.getElementById('btnDownloadScriptQuick').addEventListener('click', downloadUserscript);
+        document.getElementById('btnDownloadScriptModal').addEventListener('click', downloadUserscript);
+        document.getElementById('btnCopyScriptQuick').addEventListener('click', () => copyText(generateUserscript(), 'Userscript'));
+        document.getElementById('btnCopyScriptModal').addEventListener('click', () => copyText(generateUserscript(), 'Userscript'));
+        document.getElementById('btnCopyBookmarklet').addEventListener('click', () => copyText(generateBookmarklet(), 'Bookmarklet (' + getActiveStore().name + ')'));
+      }
+
+      applyTheme();
+      bindInputs();
+      renderStores();
+      renderForms();
+      updateClock();
+      setInterval(updateClock, 1000);
+    })();
+  </script>
+</body>
+</html>
