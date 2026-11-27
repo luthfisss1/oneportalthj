@@ -984,6 +984,8 @@
         let scanViewMode = 'accumulate'; 
         let masterImportMode = 'replace';
         let lastMasterUploadFinishedAt = 0;
+        let lastLocalEditAt = 0;
+        let manualEditedKeepstock = new Map();
 
         let masterPage = 1, masterSearchQuery = '';
         let scanVisibleLimit = 50, scanSearchQuery = '';
@@ -1098,46 +1100,65 @@
         function secureUpdateFisikKeepstock(inputEl, sku, type) {
             let newVal = inputEl.value;
             requestAdminAction('Otorisasi Edit Stok', `Masukkan password admin untuk mengubah ${type === 'scan' ? 'Fisik Scan' : 'Keepstock'} SKU ${sku}.`, () => {
-                let val = parseInt(newVal) || 0;
-                if (val < 0) val = 0;
+                let val = parseInt(newVal, 10);
+                if (isNaN(val) || val < 0) val = 0;
+                const nowStr = getCurrentFormattedDate();
+                lastLocalEditAt = Date.now();
                 
                 if (type === 'scan') {
+                    let activeRack = masterSystem[sku] ? (masterSystem[sku].rackMaster || '-') : '-';
                     if (scanIndexMap.has(sku)) {
                         let idx = scanIndexMap.get(sku);
+                        activeRack = rawScanning[idx].rack || activeRack;
                         rawScanning[idx].qty = val;
                         rawScanning[idx].inputScanQty = val;
                         rawScanning[idx].isPureScan = true;
-                        rawScanning[idx].scanTime = getCurrentFormattedDate();
+                        rawScanning[idx].manualEdited = true;
+                        rawScanning[idx].editedAt = lastLocalEditAt;
+                        rawScanning[idx].scanTime = nowStr;
                     } else if (val > 0) {
-                        let rack = masterSystem[sku] ? masterSystem[sku].rackMaster : '-';
-                        rawScanning.unshift({ rack: rack, sku: sku, qty: val, inputScanQty: val, isPureScan: true, scanTime: getCurrentFormattedDate() });
+                        rawScanning.unshift({ rack: activeRack, sku: sku, qty: val, inputScanQty: val, isPureScan: true, manualEdited: true, editedAt: lastLocalEditAt, scanTime: nowStr });
                         rebuildScanIndexMap();
                     }
+
+                    // Sinkronkan rawScanRecords agar resolvePureInputScanQty tidak menimpa balik dengan nilai lama
+                    rawScanRecords = rawScanRecords.filter(r => String(r.sku || '').trim() !== sku);
+                    if (val > 0) {
+                        rawScanRecords.unshift({ rack: activeRack, sku: sku, qty: val, scanTime: nowStr, lineNo: rawScanRecords.length + 1 });
+                    }
+                    rebuildScanRecordsMap();
+
+                    // Jika sebelumnya ada hasil check1-3, selaraskan agar tidak menimpa edit manual admin
+                    const existingPos = posData.find(p => p.sku === sku);
+                    if (existingPos) {
+                        if (existingPos.check3) existingPos.check3.qty = val;
+                        else if (existingPos.check2) existingPos.check2.qty = val;
+                        else if (existingPos.check1) existingPos.check1.qty = val;
+                    }
+                    recordActivity('EDIT_DATA', sku, `Edit Fisik Scan menjadi ${val}`, 'ADMIN');
                 } else if (type === 'keep') {
-                    if (keepstockMap[sku]) {
-                        keepstockMap[sku].qty = val;
-                    } else if (val > 0) {
-                        keepstockMap[sku] = { qty: val, ctns: ['-'] };
-                    }
-                    
-                    let foundRow = false;
-                    for (let i = 0; i < keepstockRowsList.length; i++) {
-                        if (keepstockRowsList[i].sku === sku) {
-                            keepstockRowsList[i].qty = val;
-                            foundRow = true;
-                            break;
-                        }
-                    }
-                    if (!foundRow && val > 0) {
+                    const existingCtns = (keepstockMap[sku] && Array.isArray(keepstockMap[sku].ctns) && keepstockMap[sku].ctns.length > 0) ? keepstockMap[sku].ctns : ['-'];
+                    manualEditedKeepstock.set(sku, { qty: val, editedAt: lastLocalEditAt });
+
+                    // Hapus seluruh baris lama SKU ini di keepstockRowsList agar tidak dobel saat sync
+                    keepstockRowsList = keepstockRowsList.filter(r => String(r.sku || '').trim() !== sku);
+
+                    if (val > 0) {
+                        keepstockMap[sku] = { qty: val, ctns: existingCtns, manualEdited: true };
                         let desc = masterSystem[sku] ? masterSystem[sku].desc : 'DESKRIPSI TIDAK TERDAFTAR';
-                        keepstockRowsList.push({ ctn: '-', sku: sku, qty: val, desc: desc });
+                        keepstockRowsList.push({ ctn: existingCtns.join(', '), sku: sku, qty: val, desc: desc });
+                    } else {
+                        delete keepstockMap[sku];
                     }
+
+                    postToCloudAsync({ action: "saveKeepstockData", storeCode: currentStore, keepstockRows: keepstockRowsList, updatedAt: new Date().toISOString() });
+                    recordActivity('EDIT_DATA', sku, `Edit Keepstock menjadi ${val}`, 'ADMIN');
                 }
                 
                 processToPOS();
                 renderActiveTabUI();
                 saveToLocalStorage(true, false);
-                showToast(`Berhasil update ${type === 'scan' ? 'Fisik Scan' : 'Keepstock'} untuk SKU ${sku}`, 'success');
+                showToast(`Berhasil update ${type === 'scan' ? 'Fisik Scan' : 'Keepstock'} SKU ${sku} menjadi ${val}`, 'success');
             });
         }
 
@@ -1150,7 +1171,7 @@
                 else if (field === 'rackMaster') currentVal = masterSystem[oldSku] ? masterSystem[oldSku].rackMaster : '';
                 else if (field === 'rackScan') {
                     const scanIdx = scanIndexMap.get(oldSku);
-                    currentVal = scanIdx !== undefined ? rawScanning[scanIdx].rack : '';
+                    currentVal = scanIdx !== undefined ? rawScanning[scanIdx].rack : (masterSystem[oldSku] ? masterSystem[oldSku].rackMaster : '');
                 }
 
                 openCustomPrompt(`Ubah ${titleField}`, `Masukkan nilai baru untuk ${titleField}:`, currentVal, (newVal) => {
@@ -1164,38 +1185,132 @@
         }
 
         function applyDataEdit(oldSku, field, newVal) {
+            const cleanNew = String(newVal || '').trim();
+            if (!cleanNew) return;
+            lastLocalEditAt = Date.now();
+
             if (field === 'sku') {
-                if (masterSystem[newVal] || scanIndexMap.has(newVal)) {
-                    showToast("Gagal: SKU baru sudah terdaftar di sistem.", "error");
+                const lockedSkus = getLockedSkus();
+                if (lockedSkus.has(cleanNew) || doneScSkus.has(cleanNew)) {
+                    showToast(`Gagal: SKU ${cleanNew} sudah TALLY / DONE SC dan terkunci.`, "error");
                     return;
                 }
-                if (masterSystem[oldSku]) { masterSystem[newVal] = masterSystem[oldSku]; delete masterSystem[oldSku]; }
-                if (scanIndexMap.has(oldSku)) rawScanning[scanIndexMap.get(oldSku)].sku = newVal;
-                for (let i = 0; i < rawScanRecords.length; i++) { if (rawScanRecords[i].sku === oldSku) rawScanRecords[i].sku = newVal; }
-                if (keepstockMap[oldSku]) { keepstockMap[newVal] = keepstockMap[oldSku]; delete keepstockMap[oldSku]; }
-                for (let i = 0; i < keepstockRowsList.length; i++) { if (keepstockRowsList[i].sku === oldSku) keepstockRowsList[i].sku = newVal; }
+
+                if (deletedSkus.has(cleanNew)) deletedSkus.delete(cleanNew);
+
+                // Jika SKU lama ada di master dan SKU baru belum ada di master, pindahkan; jika SKU baru sudah ada di master, pakai data master SKU baru
+                if (masterSystem[oldSku]) {
+                    if (!masterSystem[cleanNew]) {
+                        masterSystem[cleanNew] = masterSystem[oldSku];
+                    }
+                    delete masterSystem[oldSku];
+                }
+
+                // Pindahkan atau gabungkan data scan ke SKU baru
+                let mergedWithExistingScan = false;
+                if (scanIndexMap.has(oldSku)) {
+                    const oldIdx = scanIndexMap.get(oldSku);
+                    const oldScan = rawScanning[oldIdx];
+                    const oldQty = Number(oldScan.inputScanQty !== undefined ? oldScan.inputScanQty : oldScan.qty) || 0;
+                    const oldRack = oldScan.rack || '-';
+
+                    if (scanIndexMap.has(cleanNew)) {
+                        const targetIdx = scanIndexMap.get(cleanNew);
+                        const targetScan = rawScanning[targetIdx];
+                        const targetQty = Number(targetScan.inputScanQty !== undefined ? targetScan.inputScanQty : targetScan.qty) || 0;
+                        targetScan.qty = targetQty + oldQty;
+                        targetScan.inputScanQty = targetScan.qty;
+                        targetScan.isPureScan = true;
+                        targetScan.manualEdited = true;
+                        targetScan.editedAt = lastLocalEditAt;
+                        targetScan.rack = mergeRackStrings(targetScan.rack, oldRack);
+                        targetScan.scanTime = getCurrentFormattedDate();
+                        rawScanning.splice(oldIdx, 1);
+                        mergedWithExistingScan = true;
+                    } else {
+                        oldScan.sku = cleanNew;
+                        oldScan.manualEdited = true;
+                        oldScan.editedAt = lastLocalEditAt;
+                        oldScan.scanTime = getCurrentFormattedDate();
+                    }
+                }
+
+                for (let i = 0; i < rawScanRecords.length; i++) {
+                    if (String(rawScanRecords[i].sku || '').trim() === oldSku) {
+                        rawScanRecords[i].sku = cleanNew;
+                    }
+                }
+
+                // Pindahkan atau gabungkan Keepstock jika ada
+                if (keepstockMap[oldSku]) {
+                    if (keepstockMap[cleanNew]) {
+                        keepstockMap[cleanNew].qty = (Number(keepstockMap[cleanNew].qty) || 0) + (Number(keepstockMap[oldSku].qty) || 0);
+                        (keepstockMap[oldSku].ctns || []).forEach(c => {
+                            if (c !== '-' && !keepstockMap[cleanNew].ctns.includes(c)) keepstockMap[cleanNew].ctns.push(c);
+                        });
+                    } else {
+                        keepstockMap[cleanNew] = keepstockMap[oldSku];
+                    }
+                    delete keepstockMap[oldSku];
+                }
+                for (let i = 0; i < keepstockRowsList.length; i++) {
+                    if (String(keepstockRowsList[i].sku || '').trim() === oldSku) {
+                        keepstockRowsList[i].sku = cleanNew;
+                        if (masterSystem[cleanNew]) keepstockRowsList[i].desc = masterSystem[cleanNew].desc;
+                    }
+                }
+
+                // Tandai SKU lama agar tidak muncul kembali dari Cloud saat auto-polling
+                deletedSkus.add(oldSku);
+                saveDeletedSkus();
+                posData = posData.filter(p => String(p.sku || '').trim() !== oldSku);
 
                 rebuildMasterCache();
                 rebuildScanIndexMap();
                 rebuildScanRecordsMap();
-                showToast(`SKU ${oldSku} berhasil diubah menjadi ${newVal}`, "success");
-                recordActivity('EDIT_DATA', oldSku, `Ubah SKU menjadi ${newVal}`, 'ADMIN');
+
+                postToCloudAsync({
+                    action: "deleteSku",
+                    storeCode: currentStore,
+                    sku: oldSku,
+                    deletedSkus: Array.from(deletedSkus),
+                    updatedAt: new Date().toISOString()
+                });
+
+                const msg = mergedWithExistingScan
+                    ? `SKU ${oldSku} berhasil digabung ke SKU ${cleanNew}`
+                    : `SKU ${oldSku} berhasil diubah menjadi ${cleanNew}`;
+                showToast(msg, "success");
+                recordActivity('EDIT_DATA', oldSku, msg, 'ADMIN');
                 
             } else if (field === 'rackMaster') {
+                const upperRack = cleanNew.toUpperCase();
                 if (!masterSystem[oldSku]) masterSystem[oldSku] = { desc: "DESKRIPSI TIDAK TERDAFTAR", sys: 0 };
-                masterSystem[oldSku].rackMaster = newVal.toUpperCase();
-                showToast(`Rak Tarikan Data SKU ${oldSku} diubah.`, "success");
-                recordActivity('EDIT_DATA', oldSku, `Ubah Rak Tarikan Data ke ${newVal.toUpperCase()}`, 'ADMIN');
+                masterSystem[oldSku].rackMaster = upperRack;
+                showToast(`Rak Tarikan Data SKU ${oldSku} diubah menjadi ${upperRack}.`, "success");
+                recordActivity('EDIT_DATA', oldSku, `Ubah Rak Tarikan Data ke ${upperRack}`, 'ADMIN');
                 
             } else if (field === 'rackScan') {
+                const upperRack = cleanNew.toUpperCase();
                 let updated = false;
-                if (scanIndexMap.has(oldSku)) { rawScanning[scanIndexMap.get(oldSku)].rack = newVal.toUpperCase(); updated = true; }
-                for (let i = 0; i < rawScanRecords.length; i++) { if (rawScanRecords[i].sku === oldSku) { rawScanRecords[i].rack = newVal.toUpperCase(); updated = true; } }
+                if (scanIndexMap.has(oldSku)) {
+                    const targetScan = rawScanning[scanIndexMap.get(oldSku)];
+                    targetScan.rack = upperRack;
+                    targetScan.manualRackEdited = true;
+                    targetScan.editedAt = lastLocalEditAt;
+                    updated = true;
+                }
+                for (let i = 0; i < rawScanRecords.length; i++) {
+                    if (String(rawScanRecords[i].sku || '').trim() === oldSku) {
+                        rawScanRecords[i].rack = upperRack;
+                        updated = true;
+                    }
+                }
                 
                 if (updated) {
                     rebuildScanRecordsMap();
-                    showToast(`Rak Scan SKU ${oldSku} diubah.`, "success");
-                    recordActivity('EDIT_DATA', oldSku, `Ubah Rak Scan ke ${newVal.toUpperCase()}`, 'ADMIN');
+                    showToast(`Rak Scan SKU ${oldSku} diubah menjadi ${upperRack}.`, "success");
+                    recordActivity('EDIT_DATA', oldSku, `Ubah Rak Scan ke ${upperRack}`, 'ADMIN');
                 } else {
                     showToast("Gagal: SKU ini belum pernah di-scan fisik.", "error");
                     return;
@@ -1499,7 +1614,9 @@
             e.preventDefault();
             const pass = document.getElementById('inputAdminPassword').value.trim();
             const targetPass = expectedAdminPassword || 'admin';
-            if (pass === targetPass || pass === 'admin' || (targetPass === '1' && pass === '1')) {
+            const passLower = pass.toLowerCase();
+            const targetLower = targetPass.toLowerCase();
+            if (passLower === targetLower || passLower === 'admin' || (targetPass === '1' && pass === '1')) {
                 const cb = pendingAdminCallback;
                 pendingAdminCallback = null;
                 document.getElementById('adminPromptModal').classList.add('hidden');
@@ -1574,6 +1691,7 @@
         function resolvePureInputScanQty(sku, scanObj, prevPosObj, keepQty, sysQty) {
             const kQty = Math.max(0, Number(keepQty) || 0);
             const sQty = Math.max(0, Number(sysQty) || 0);
+            if (scanObj && scanObj.manualEdited === true && scanObj.inputScanQty !== undefined) return Math.max(0, Number(scanObj.inputScanQty) || 0);
             const latestCheck = prevPosObj ? (prevPosObj.check3 || prevPosObj.check2 || prevPosObj.check1) : null;
             if (latestCheck && latestCheck.qty !== undefined && latestCheck.qty !== null) return Math.max(0, Number(latestCheck.qty) || 0);
             if (rawScanRecordsMap.has(sku)) return Math.max(0, Number(rawScanRecordsMap.get(sku).qty) || 0);
@@ -1848,7 +1966,7 @@
 
         function restoreFromCloud(showNotice = false) {
             if (!currentStore) return;
-            if (!showNotice && (Date.now() - lastMasterUploadFinishedAt < 8000)) return;
+            if (!showNotice && (Date.now() - lastMasterUploadFinishedAt < 8000 || Date.now() - lastLocalEditAt < 15000)) return;
             
             const activeEl = document.activeElement;
             if (!showNotice && activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) return; // Mencegah curi fokus
@@ -1940,11 +2058,13 @@
                         }
                     }
                     
-                    // SMART MERGE KEEPSTOCK (Angka Terbesar yang Menang)
+                    // SMART MERGE KEEPSTOCK (Hormati edit manual admin agar tidak tertimpa balik)
                     const ksKeys = Object.keys(kMap);
                     for (let i = 0; i < ksKeys.length; i++) {
                         const sku = ksKeys[i];
+                        if (!showNotice && manualEditedKeepstock.has(sku)) continue;
                         if (keepstockMap[sku]) {
+                            if (!showNotice && keepstockMap[sku].manualEdited) continue;
                             keepstockMap[sku].qty = Math.max(keepstockMap[sku].qty, kMap[sku].qty);
                             kMap[sku].ctns.forEach(c => {
                                 if (c !== '-' && !keepstockMap[sku].ctns.includes(c)) keepstockMap[sku].ctns.push(c);
@@ -1995,14 +2115,16 @@
                             const exist = mergedScanningMap.get(sku);
                             const lQty = Number(exist.inputScanQty !== undefined ? exist.inputScanQty : exist.qty) || 0;
                             
-                            if (!doneScSkus.has(sku) && cQty > lQty) {
+                            if (!doneScSkus.has(sku) && (showNotice || !exist.manualEdited) && cQty > lQty) {
                                 exist.qty = cQty;
                                 exist.inputScanQty = cQty;
                                 exist.scanTime = stripScanMetaTag(cItem.scanTime || exist.scanTime);
                             }
                             
                             const cRack = String(cItem.rack || '-').trim();
-                            exist.rack = mergeRackStrings(exist.rack, cRack);
+                            if (showNotice || !exist.manualRackEdited) {
+                                exist.rack = mergeRackStrings(exist.rack, cRack);
+                            }
                             
                         } else {
                             mergedScanningMap.set(sku, {
@@ -2345,6 +2467,8 @@
             let totalKeepUnits = 0;
             const ksKeys = Object.keys(keepstockMap);
             for (let k = 0; k < ksKeys.length; k++) totalKeepUnits += (Number(keepstockMap[ksKeys[k]].qty) || 0);
+            const badgeKs = document.getElementById('badgeKeepstockSummary');
+            if (badgeKs) badgeKs.innerText = `${ksKeys.length.toLocaleString('id-ID')} SKU (${totalKeepUnits.toLocaleString('id-ID')} Unit)`;
 
             const totalScannedUnique = rawScanning.length;
             const remainingMaster = Math.max(0, totalMaster - scannedInMaster);
@@ -3205,7 +3329,7 @@
             }
             if (scanIndexMap.has(item.sku)) {
                 const targetScan = rawScanning[scanIndexMap.get(item.sku)];
-                targetScan.qty = newScanQty; targetScan.inputScanQty = newScanQty; targetScan.isPureScan = true;
+                targetScan.qty = newScanQty; targetScan.inputScanQty = newScanQty; targetScan.isPureScan = true; targetScan.manualEdited = true;
             }
         }
 
