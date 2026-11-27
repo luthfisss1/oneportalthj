@@ -1221,7 +1221,7 @@
 
 
     <!-- Header -->
-    <header class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <header class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col gap-3.5">
       <div class="flex items-start sm:items-center gap-3.5">
         <div class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1233,7 +1233,29 @@
           <p class="text-xs sm:text-sm text-slate-500">Filter tarikan data POS/ERP (CSV/TSV) berdasarkan List SKU dan cetak daftar siap pakai</p>
         </div>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <div class="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50/70 p-0.5 shadow-xs">
+          <button id="pc-btn-send-txt" type="button" title="Kirim format SKU,1 (1 baris per SKU unik) &amp; timpa otomatis ke D:\Scanning\AAA PRINT PRICE CHANGE.txt" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:scale-[0.99] transition">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span id="pc-btn-send-txt-label">AUTO CETAK PRICE LABEL</span>
+          </button>
+          <button id="pc-btn-pick-txt-target" type="button" title="Hubungkan langsung ke D:\Scanning\AAA PRINT PRICE CHANGE.txt (1x pilih)" class="px-2 py-1.5 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+          </button>
+          <button id="pc-btn-download-bat" type="button" title="Install Auto-Sync 1x (jalan diam-diam di latar belakang Windows tanpa buka jendela CMD)" class="px-2 py-1.5 text-[11px] font-semibold text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100 rounded-lg transition">
+            Auto-Sync
+          </button>
+        </div>
+        <button id="pc-btn-send-excel-in" type="button" title="Kirim AAA EXCEL IN.txt (RAK,SKU) + AAA PRINT PRICE CHANGE.txt (SKU,1) lalu jalankan Nova Excel In + Cetak Harga" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-amber-500 rounded-xl hover:bg-amber-600 shadow-sm active:scale-[0.99] transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          AUTO EXCEL IN DAN CETAK PRICE LABEL
+        </button>
         <button id="pc-btn-export-csv" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 active:scale-[0.99] transition">
           <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1282,7 +1304,10 @@
       <div id="pc-raw-drop-zone" class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col transition">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div>
-            <h2 class="text-sm font-semibold text-slate-900">1. Sumber Tarikan Data (CSV / TXT / TSV)</h2>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-sm font-semibold text-slate-900">1. Sumber Tarikan Data (CSV / TXT / TSV)</h2>
+              <span id="pc-raw-status-badge" class="hidden px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-700 tabular-nums"></span>
+            </div>
             <p class="text-xs text-slate-500">Mendukung pemisah <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">,</span> <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">;</span> atau <span class="font-mono-code text-[11px] bg-slate-100 px-1 py-0.5 rounded">Tab</span>: <span class="font-mono-code text-[11px] bg-slate-100 px-1.5 py-0.5 rounded">SKU,Rak,Harga,Qty,,Tanggal,,Barcode,Deskripsi</span></p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
@@ -1291,7 +1316,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
               Upload File
-              <input id="pc-file-upload" type="file" accept=".txt,.csv,.tsv" class="hidden" />
+              <input id="pc-file-upload" type="file" accept=".txt,.csv,.tsv" multiple class="hidden" />
             </label>
             <button id="pc-btn-load-sample" type="button" class="px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
               Contoh Data
@@ -1301,18 +1326,15 @@
             </button>
           </div>
         </div>
-        <textarea id="pc-raw-data-input" rows="6" spellcheck="false" placeholder="Tempel hasil tarikan data di sini..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
+        <textarea id="pc-raw-data-input" rows="6" spellcheck="false" wrap="off" placeholder="Tempel hasil tarikan data di sini..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
       </div>
 
-      <!-- Target SKU List Panel -->
+      <!-- Target SKU List Panel (2 Modes: PRICE CHANGE & EXCEL IN+CETAK HARGA) -->
       <div id="pc-sku-drop-zone" class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col transition">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-sm font-semibold text-slate-900">2. List SKU Target</h2>
-              <span id="pc-sku-count-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-100 text-indigo-700 tabular-nums">0 SKU</span>
-            </div>
-            <p class="text-xs text-slate-500">Tempel ribuan SKU dari Excel (1 per baris)</p>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-semibold text-slate-900">2. List SKU Target</h2>
+            <span id="pc-sku-count-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-100 text-indigo-700 tabular-nums">0 SKU</span>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
             <label class="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition">
@@ -1327,7 +1349,17 @@
             </button>
           </div>
         </div>
-        <textarea id="pc-sku-list-input" rows="6" spellcheck="false" placeholder="3109262&#10;3109263&#10;..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
+        <!-- Mode Switcher Tabs -->
+        <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl mb-2.5">
+          <button id="pc-tab-mode-price-change" type="button" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-white text-indigo-700 shadow-xs transition truncate">
+            PRICE CHANGE
+          </button>
+          <button id="pc-tab-mode-excel-in" type="button" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate">
+            EXCEL IN+CETAK HARGA
+          </button>
+        </div>
+        <p id="pc-sku-mode-hint" class="text-[11px] text-slate-500 mb-2">Format input: <span class="font-mono-code bg-slate-100 px-1 py-0.5 rounded">3109262</span> (1 SKU/baris) &rarr; Output TXT: <span class="font-mono-code font-semibold text-indigo-700">SKU,1</span></p>
+        <textarea id="pc-sku-list-input" rows="5" spellcheck="false" wrap="off" placeholder="3109262&#10;3109263&#10;..." class="w-full font-mono-code text-xs leading-relaxed p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-y"></textarea>
       </div>
     </section>
 
@@ -1363,9 +1395,14 @@
             Sesuai List SKU
           </span>
 
-          <!-- Active Qty > 0 Badge -->
-          <span class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-700">
+          <!-- Active Qty Filter Badge -->
+          <span id="pc-qty-filter-badge" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-700">
             Hanya Qty &gt; 0
+          </span>
+
+          <!-- Active TXT Format Indicator -->
+          <span id="pc-txt-format-badge" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 font-mono-code">
+            TXT: SKU,1
           </span>
 
           <!-- Missing SKUs Status Button -->
@@ -1437,6 +1474,7 @@
         <p class="text-xs text-slate-500 mt-1">Coba ubah kata kunci pencarian atau periksa kembali List SKU Target.</p>
       </div>
     </section>
+            
   
             </div>
         </div>
@@ -2916,7 +2954,7 @@ AG03-05\t9077297\t6`;
                     ["FIKRI FEBRIAN", "87.9"],
                     ["MIFTAHUL RIZKY", "38.5"],
                     ["MIFTAH", "35.2"],
-                    ["RIO RIZALDI", "4.5"]
+                    ["MUHAMMAD RAFLY AULIA NUGRAHA", "4.5"]
                 ];
                 renderLeaderboardTable(fallbackStaticData);
 
@@ -2998,7 +3036,7 @@ AG03-05\t9077297\t6`;
         const kasirData = {
             "XKLR": ["SALMA KHOERUNNISA", "RIO RIZKI FEBRIAN", "FAIZAL YOPA FIRDAUS"],
             "XCMG": ["REGINA NOVIANDA", "PAIZAL RAHMAT WAHYUDIN", "HASRUL NURUL JAMAN FARID"],
-            "XCIH": ["TENDI", "RIO RIZALDI", "MIFTAHUL RIZKY", "FIKRI FEBRIAN"]
+            "XCIH": ["TENDI", "MUHAMMAD RAFLY AULIA NUGRAHA", "MIFTAHUL RIZKY", "FIKRI FEBRIAN"]
         };
 
         const mpData = {
@@ -3367,7 +3405,7 @@ AG03-05\t9077297\t6`;
         const karyawanMap = {
             "XKLR": ["SALMA KHOERUNNISA", "RIO RIZKI PEBRIAN", "RATIH OCTAVIANI", "KAMALUDIN", "SENDI NUGRAHA"],
             "XCMG": ["HASRUL NURUL JAMAN FARID", "REGINA NOFIANDA", "PAIZAL RAHMAT WAHYUDIN", "DIKI LUKMAN HAKIM", "JAJANG NURJAMAN", "RIDHAN", "NUR ALIM"],
-            "XCIH": ["MIFTAHUL RIZKY", "RIO RIZALDI", "GALANG TAKBIR AKBARI", "TENDI", "NINA"]
+            "XCIH": ["MIFTAHUL RIZKY", "MUHAMMAD RAFLY AULIA NUGRAHA", "GALANG TAKBIR AKBARI", "TENDI", "NINA"]
         };
 
         let currentMode = 'CHECKIN';
@@ -3927,25 +3965,39 @@ AG03-05\t9077297\t6`;
         '3100344', '9780182', '9780200', '9780244'
       ].join('\n');
 
+      const DEFAULT_EXCEL_IN_SKUS = [
+        'S,AG01-03,3109262',
+        'S,AG01-04,3109263',
+        'S,AG01-05,3109264',
+        'S,BG03-11,9780182',
+        'S,BG03-11,9780200',
+        'S,BG03-11,9780244'
+      ].join('\n');
+
       const STORAGE_KEY = 'mrdiy_price_change_tool_v3';
 
       const PAGE_SIZE = 100;
-      const MAX_TEXTAREA_CHARS = 30000;
+      const MAX_TEXTAREA_CHARS = 25000;
       const MAX_STORAGE_CHARS = 180000;
       const CHUNK_TIME_BUDGET_MS = 14;
 
       const state = {
         rawText: '',
         skuText: '',
+        targetMode: 'price_change',
+        skuTextPriceChange: '',
+        skuTextExcelIn: '',
         parsedRows: [],
         totalRawLines: 0,
         rawSkuSet: new Set(),
         targetSkus: [],
         targetSet: new Set(),
+        targetRackMap: new Map(),
+        hasTargetRackFormat: false,
         matchedTargetSkus: [],
         missingTargetSkus: [],
         searchQuery: '',
-        sortCol: null,
+        sortCol: 'rack',
         sortDir: 'asc',
         selectedIds: new Set(),
         qtyOverrides: {},
@@ -3960,11 +4012,13 @@ AG03-05\t9077297\t6`;
         lastParseKey: '',
         filteredCacheKey: '',
         filteredCache: [],
-        parseJobId: 0
+        parseJobId: 0,
+        txtFileHandle: null
       };
 
       // DOM Elements
       const elRawInput = document.getElementById('pc-raw-data-input');
+      const elRawStatusBadge = document.getElementById('pc-raw-status-badge');
       const elSkuInput = document.getElementById('pc-sku-list-input');
       const elRawDropZone = document.getElementById('pc-raw-drop-zone');
       const elSkuDropZone = document.getElementById('pc-sku-drop-zone');
@@ -4012,6 +4066,16 @@ AG03-05\t9077297\t6`;
       const elKpiTotalQty = document.getElementById('pc-kpi-total-qty');
       const elKpiNonzeroQty = document.getElementById('pc-kpi-nonzero-qty');
       const elKpiSelected = document.getElementById('pc-kpi-selected');
+      const elBtnSendTxt = document.getElementById('pc-btn-send-txt');
+      const elBtnSendTxtLabel = document.getElementById('pc-btn-send-txt-label');
+      const elBtnPickTxtTarget = document.getElementById('pc-btn-pick-txt-target');
+      const elBtnDownloadBat = document.getElementById('pc-btn-download-bat');
+      const elBtnSendExcelIn = document.getElementById('pc-btn-send-excel-in');
+      const elTxtFormatBadge = document.getElementById('pc-txt-format-badge');
+      const elQtyFilterBadge = document.getElementById('pc-qty-filter-badge');
+      const elTabPriceChange = document.getElementById('pc-tab-mode-price-change');
+      const elTabExcelIn = document.getElementById('pc-tab-mode-excel-in');
+      const elSkuModeHint = document.getElementById('pc-sku-mode-hint');
 
       function debounce(fn, delay) {
         let timer = null;
@@ -4043,9 +4107,12 @@ AG03-05\t9077297\t6`;
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
           try {
-            const payload = {};
-            if (state.skuText.length <= MAX_STORAGE_CHARS) {
-              payload.skuText = state.skuText;
+            const payload = { targetMode: state.targetMode };
+            if (state.skuTextPriceChange.length <= MAX_STORAGE_CHARS) {
+              payload.skuTextPriceChange = state.skuTextPriceChange;
+            }
+            if (state.skuTextExcelIn.length <= MAX_STORAGE_CHARS) {
+              payload.skuTextExcelIn = state.skuTextExcelIn;
             }
             if (state.rawText.length <= MAX_STORAGE_CHARS) {
               payload.rawText = state.rawText;
@@ -4066,9 +4133,18 @@ AG03-05\t9077297\t6`;
             if (typeof parsed.rawText === 'string' && parsed.rawText.trim()) {
               state.rawText = parsed.rawText;
             }
-            if (typeof parsed.skuText === 'string' && parsed.skuText.trim()) {
-              state.skuText = parsed.skuText;
+            if (parsed.targetMode === 'excel_in' || parsed.targetMode === 'price_change') {
+              state.targetMode = parsed.targetMode;
             }
+            if (typeof parsed.skuTextPriceChange === 'string') {
+              state.skuTextPriceChange = parsed.skuTextPriceChange;
+            } else if (typeof parsed.skuText === 'string' && parsed.skuText.trim()) {
+              state.skuTextPriceChange = parsed.skuText;
+            }
+            if (typeof parsed.skuTextExcelIn === 'string') {
+              state.skuTextExcelIn = parsed.skuTextExcelIn;
+            }
+            state.skuText = state.targetMode === 'excel_in' ? state.skuTextExcelIn : state.skuTextPriceChange;
             if (parsed.qtyOverrides && typeof parsed.qtyOverrides === 'object') {
               state.qtyOverrides = parsed.qtyOverrides;
             }
@@ -4078,28 +4154,47 @@ AG03-05\t9077297\t6`;
         }
       }
 
+      function buildLightweightPreview(text, label) {
+        const sizeKb = (text.length / 1024);
+        const sizeLabel = sizeKb >= 1024 ? (sizeKb / 1024).toFixed(2) + ' MB' : Math.round(sizeKb).toLocaleString('id-ID') + ' KB';
+        const headChunk = text.slice(0, 1200);
+        const headLines = headChunk.split(/\r?\n/).slice(0, 8);
+        const tailChunk = text.slice(-1200);
+        const tailLines = tailChunk.split(/\r?\n/).filter(Boolean).slice(-4);
+        return [
+          `[OK — SEMUA DATA ${label} MASUK PENUH (${sizeLabel}) • Mode Paste Ringan Aktif]`,
+          ...headLines,
+          '   ... (seluruh baris di tengah tersimpan utuh di memori agar paste bebas lag) ...',
+          ...tailLines
+        ].join('\n');
+      }
+
       function syncRawTextareaDisplay() {
         if (state.rawText.length > MAX_TEXTAREA_CHARS) {
           state.isLargeRawMode = true;
-          const preview = state.rawText.slice(0, 2200);
-          const lastNl = preview.lastIndexOf('\n');
-          elRawInput.value = (lastNl > 0 ? preview.slice(0, lastNl) : preview) +
-            '\n\n[... Mode Cepat: ' + (state.rawText.length / 1024).toFixed(0) + ' KB dimuat di memori agar bebas lag. Klik Hapus atau tempel/upload baru untuk mengganti ...]';
+          elRawInput.value = buildLightweightPreview(state.rawText, 'TARIKAN');
           elRawInput.readOnly = true;
         } else {
           state.isLargeRawMode = false;
           elRawInput.readOnly = false;
           elRawInput.value = state.rawText;
         }
+        if (elRawStatusBadge) {
+          if (state.rawText.length > 0) {
+            const kb = state.rawText.length / 1024;
+            const sz = kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : Math.max(1, Math.round(kb)).toLocaleString('id-ID') + ' KB';
+            elRawStatusBadge.textContent = `Masuk Semua (${sz})`;
+            elRawStatusBadge.classList.remove('hidden');
+          } else {
+            elRawStatusBadge.classList.add('hidden');
+          }
+        }
       }
 
       function syncSkuTextareaDisplay() {
         if (state.skuText.length > MAX_TEXTAREA_CHARS) {
           state.isLargeSkuMode = true;
-          const preview = state.skuText.slice(0, 2200);
-          const lastNl = preview.lastIndexOf('\n');
-          elSkuInput.value = (lastNl > 0 ? preview.slice(0, lastNl) : preview) +
-            '\n\n[... Mode Cepat: ' + (state.skuText.length / 1024).toFixed(0) + ' KB SKU dimuat di memori agar bebas lag. Klik Hapus atau tempel/upload baru untuk mengganti ...]';
+          elSkuInput.value = buildLightweightPreview(state.skuText, 'SKU');
           elSkuInput.readOnly = true;
         } else {
           state.isLargeSkuMode = false;
@@ -4197,49 +4292,151 @@ AG03-05\t9077297\t6`;
           date: dateStr || '-',
           barcode: barcode || '-',
           desc: desc || '-',
+          rawLine: line,
           _searchText: `${sku} ${desc} ${rack} ${barcode}`.toLowerCase()
         };
       }
 
-      // Single-pass zero-regex charCode scanner for tens of thousands of target SKUs
+      // Fast scanner supporting both plain SKU lists and "S,RAK,SKU" (e.g. S,BG07-05,3104966)
       function parseTargetSkusFast(text) {
         const len = text.length;
         const seen = new Set();
         const unique = [];
-        let start = -1;
-        for (let i = 0; i <= len; i++) {
-          const code = i < len ? text.charCodeAt(i) : 10;
-          const isSep = code <= 32 || code === 44 || code === 59 || code === 124;
-          if (isSep) {
-            if (start !== -1) {
-              let s = start;
-              let e = i;
-              if (e - s >= 2 && text.charCodeAt(s) === 34 && text.charCodeAt(e - 1) === 34) {
-                s++;
-                e--;
-              }
-              if (e > s) {
-                const token = text.slice(s, e);
-                if (!seen.has(token)) {
-                  seen.add(token);
-                  unique.push(token);
+        const rackMap = new Map();
+        let hasRackFormat = false;
+        let pos = 0;
+
+        while (pos < len) {
+          let nl = text.indexOf('\n', pos);
+          if (nl === -1) nl = len;
+          let end = nl;
+          if (end > pos && text.charCodeAt(end - 1) === 13) end--;
+
+          if (end > pos) {
+            const rawLine = text.slice(pos, end).trim();
+            if (rawLine) {
+              // Detect S,RAK,SKU or S;RAK;SKU or S	RAK	SKU
+              const sep = rawLine.indexOf(',') !== -1 ? ',' : (rawLine.indexOf(';') !== -1 ? ';' : (rawLine.indexOf('\t') !== -1 ? '\t' : ''));
+              let handledStructured = false;
+
+              if (sep) {
+                const cols = rawLine.split(sep);
+                if (cols.length >= 3 && cleanCell(cols[0]).toUpperCase() === 'S') {
+                  const rack = cleanCell(cols[1]);
+                  const sku = cleanCell(cols[2]);
+                  if (sku) {
+                    if (!seen.has(sku)) {
+                      seen.add(sku);
+                      unique.push(sku);
+                    }
+                    if (rack) {
+                      rackMap.set(sku, rack);
+                      hasRackFormat = true;
+                    }
+                    handledStructured = true;
+                  }
+                } else if (cols.length === 2) {
+                  const c0 = cleanCell(cols[0]);
+                  const c1 = cleanCell(cols[1]);
+                  if (c0 && c1 && /[a-zA-Z]/.test(c0) && /^\d+$/.test(c1)) {
+                    if (!seen.has(c1)) {
+                      seen.add(c1);
+                      unique.push(c1);
+                    }
+                    rackMap.set(c1, c0);
+                    hasRackFormat = true;
+                    handledStructured = true;
+                  }
                 }
               }
-              start = -1;
+
+              if (!handledStructured) {
+                // Fallback: tokenize plain SKUs separated by whitespace/comma/semicolon/pipe
+                const lLen = rawLine.length;
+                let start = -1;
+                for (let i = 0; i <= lLen; i++) {
+                  const code = i < lLen ? rawLine.charCodeAt(i) : 10;
+                  const isSep = code <= 32 || code === 44 || code === 59 || code === 124;
+                  if (isSep) {
+                    if (start !== -1) {
+                      let s = start;
+                      let e = i;
+                      if (e - s >= 2 && rawLine.charCodeAt(s) === 34 && rawLine.charCodeAt(e - 1) === 34) {
+                        s++;
+                        e--;
+                      }
+                      if (e > s) {
+                        const token = rawLine.slice(s, e);
+                        if (!seen.has(token)) {
+                          seen.add(token);
+                          unique.push(token);
+                        }
+                      }
+                      start = -1;
+                    }
+                  } else if (start === -1) {
+                    start = i;
+                  }
+                }
+              }
             }
-          } else if (start === -1) {
-            start = i;
           }
+          pos = nl + 1;
         }
-        return { unique, seen };
+        return { unique, seen, rackMap, hasRackFormat };
       }
 
       function ensureTargetSkusParsed() {
         if (state.lastSkuParseVersion === state.skuVersion) return;
-        const { unique, seen } = parseTargetSkusFast(state.skuText);
+        const { unique, seen, rackMap, hasRackFormat } = parseTargetSkusFast(state.skuText);
         state.targetSkus = unique;
         state.targetSet = seen;
+        state.targetRackMap = rackMap;
+        state.hasTargetRackFormat = state.targetMode === 'excel_in' || hasRackFormat;
         state.lastSkuParseVersion = state.skuVersion;
+      }
+
+      function syncModeTabsUi() {
+        const isExcelIn = state.targetMode === 'excel_in';
+        if (isExcelIn) {
+          elTabExcelIn.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-amber-500 text-white shadow-xs transition truncate';
+          elTabPriceChange.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate';
+          elSkuModeHint.innerHTML = 'Semua SKU masuk (tanpa filter Qty &gt; 0, masing-masing Qty = 1) &rarr; <span class="font-mono-code font-semibold text-amber-700">AAA EXCEL IN.txt</span> + <span class="font-mono-code font-semibold text-indigo-700">SKU,1</span>';
+          elSkuInput.placeholder = 'S,BG07-05,3104966\nS,BW02-18,8951771\n...';
+          if (elQtyFilterBadge) {
+            elQtyFilterBadge.textContent = 'Semua Data (Qty = 1)';
+            elQtyFilterBadge.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-amber-50 text-amber-800 border border-amber-200';
+          }
+          if (elTxtFormatBadge) {
+            elTxtFormatBadge.textContent = 'TXT: RAK,SKU + SKU,1';
+            elTxtFormatBadge.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-amber-50 text-amber-800 border border-amber-200 font-mono-code';
+          }
+        } else {
+          elTabPriceChange.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-indigo-600 text-white shadow-xs transition truncate';
+          elTabExcelIn.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate';
+          elSkuModeHint.innerHTML = 'Format input: <span class="font-mono-code bg-slate-100 px-1 py-0.5 rounded">3109262</span> (1 SKU/baris) &rarr; Output TXT: <span class="font-mono-code font-semibold text-indigo-700">SKU,1</span>';
+          elSkuInput.placeholder = '3109262\n3109263\n...';
+          if (elQtyFilterBadge) {
+            elQtyFilterBadge.textContent = 'Hanya Qty > 0';
+            elQtyFilterBadge.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-700';
+          }
+          if (elTxtFormatBadge) {
+            elTxtFormatBadge.textContent = 'TXT: SKU,1';
+            elTxtFormatBadge.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 font-mono-code';
+          }
+        }
+      }
+
+      function switchTargetMode(mode) {
+        if (mode !== 'price_change' && mode !== 'excel_in') return;
+        if (state.targetMode === mode) return;
+        state.targetMode = mode;
+        state.skuText = mode === 'excel_in' ? state.skuTextExcelIn : state.skuTextPriceChange;
+        state.skuVersion += 1;
+        syncModeTabsUi();
+        syncSkuTextareaDisplay();
+        saveState();
+        recomputeAndRender(true);
       }
 
       function setLoadingState(visible, text = '', pct = 0) {
@@ -4270,7 +4467,7 @@ AG03-05\t9077297\t6`;
       // and yields smoothly to the browser for huge 100k+ row datasets without freezing the UI.
       function parseDataAsync(autoSelect = false, onDone = null) {
         ensureTargetSkusParsed();
-        const parseKey = `${state.rawVersion}|${state.skuVersion}`;
+        const parseKey = `${state.rawVersion}|${state.skuVersion}|${state.targetMode}`;
         if (parseKey === state.lastParseKey) {
           renderUI(autoSelect, true);
           if (onDone) onDone(0);
@@ -4302,8 +4499,11 @@ AG03-05\t9077297\t6`;
             if (end > pos && text.charCodeAt(end - 1) === 13) end--;
 
             if (end > pos) {
-              const delimIdx = text.indexOf(delimiter, pos);
-              if (delimIdx > pos && delimIdx < end) {
+              if (!hasTargets) {
+                totalLines++;
+              } else {
+                const delimIdx = text.indexOf(delimiter, pos);
+                if (delimIdx > pos && delimIdx < end) {
                 let s = pos;
                 let e = delimIdx;
                 while (s < e && text.charCodeAt(s) <= 32) s++;
@@ -4318,10 +4518,18 @@ AG03-05\t9077297\t6`;
                   totalLines++;
                   if (hasTargets) {
                     const sku = text.slice(s, e);
-                    if (targetSet.has(sku)) {
-                      rawSkuSet.add(sku);
-                      const row = parseLineParts(text.slice(pos, end), totalLines - 1, delimiter);
-                      if (row) rows.push(row);
+                      if (targetSet.has(sku)) {
+                        rawSkuSet.add(sku);
+                        const row = parseLineParts(text.slice(pos, end), totalLines - 1, delimiter);
+                        if (row) {
+                          const targetRack = state.targetRackMap.get(sku);
+                          if (targetRack) {
+                            row.rack = targetRack;
+                            row._searchText = `${row.sku} ${row.desc} ${row.rack} ${row.barcode}`.toLowerCase();
+                          }
+                          rows.push(row);
+                        }
+                      }
                     }
                   }
                 }
@@ -4337,7 +4545,44 @@ AG03-05\t9077297\t6`;
             }
           }
 
-          state.parsedRows = rows;
+          // Pada mode EXCEL IN+CETAK HARGA: masukkan SEMUA SKU target (masing-masing 1, Qty = 1, tanpa bergantung Qty > 0)
+          if (state.targetMode === 'excel_in') {
+            const bySku = new Map();
+            for (let i = 0; i < rows.length; i++) {
+              if (!bySku.has(rows[i].sku)) bySku.set(rows[i].sku, rows[i]);
+            }
+            const excelRows = [];
+            for (let i = 0; i < state.targetSkus.length; i++) {
+              const sku = state.targetSkus[i];
+              const existing = bySku.get(sku);
+              const targetRack = state.targetRackMap.get(sku) || (existing ? existing.rack : '-');
+              if (existing) {
+                excelRows.push({
+                  ...existing,
+                  id: `excel__${sku}`,
+                  rack: targetRack || '-',
+                  qty: 1,
+                  _searchText: `${sku} ${existing.desc} ${targetRack || '-'} ${existing.barcode}`.toLowerCase()
+                });
+              } else {
+                excelRows.push({
+                  id: `excel__${sku}`,
+                  sku,
+                  rack: targetRack || '-',
+                  price: 0,
+                  qty: 1,
+                  date: '-',
+                  barcode: '-',
+                  desc: '-',
+                  rawLine: '',
+                  _searchText: `${sku} ${targetRack || '-'}`.toLowerCase()
+                });
+              }
+            }
+            state.parsedRows = excelRows;
+          } else {
+            state.parsedRows = rows;
+          }
           state.totalRawLines = totalLines;
           state.rawSkuSet = rawSkuSet;
           state.lastParseKey = parseKey;
@@ -4369,9 +4614,10 @@ AG03-05\t9077297\t6`;
 
         const src = state.parsedRows;
         const list = [];
+        const requirePositiveQty = state.targetMode !== 'excel_in';
         for (let i = 0; i < src.length; i++) {
           const r = src[i];
-          if (getEffectiveQty(r) <= 0) continue;
+          if (requirePositiveQty && getEffectiveQty(r) <= 0) continue;
           if (q && r._searchText.indexOf(q) === -1) continue;
           list.push(r);
         }
@@ -4384,7 +4630,7 @@ AG03-05\t9077297\t6`;
             if (col === 'price') return (a.price - b.price) * dir;
             const valA = String(a[col] || '');
             const valB = String(b[col] || '');
-            return valA.localeCompare(valB, 'id') * dir;
+            return valA.localeCompare(valB, 'id', { numeric: true, sensitivity: 'base' }) * dir;
           });
         }
 
@@ -4408,6 +4654,13 @@ AG03-05\t9077297\t6`;
           if (sel.has(filtered[i].id)) selectedCount++;
         }
         elKpiSelected.textContent = selectedCount.toLocaleString('id-ID');
+        if (elTxtFormatBadge) {
+          const isExcelIn = state.targetMode === 'excel_in';
+          elTxtFormatBadge.textContent = isExcelIn ? 'TXT: RAK,SKU + SKU,1' : 'TXT: SKU,1';
+          elTxtFormatBadge.className = isExcelIn
+            ? 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-amber-50 text-amber-800 border border-amber-200 font-mono-code'
+            : 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 font-mono-code';
+        }
         elSelectAll.checked = filtered.length > 0 && selectedCount === filtered.length;
       }
 
@@ -4431,6 +4684,12 @@ AG03-05\t9077297\t6`;
 
         // Update KPIs
         elKpiTotalRaw.textContent = state.totalRawLines.toLocaleString('id-ID');
+        if (elRawStatusBadge && state.rawText.length > 0) {
+          const kb = state.rawText.length / 1024;
+          const sz = kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : Math.max(1, Math.round(kb)).toLocaleString('id-ID') + ' KB';
+          elRawStatusBadge.textContent = `${state.totalRawLines.toLocaleString('id-ID')} baris (${sz}) • Masuk Semua`;
+          elRawStatusBadge.classList.remove('hidden');
+        }
         elKpiMatched.textContent = matchedTargetSkus.length.toLocaleString('id-ID');
         const targetCountFormatted = state.targetSkus.length.toLocaleString('id-ID');
         elKpiTargetTotal.textContent = `/ ${targetCountFormatted} SKU`;
@@ -4731,6 +4990,8 @@ AG03-05\t9077297\t6`;
 
       function applySkuData(text, sourceLabel = '') {
         state.skuText = text;
+        if (state.targetMode === 'excel_in') state.skuTextExcelIn = text;
+        else state.skuTextPriceChange = text;
         state.skuVersion += 1;
         syncSkuTextareaDisplay();
         saveState();
@@ -4760,7 +5021,31 @@ AG03-05\t9077297\t6`;
         }
       }
 
-      // Intercept large paste directly into memory so textarea never freezes browser layout
+      // Support multi-file loading for raw data
+      async function loadMultipleFilesFast(fileList, onCombinedText) {
+        const files = Array.from(fileList || []);
+        if (files.length === 0) return;
+        const totalKb = Math.round(files.reduce((acc, f) => acc + f.size, 0) / 1024);
+        setLoadingState(true, `Membaca ${files.length} file (${totalKb.toLocaleString('id-ID')} KB)...`, 15);
+        try {
+          const texts = await Promise.all(files.map(f => {
+            if (typeof f.text === 'function') return f.text();
+            return new Promise((resolve, reject) => {
+              const r = new FileReader();
+              r.onload = (ev) => resolve(String(ev.target.result || ''));
+              r.onerror = () => reject(new Error('read error'));
+              r.readAsText(f);
+            });
+          }));
+          const label = files.length === 1 ? `File "${files[0].name}"` : `${files.length} file digabung`;
+          onCombinedText(texts.join('\n'), label);
+        } catch (err) {
+          setLoadingState(false);
+          showToast('Gagal membaca file', 'warn');
+        }
+      }
+
+      // Intercept huge (>15MB) paste directly into memory; smaller pastes enter textarea in full
       elRawInput.addEventListener('paste', (e) => {
         const pasted = (e.clipboardData || window.clipboardData)?.getData('text');
         if (pasted && (pasted.length > MAX_TEXTAREA_CHARS || state.isLargeRawMode)) {
@@ -4794,8 +5079,20 @@ AG03-05\t9077297\t6`;
         });
       }
 
-      setupDropZone(elRawDropZone, (file) => {
-        loadFileFast(file, (text) => applyRawData(text, `File "${file.name}"`));
+      elRawDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elRawDropZone.classList.remove('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length > 0) {
+          loadMultipleFilesFast(files, (text, label) => applyRawData(text, label));
+        }
+      });
+      elRawDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elRawDropZone.classList.add('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
+      });
+      elRawDropZone.addEventListener('dragleave', () => {
+        elRawDropZone.classList.remove('ring-2', 'ring-indigo-400', 'bg-indigo-50/30');
       });
       setupDropZone(elSkuDropZone, (file) => {
         loadFileFast(file, (text) => applySkuData(text, `SKU "${file.name}"`));
@@ -4829,9 +5126,9 @@ AG03-05\t9077297\t6`;
       elSearchInput.addEventListener('input', handleSearchInput);
 
       elFileUpload.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        loadFileFast(file, (text) => applyRawData(text, `File "${file.name}"`));
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        loadMultipleFilesFast(files, (text, label) => applyRawData(text, label));
         e.target.value = '';
       });
 
@@ -4844,8 +5141,15 @@ AG03-05\t9077297\t6`;
       });
 
       document.getElementById('pc-btn-load-default-skus').addEventListener('click', () => {
-        applySkuData(DEFAULT_TARGET_SKUS, 'SKU default');
+        if (state.targetMode === 'excel_in') {
+          applySkuData(DEFAULT_EXCEL_IN_SKUS, 'Contoh EXCEL IN');
+        } else {
+          applySkuData(DEFAULT_TARGET_SKUS, 'SKU default');
+        }
       });
+
+      elTabPriceChange.addEventListener('click', () => switchTargetMode('price_change'));
+      elTabExcelIn.addEventListener('click', () => switchTargetMode('excel_in'));
 
       document.getElementById('pc-btn-clear-skus').addEventListener('click', () => {
         applySkuData('');
@@ -5004,12 +5308,323 @@ AG03-05\t9077297\t6`;
         showToast(`Berhasil export ${items.length.toLocaleString('id-ID')} item ke CSV (Excel ID)`, 'success');
       });
 
+      // --- Auto-Send & Overwrite D:\Scanning\PRINT PRICE CHANGE.txt ---
+      const TARGET_TXT_NAME = 'AAA PRINT PRICE CHANGE.txt';
+      const TARGET_EXCEL_IN_NAME = 'AAA EXCEL IN.txt';
+      const HANDLE_DB_NAME = 'price_change_fs_db';
+      const HANDLE_STORE_NAME = 'handles';
+      const HANDLE_KEY = 'print_price_change_txt';
+
+      function openHandleDb() {
+        return new Promise((resolve, reject) => {
+          if (!('indexedDB' in window)) {
+            reject(new Error('IndexedDB unavailable'));
+            return;
+          }
+          const req = indexedDB.open(HANDLE_DB_NAME, 1);
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(HANDLE_STORE_NAME)) {
+              db.createObjectStore(HANDLE_STORE_NAME);
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function saveTxtHandle(handle) {
+        try {
+          const db = await openHandleDb();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+            tx.objectStore(HANDLE_STORE_NAME).put(handle, HANDLE_KEY);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+          db.close();
+        } catch (e) {
+          // Ignore if IndexedDB is blocked
+        }
+      }
+
+      async function loadTxtHandle() {
+        try {
+          const db = await openHandleDb();
+          const handle = await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLE_STORE_NAME, 'readonly');
+            const req = tx.objectStore(HANDLE_STORE_NAME).get(HANDLE_KEY);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+          });
+          db.close();
+          if (handle) {
+            state.txtFileHandle = handle;
+            updateTxtButtonUi();
+          }
+        } catch (e) {
+          // Ignore if IndexedDB is blocked
+        }
+      }
+
+      function updateTxtButtonUi() {
+        if (state.txtFileHandle && state.txtFileHandle.name) {
+          elBtnSendTxtLabel.textContent = 'AUTO CETAK PRICE LABEL';
+          elBtnSendTxt.title = `Terhubung ke "${state.txtFileHandle.name}". Klik untuk menimpa isi file secara otomatis.`;
+        } else {
+          elBtnSendTxtLabel.textContent = 'AUTO CETAK PRICE LABEL';
+          elBtnSendTxt.title = 'Klik untuk memilih D:\\Scanning\\AAA PRINT PRICE CHANGE.txt sekali, lalu timpa otomatis setiap klik berikutnya.';
+        }
+      }
+
+      function buildSkuOnePayload(items, ignoreQtyFilter = false) {
+        const lines = [];
+        const seen = new Set();
+        for (let i = 0; i < items.length; i++) {
+          const r = items[i];
+          if (!ignoreQtyFilter && getEffectiveQty(r) <= 0) continue;
+          if (seen.has(r.sku)) continue;
+          seen.add(r.sku);
+          lines.push(`${r.sku},1`);
+        }
+        return { content: lines.join('\r\n'), lineCount: lines.length };
+      }
+
+      function buildRackSkuPayload(items, ignoreQtyFilter = false) {
+        const lines = [];
+        const seen = new Set();
+        for (let i = 0; i < items.length; i++) {
+          const r = items[i];
+          if (!ignoreQtyFilter && getEffectiveQty(r) <= 0) continue;
+          if (seen.has(r.sku)) continue;
+          seen.add(r.sku);
+          const rack = state.targetRackMap.get(r.sku) || (r.rack && r.rack !== '-' ? r.rack : '');
+          lines.push(rack ? `${rack},${r.sku}` : `${r.sku},1`);
+        }
+        return { content: lines.join('\r\n'), lineCount: lines.length };
+      }
+
+      function triggerTxtDownload(content, filename) {
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function fallbackDownloadTxt(content, count, note = '', filename = TARGET_TXT_NAME) {
+        triggerTxtDownload(content, filename);
+        showToast(note || `File "${filename}" diunduh (${count.toLocaleString('id-ID')} baris)`, 'info');
+      }
+
+      async function pickTargetTxtFile() {
+        if (typeof window.showSaveFilePicker !== 'function') {
+          showToast('Browser tidak mendukung timpa file langsung. Gunakan Chrome/Edge lokal.', 'warn');
+          return null;
+        }
+        try {
+          const handle = await window.showSaveFilePicker({
+            id: 'price_change_scanning_txt',
+            suggestedName: TARGET_TXT_NAME,
+            types: [
+              {
+                description: 'Text Document (.txt)',
+                accept: { 'text/plain': ['.txt'] }
+              }
+            ]
+          });
+          state.txtFileHandle = handle;
+          await saveTxtHandle(handle);
+          updateTxtButtonUi();
+          return handle;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return null;
+          throw err;
+        }
+      }
+
+      async function ensureWritePermission(handle) {
+        if (!handle || typeof handle.queryPermission !== 'function') return true;
+        const opts = { mode: 'readwrite' };
+        if ((await handle.queryPermission(opts)) === 'granted') return true;
+        if ((await handle.requestPermission(opts)) === 'granted') return true;
+        return false;
+      }
+
+      async function sendPriceLabelOnly() {
+        const items = getItemsForPrint();
+        if (items.length === 0) {
+          showToast('Tidak ada data untuk dikirim ke TXT', 'warn');
+          return;
+        }
+        const skuOne = buildSkuOnePayload(items);
+        if (skuOne.lineCount === 0) {
+          showToast('Tidak ada baris dengan Qty > 0 untuk dikirim', 'warn');
+          return;
+        }
+
+        if (state.txtFileHandle) {
+          try {
+            const permitted = await ensureWritePermission(state.txtFileHandle);
+            if (permitted) {
+              const writable = await state.txtFileHandle.createWritable({ keepExistingData: false });
+              await writable.write(skuOne.content);
+              await writable.close();
+              showToast(`Berhasil menimpa "${state.txtFileHandle.name}" (${skuOne.lineCount.toLocaleString('id-ID')} SKU)`, 'success');
+              return;
+            }
+          } catch (err) {
+            // Fall through to automatic download
+          }
+        }
+
+        fallbackDownloadTxt(
+          skuOne.content,
+          skuOne.lineCount,
+          `Auto-download "${TARGET_TXT_NAME}" (${skuOne.lineCount.toLocaleString('id-ID')} SKU)`,
+          TARGET_TXT_NAME
+        );
+      }
+
+      async function sendExcelInAndPriceLabel() {
+        const items = getItemsForPrint();
+        if (items.length === 0) {
+          showToast('Tidak ada data untuk dikirim', 'warn');
+          return;
+        }
+        const ignoreQty = state.targetMode === 'excel_in';
+        const skuOne = buildSkuOnePayload(items, ignoreQty);
+        const rackSku = buildRackSkuPayload(items, ignoreQty);
+        if (skuOne.lineCount === 0 || rackSku.lineCount === 0) {
+          showToast('Tidak ada data untuk dikirim', 'warn');
+          return;
+        }
+
+        // Kirim AAA EXCEL IN.txt terlebih dahulu, lalu AAA PRINT PRICE CHANGE.txt 450ms kemudian
+        triggerTxtDownload(rackSku.content, TARGET_EXCEL_IN_NAME);
+        setTimeout(() => {
+          triggerTxtDownload(skuOne.content, TARGET_TXT_NAME);
+          showToast(`AUTO EXCEL IN + CETAK LABEL: "${TARGET_EXCEL_IN_NAME}" (RAK,SKU) + "${TARGET_TXT_NAME}" (SKU,1) — ${skuOne.lineCount.toLocaleString('id-ID')} SKU`, 'success');
+        }, 450);
+      }
+
+      function downloadAutoSyncBat() {
+        const batLines = [
+          '@echo off',
+          'title Install Auto-Sync AAA PRINT PRICE CHANGE (Background)',
+          'set "STARTUP=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"',
+          'set "VBS=%STARTUP%\\auto_sync_price_change.vbs"',
+          'if not exist "D:\\Scanning" mkdir "D:\\Scanning"',
+          'powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq \'wscript.exe\' -and $_.CommandLine -like \'*auto_sync_price_change.vbs*\' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1',
+          '(',
+          'echo Set fso = CreateObject("Scripting.FileSystemObject"^)',
+          'echo Set sh = CreateObject("WScript.Shell"^)',
+          'echo On Error Resume Next',
+          'echo srcDir = sh.RegRead("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\{374DE290-123F-4565-9164-39C4925E467B}"^)',
+          'echo If Err.Number ^<^> 0 Or srcDir = "" Then',
+          'echo   Err.Clear',
+          'echo   srcDir = sh.ExpandEnvironmentStrings("%%USERPROFILE%%"^) ^& "\\Downloads"',
+          'echo End If',
+          'echo On Error GoTo 0',
+          'echo dstDir = "D:\\Scanning"',
+          'echo dstFile = dstDir ^& "\\AAA PRINT PRICE CHANGE.txt"',
+          'echo Do',
+          'echo   On Error Resume Next',
+          'echo   If fso.FolderExists(srcDir^) Then',
+          'echo     Set folder = fso.GetFolder(srcDir^)',
+          'echo     newestPath = ""',
+          'echo     For Each f In folder.Files',
+          'echo       n = UCase(f.Name^)',
+          'echo       If Left(n, 22^) = "AAA PRINT PRICE CHANGE" And Right(n, 4^) = ".TXT" Then',
+          'echo         If newestPath = "" Then',
+          'echo           newestTime = f.DateLastModified',
+          'echo           newestPath = f.Path',
+          'echo         ElseIf f.DateLastModified ^>= newestTime Then',
+          'echo           newestTime = f.DateLastModified',
+          'echo           newestPath = f.Path',
+          'echo         End If',
+          'echo       End If',
+          'echo     Next',
+          'echo     If newestPath ^<^> "" Then',
+          'echo       If Not fso.FolderExists(dstDir^) Then fso.CreateFolder(dstDir^)',
+          'echo       WScript.Sleep 250',
+          'echo       fso.CopyFile newestPath, dstFile, True',
+          'echo       If Err.Number = 0 Then',
+          'echo         For Each f2 In folder.Files',
+          'echo           n2 = UCase(f2.Name^)',
+          'echo           If Left(n2, 22^) = "AAA PRINT PRICE CHANGE" And Right(n2, 4^) = ".TXT" Then',
+          'echo             fso.DeleteFile f2.Path, True',
+          'echo           End If',
+          'echo         Next',
+          'echo       End If',
+          'echo     End If',
+          'echo   End If',
+          'echo   Err.Clear',
+          'echo   On Error GoTo 0',
+          'echo   WScript.Sleep 800',
+          'echo Loop',
+          ') > "%VBS%"',
+          'start "" wscript.exe "%VBS%"',
+          'echo.',
+          'echo ============================================================',
+          'echo  BERHASIL! Auto-Sync aktif di latar belakang (tanpa jendela).',
+          'echo  Folder : Downloads (deteksi otomatis Windows)',
+          'echo  Target : D:\\Scanning\\AAA PRINT PRICE CHANGE.txt',
+          'echo  Catatan: Jika Notepad sedang terbuka, tutup lalu buka ulang',
+          'echo           untuk melihat isi file yang baru ditimpa.',
+          'echo ============================================================',
+          'echo.',
+          'pause'
+        ];
+        const blob = new Blob([batLines.join('\r\n') + '\r\n'], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'install_autosync_price_change.bat';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Installer "install_autosync_price_change.bat" diunduh. Klik 2x 1x saja agar Auto-Sync aktif di latar belakang.', 'success');
+      }
+
+      elBtnSendTxt.addEventListener('click', () => {
+        sendPriceLabelOnly();
+      });
+
+      elBtnSendExcelIn.addEventListener('click', () => {
+        sendExcelInAndPriceLabel();
+      });
+
+      elBtnPickTxtTarget.addEventListener('click', async () => {
+        try {
+          const handle = await pickTargetTxtFile();
+          if (handle) {
+            showToast(`Target terkunci ke "${handle.name}". Klik tombol hijau untuk timpa otomatis.`, 'success');
+          }
+        } catch (err) {
+          showToast('Buka file HTML ini langsung di Chrome/Edge untuk memilih folder D:\\Scanning.', 'warn');
+        }
+      });
+
+      elBtnDownloadBat.addEventListener('click', () => {
+        downloadAutoSyncBat();
+      });
+
       // Init
       loadState();
+      syncModeTabsUi();
+      updateTxtButtonUi();
+      loadTxtHandle();
       syncRawTextareaDisplay();
       syncSkuTextareaDisplay();
       recomputeAndRender(true);
     })();
+    
     </script>
 
     <!-- LOGIKA MODUL 7. ABM CHECK (AUDIT AUTO-FILL LAUNCHER) -->
