@@ -1074,16 +1074,16 @@
                     <p class="text-slate-400 text-xs mt-2">Unduh 9 dokumen &amp; logbook operasional toko siap cetak (PDF &amp; Excel ringan).</p>
                 </div>
 
-                <!-- 4. LEADERBOARD -->
-                <div onclick="navigateTo('leaderboard')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <!-- 4. PRICE CHANGE CHECK AUTO -->
+                <div onclick="navigateTo('priceChange')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
-                            <i data-lucide="trophy" class="w-8 h-8"></i>
+                        <div class="p-3.5 bg-teal-500/10 text-teal-400 rounded-xl border border-teal-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="tag" class="w-8 h-8"></i>
                         </div>
-                        <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">LEADERBOARD</span>
+                        <span class="text-xs font-bold text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded-full border border-teal-500/20">AKTIF</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors uppercase">4. LEADERBOARD UPSELLING</h3>
-                    <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING secara presisi.</p>
+                    <h3 class="text-lg font-bold text-white group-hover:text-teal-400 transition-colors uppercase">4. PRICE CHANGE CHECK AUTO</h3>
+                    <p class="text-slate-400 text-xs mt-2">Filter otomatis tarikan data POS/ERP berdasarkan List SKU target, cek stok Qty &gt; 0, export CSV, dan cetak daftar siap pakai.</p>
                 </div>
 
                 <!-- 5. SBC SATSET -->
@@ -1112,16 +1112,16 @@
                     <p class="text-slate-400 text-xs mt-2">Akses cepat & verifikasi password toko untuk F003 Store Damage Submission (XKLR, XCMG, XCIH).</p>
                 </div>
 
-                <!-- 7. PRICE CHANGE CHECK AUTO -->
-                <div onclick="navigateTo('priceChange')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <!-- 7. LEADERBOARD -->
+                <div onclick="navigateTo('leaderboard')" class="group cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/60 p-6 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3.5 bg-teal-500/10 text-teal-400 rounded-xl border border-teal-500/20 group-hover:scale-110 transition-transform">
-                            <i data-lucide="tag" class="w-8 h-8"></i>
+                        <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="trophy" class="w-8 h-8"></i>
                         </div>
-                        <span class="text-xs font-bold text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded-full border border-teal-500/20">AKTIF</span>
+                        <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">LEADERBOARD</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white group-hover:text-teal-400 transition-colors uppercase">7. PRICE CHANGE CHECK AUTO</h3>
-                    <p class="text-slate-400 text-xs mt-2">Filter otomatis tarikan data POS/ERP berdasarkan List SKU target, cek stok Qty &gt; 0, export CSV, dan cetak daftar siap pakai.</p>
+                    <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors uppercase">7. LEADERBOARD UPSELLING</h3>
+                    <p class="text-slate-400 text-xs mt-2">Peringkat & klasemen upselling langsung dari Sheet RANKING secara presisi.</p>
                 </div>
 
                 <!-- 8. ABM CHECK (VERIFIKASI PASSWORD) -->
@@ -1233,25 +1233,25 @@
           <p class="text-xs sm:text-sm text-slate-500">Filter tarikan data POS/ERP (CSV/TSV) berdasarkan List SKU dan cetak daftar siap pakai</p>
         </div>
       </div>
-      <div class="flex flex-wrap items-center gap-2 shrink-0">
-        <div class="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50/70 p-0.5 shadow-xs">
-          <button id="pc-btn-send-txt" type="button" title="Kirim format SKU,1 (1 baris per SKU unik) &amp; timpa otomatis ke D:\Scanning\AAA PRINT PRICE CHANGE.txt" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:scale-[0.99] transition">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div class="inline-flex items-center rounded-2xl border-2 border-emerald-300 bg-emerald-50/80 p-1 shadow-sm">
+          <button id="pc-btn-send-txt" type="button" title="Kirim format SKU,1 (1 baris per SKU unik) &amp; timpa otomatis ke D:\Scanning\AAA PRINT PRICE CHANGE.txt" class="inline-flex items-center gap-2 px-5 py-3 text-sm sm:text-base font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm active:scale-[0.99] transition">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
             <span id="pc-btn-send-txt-label">AUTO CETAK PRICE LABEL</span>
           </button>
-          <button id="pc-btn-pick-txt-target" type="button" title="Hubungkan langsung ke D:\Scanning\AAA PRINT PRICE CHANGE.txt (1x pilih)" class="px-2 py-1.5 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 rounded-lg transition">
+          <button id="pc-btn-pick-txt-target" type="button" title="Hubungkan langsung ke D:\Scanning\AAA PRINT PRICE CHANGE.txt (1x pilih)" class="px-2.5 py-2.5 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 rounded-xl transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
           </button>
-          <button id="pc-btn-download-bat" type="button" title="Install Auto-Sync 1x (jalan diam-diam di latar belakang Windows tanpa buka jendela CMD)" class="px-2 py-1.5 text-[11px] font-semibold text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100 rounded-lg transition">
+          <button id="pc-btn-download-bat" type="button" title="Install Auto-Sync 1x (jalan diam-diam di latar belakang Windows tanpa buka jendela CMD)" class="px-2.5 py-2.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100 rounded-xl transition">
             Auto-Sync
           </button>
         </div>
-        <button id="pc-btn-send-excel-in" type="button" title="Kirim AAA EXCEL IN.txt (RAK,SKU) + AAA PRINT PRICE CHANGE.txt (SKU,1) lalu jalankan Nova Excel In + Cetak Harga" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-amber-500 rounded-xl hover:bg-amber-600 shadow-sm active:scale-[0.99] transition">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <button id="pc-btn-send-excel-in" type="button" title="Kirim AAA EXCEL IN.txt (RAK,SKU) + AAA PRINT PRICE CHANGE.txt (SKU,1) lalu jalankan Nova Excel In + Cetak Harga" class="inline-flex items-center gap-2 px-5 py-3.5 text-sm sm:text-base font-bold text-white bg-amber-500 rounded-2xl hover:bg-amber-600 shadow-md active:scale-[0.99] transition">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           AUTO EXCEL IN DAN CETAK PRICE LABEL
@@ -1350,11 +1350,11 @@
           </div>
         </div>
         <!-- Mode Switcher Tabs -->
-        <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl mb-2.5">
-          <button id="pc-tab-mode-price-change" type="button" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-white text-indigo-700 shadow-xs transition truncate">
+        <div class="grid grid-cols-2 gap-1.5 p-1.5 bg-slate-100 rounded-2xl mb-3">
+          <button id="pc-tab-mode-price-change" type="button" class="px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl bg-indigo-600 text-white shadow-sm transition leading-tight text-center">
             PRICE CHANGE
           </button>
-          <button id="pc-tab-mode-excel-in" type="button" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate">
+          <button id="pc-tab-mode-excel-in" type="button" class="px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl text-slate-600 hover:text-slate-900 transition leading-tight text-center">
             EXCEL IN+CETAK HARGA
           </button>
         </div>
@@ -1474,6 +1474,7 @@
         <p class="text-xs text-slate-500 mt-1">Coba ubah kata kunci pencarian atau periksa kembali List SKU Target.</p>
       </div>
     </section>
+            
             
   
             </div>
@@ -4399,8 +4400,8 @@ AG03-05\t9077297\t6`;
       function syncModeTabsUi() {
         const isExcelIn = state.targetMode === 'excel_in';
         if (isExcelIn) {
-          elTabExcelIn.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-amber-500 text-white shadow-xs transition truncate';
-          elTabPriceChange.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate';
+          elTabExcelIn.className = 'px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl bg-amber-500 text-white shadow-sm transition leading-tight text-center';
+          elTabPriceChange.className = 'px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl text-slate-600 hover:text-slate-900 transition leading-tight text-center';
           elSkuModeHint.innerHTML = 'Semua SKU masuk (tanpa filter Qty &gt; 0, masing-masing Qty = 1) &rarr; <span class="font-mono-code font-semibold text-amber-700">AAA EXCEL IN.txt</span> + <span class="font-mono-code font-semibold text-indigo-700">SKU,1</span>';
           elSkuInput.placeholder = 'S,BG07-05,3104966\nS,BW02-18,8951771\n...';
           if (elQtyFilterBadge) {
@@ -4412,8 +4413,8 @@ AG03-05\t9077297\t6`;
             elTxtFormatBadge.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-amber-50 text-amber-800 border border-amber-200 font-mono-code';
           }
         } else {
-          elTabPriceChange.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-indigo-600 text-white shadow-xs transition truncate';
-          elTabExcelIn.className = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition truncate';
+          elTabPriceChange.className = 'px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl bg-indigo-600 text-white shadow-sm transition leading-tight text-center';
+          elTabExcelIn.className = 'px-2 py-3 text-xs sm:text-[13px] font-bold rounded-xl text-slate-600 hover:text-slate-900 transition leading-tight text-center';
           elSkuModeHint.innerHTML = 'Format input: <span class="font-mono-code bg-slate-100 px-1 py-0.5 rounded">3109262</span> (1 SKU/baris) &rarr; Output TXT: <span class="font-mono-code font-semibold text-indigo-700">SKU,1</span>';
           elSkuInput.placeholder = '3109262\n3109263\n...';
           if (elQtyFilterBadge) {
@@ -5624,6 +5625,7 @@ AG03-05\t9077297\t6`;
       syncSkuTextareaDisplay();
       recomputeAndRender(true);
     })();
+    
     
     </script>
 
